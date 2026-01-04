@@ -2,15 +2,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
-import { api } from "@/helpers/lib/api";
 import InputField from "@/components/ui/InputFieled";
+import authService from "@/app/api/services/authService";
 
 const FormInput = [
   {
-    label: "Email",
-    type: "email",
-    placeholder: "email@example.com",
-    name: "email",
+    label: "Username",
+    type: "text",
+    placeholder: "username",
+    name: "username",
   },
   {
     label: "Password",
@@ -23,7 +23,7 @@ const FormInput = [
 export default function AuthPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    email: "",
+    username: "",
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -43,23 +43,25 @@ export default function AuthPage() {
     setError("");
 
     try {
-      const response = await api.login(formData.email, formData.password);
+      // 1️⃣ Login → dapat token
+      await authService.loginAdmin(formData.username, formData.password);
 
-      if (response.success && response.data) {
-        // Save token to localStorage
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("user", JSON.stringify(response.data.user));
+      // 2️⃣ Hit getMe pakai token
+      const meResponse = await authService.getMe();
+      const user = meResponse.data;
 
-        // Redirect based on role
-        if (response.data.user.role === "admin") {
-          router.push("/admin-dashboard");
-        } else {
-          router.push("/dashboard");
-        }
+      // 3️⃣ Simpan user (opsional)
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // 4️⃣ Redirect berdasarkan role
+      if (user.role === "ADMIN") {
+        router.push("/admin-dashboard");
+      } else if (user.role === "USER") {
+        router.push("/dashboard");
       }
     } catch (err) {
-      setError("Email atau password salah. Coba lagi.");
-      console.error("Login error:", err);
+      console.error(err);
+      setError("Username atau password salah");
     } finally {
       setIsLoading(false);
     }
