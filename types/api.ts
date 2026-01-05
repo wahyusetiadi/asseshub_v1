@@ -33,6 +33,7 @@ export interface User {
 
 // Candidate Types
 export interface Candidate {
+  name: string;
   id: number;
   fullName: string;
   email: string;

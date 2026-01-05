@@ -2,9 +2,34 @@
 import { useState, useEffect } from "react";
 import ConfirmEmailModal from "@/components/candidates/ComfirmEmailModal";
 import Link from "next/link";
-import { BiCheckCircle, BiSearch, BiUpload, BiUserPlus, BiEdit, BiTrash } from "react-icons/bi";
+import {
+  BiCheckCircle,
+  BiSearch,
+  BiUpload,
+  BiUserPlus,
+  BiEdit,
+  BiTrash,
+} from "react-icons/bi";
 import { Candidate } from "@/types/api";
 import { api } from "@/helpers/lib/api";
+import adminService from "@/app/api/services/adminService";
+import DataTable, { Column } from "@/components/ui/DataTable";
+import { BsEye } from "react-icons/bs";
+
+const getStatusBadge = (status: Candidate["status"]) => {
+  const styles: Record<NonNullable<Candidate["status"]>, string> = {
+    pending: "bg-amber-100 text-amber-700",
+    sent: "bg-blue-100 text-blue-700",
+    opened: "bg-green-100 text-green-700",
+    completed: "bg-purple-100 text-purple-700",
+  };
+
+  if (!status) {
+    return "bg-gray-100 text-gray-500";
+  }
+
+  return styles[status];
+};
 
 export default function CandidatesPage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -20,21 +45,16 @@ export default function CandidatesPage() {
     fetchCandidates();
   }, []);
 
-  const fetchCandidates = async (search?: string) => {
+  const fetchCandidates = async () => {
     setIsLoading(true);
     setError(""); // ✅ Reset error
 
     try {
-      console.log("Fetching candidates..."); // ✅ Debug log
-      const response = await api.getCandidates({ search, page: 1, limit: 50 });
-
-      console.log("API Response:", response); // ✅ Debug log
-
-      if (response.success && response.data) {
-        console.log("Candidates data:", response.data); // ✅ Debug log
-        setCandidates(response.data);
+      const response = await adminService.getAllCandicates();
+      if (response.data) {
+        console.log("Candidates data:", response.data);
+        setCandidates(response.data.data);
       } else {
-        // ✅ Handle jika response.data undefined
         console.warn("No data in response:", response);
         setCandidates([]);
         setError(response.message || "Gagal mengambil data kandidat");
@@ -49,16 +69,16 @@ export default function CandidatesPage() {
   };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchQuery(value);
+    setSearchQuery(e.target.value);
+  };
 
-    // Debounce search
-    const timeoutId = setTimeout(() => {
-      fetchCandidates(value);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      fetchCandidates();
     }, 500);
 
-    return () => clearTimeout(timeoutId);
-  };
+    return () => clearTimeout(timeout);
+  }, [searchQuery]);
 
   const handleDelete = async (id: number) => {
     if (!confirm("Yakin ingin menghapus kandidat ini?")) return;
@@ -85,15 +105,77 @@ export default function CandidatesPage() {
     }, 2000);
   };
 
-  const getStatusBadge = (status: Candidate["status"]) => {
-    const styles = {
-      pending: "bg-amber-100 text-amber-700",
-      sent: "bg-blue-100 text-blue-700",
-      opened: "bg-green-100 text-green-700",
-      completed: "bg-purple-100 text-purple-700",
-    };
-    return styles[status];
-  };
+  const columns: Column<Candidate>[] = [
+    {
+      key: "name",
+      label: "Nama Kandidat",
+      render: (c) => (
+        <span className="font-medium text-gray-900">{c.name}</span>
+      ),
+    },
+    {
+      key: "email",
+      label: "Email",
+    },
+    {
+      key: "username",
+      label: "Username",
+      render: (c) => <span className="font-mono text-xs">{c.username}</span>,
+    },
+    {
+      key: "position",
+      label: "Posisi",
+      render: (c) => c.position || "-",
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (c) => (
+        <span
+          className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${getStatusBadge(
+            c.status
+          )}`}
+        >
+          {c.status || "-"}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      label: "Aksi",
+      align: "center",
+      render: (c) => (
+        <div className="flex items-center justify-center gap-2">
+          {/* Detail */}
+          <Link
+            href={`/candidates/${c.id}`}
+            title="Lihat Detail"
+            className="p-2 rounded hover:bg-gray-100 text-gray-600"
+          >
+            <BsEye size={16} />
+          </Link>
+
+          {/* Edit */}
+          <Link
+            href={`/candidates/${c.id}/edit`}
+            title="Edit Kandidat"
+            className="p-2 rounded hover:bg-blue-50 text-blue-600"
+          >
+            <BiEdit size={16} />
+          </Link>
+
+          {/* Delete */}
+          <button
+            title="Hapus Kandidat"
+            onClick={() => handleDelete(c.id)}
+            className="p-2 rounded hover:bg-red-50 text-red-600"
+          >
+            <BiTrash size={16} />
+          </button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -117,7 +199,9 @@ export default function CandidatesPage() {
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-bold">Data Kandidat</h1>
-          <p className="text-sm text-gray-500">Kelola akun dan akses ujian mereka.</p>
+          <p className="text-sm text-gray-500">
+            Kelola akun dan akses ujian mereka.
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <Link
@@ -139,8 +223,11 @@ export default function CandidatesPage() {
       </div>
 
       {/* Search Bar */}
-      <div className="relative">
-        <BiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+      <div className="relative hidden">
+        <BiSearch
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          size={18}
+        />
         <input
           type="text"
           value={searchQuery}
@@ -151,7 +238,7 @@ export default function CandidatesPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white border rounded-2xl overflow-hidden shadow-sm">
+      <div className="bg-white rounded-lg overflow-hidden shadow-sm">
         {isLoading ? (
           <div className="p-8 text-center text-gray-500">
             <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
@@ -166,55 +253,14 @@ export default function CandidatesPage() {
             </p>
           </div>
         ) : (
-          <table className="w-full text-left">
-            <thead className="bg-gray-50 border-b text-gray-600 uppercase text-[11px] font-bold tracking-widest">
-              <tr>
-                <th className="px-6 py-4">Nama Kandidat</th>
-                <th className="px-6 py-4">Email</th>
-                <th className="px-6 py-4">Username</th>
-                <th className="px-6 py-4">Posisi</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4 text-center">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y text-sm text-gray-700">
-              {candidates.map((candidate) => (
-                <tr key={candidate.id} className="hover:bg-blue-50/50 transition">
-                  <td className="px-6 py-4 font-medium text-gray-900">
-                    {candidate.fullName}
-                  </td>
-                  <td className="px-6 py-4 text-gray-500">{candidate.email}</td>
-                  <td className="px-6 py-4 font-mono text-xs">{candidate.username}</td>
-                  <td className="px-6 py-4 text-gray-500">{candidate.position || "-"}</td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${getStatusBadge(
-                        candidate.status
-                      )}`}
-                    >
-                      {candidate.status.toUpperCase()}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-center gap-2">
-                      <Link
-                        href={`/candidates/${candidate.id}/edit`}
-                        className="p-2 hover:bg-blue-50 rounded text-blue-600 transition"
-                      >
-                        <BiEdit size={16} />
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(candidate.id)}
-                        className="p-2 hover:bg-red-50 rounded text-red-600 transition"
-                      >
-                        <BiTrash size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="bg-white border rounded-2xl overflow-hidden shadow-sm">
+            <DataTable
+              columns={columns}
+              data={candidates}
+              isLoading={isLoading}
+              emptyMessage="Tidak ada data kandidat"
+            />
+          </div>
         )}
       </div>
 

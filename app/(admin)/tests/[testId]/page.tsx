@@ -91,7 +91,6 @@ export default function EditTestPage() {
         });
 
         // 2️⃣ Fetch exam WITH questions menggunakan getQuestion(examId)
-        // ✅ PAKAI EXAM ID, BUKAN QUESTION ID!
         const examWithQuestionsResponse = await examService.getQuestion(examId);
 
         let examWithQuestions: ExamWithQuestionsResponse | null = null;
@@ -107,17 +106,14 @@ export default function EditTestPage() {
           return;
         }
 
-        // 3️⃣ Transform questions ke format lokal
         const transformedQuestions: Question[] =
           examWithQuestions.questions.map((q, index) => {
-            // ✅ Ambil options dari BE
             const existingOptions = q.options.map((opt) => ({
               id: opt.id,
               text: opt.text,
               isCorrect: opt.isCorrect,
             }));
 
-            // ✅ Tambahkan opsi kosong sampai total 5
             const totalOptions = 5;
             const emptyOptionsNeeded = Math.max(
               0,
@@ -132,11 +128,10 @@ export default function EditTestPage() {
               })
             );
 
-            // ✅ Gabungkan: options dari BE + options kosong
             const allOptions = [...existingOptions, ...emptyOptions];
 
             return {
-              id: index + 1, // Local UI ID
+              id: index + 1,
               dbId: q.id,
               text: q.text,
               options: allOptions,
@@ -156,7 +151,6 @@ export default function EditTestPage() {
     if (examId) fetchExamData();
   }, [examId, router]);
 
-  // ✅ Update exam info (disabled, belum ada API)
   const handleUpdateExam = async () => {
     try {
       if (!testData.title.trim()) {
@@ -232,7 +226,6 @@ export default function EditTestPage() {
           });
         }
 
-        // Update local state
         setQuestions((prev) =>
           prev.map((q) =>
             q.id === question.id ? { ...q, dbId: questionId } : q
@@ -265,18 +258,15 @@ export default function EditTestPage() {
     setQuestions([...questions, newQuestion]);
   };
 
-  // ✅ Hapus question
   const handleDeleteQuestion = (questionId: number) => {
     setQuestions(questions.filter((q) => q.id !== questionId));
     setDeleteQuestionId(null);
   };
 
-  // ✅ Update question text
   const updateQuestionText = (id: number, text: string) => {
     setQuestions(questions.map((q) => (q.id === id ? { ...q, text } : q)));
   };
 
-  // ✅ Update option text
   const updateOption = (questionId: number, optIndex: number, text: string) => {
     setQuestions(
       questions.map((q) =>
@@ -292,7 +282,6 @@ export default function EditTestPage() {
     );
   };
 
-  // ✅ Set correct answer
   const setCorrectAnswer = (questionId: number, optIndex: number) => {
     setQuestions(
       questions.map((q) =>
@@ -325,7 +314,6 @@ export default function EditTestPage() {
   return (
     <div className="min-h-screen bg-gray-50/50 pb-20">
       <div className="max-w-7xl mx-auto px-4 pt-8">
-        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <Link
@@ -343,69 +331,53 @@ export default function EditTestPage() {
           </div>
         </div>
 
-        {/* Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* LEFT: Exam Details */}
-          <ExamDetailsForm
-            testData={testData}
-            setTestData={setTestData}
-            onSave={handleUpdateExam}
-            isSaving={isSavingExam}
-            questionCount={questions.length}
-          />
-
-          {/* RIGHT: Questions Editor */}
-          <div className="lg:col-span-8 space-y-6">
-            {/* Header Section */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-gray-800">Daftar Soal</h2>
-                <p className="text-sm text-gray-500">
-                  Tambah dan kelola soal ujian
-                </p>
-              </div>
-              <button
-                onClick={handleAddQuestion}
-                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow-sm"
-              >
-                <BiPlus size={18} />
-                Tambah Soal
-              </button>
+        <div className="">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-gray-800">Daftar Soal</h2>
+              <p className="text-sm text-gray-500">
+                Tambah dan kelola soal ujian
+              </p>
             </div>
-
-            {/* Questions List */}
-            {questions.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-xl border border-dashed">
-                <BsQuestionCircle
-                  size={48}
-                  className="mx-auto text-gray-300 mb-4"
-                />
-                <p className="text-gray-500">
-                  Belum ada soal. Klik &quot;Tambah Soal&quot; untuk memulai.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {questions.map((question, index) => (
-                  <QuestionCard
-                    key={question.id}
-                    question={question}
-                    index={index}
-                    onUpdateText={updateQuestionText}
-                    onUpdateOption={updateOption}
-                    onSetCorrect={setCorrectAnswer}
-                    onDelete={setDeleteQuestionId}
-                    onSave={handleSaveQuestion}
-                    isSaving={savingQuestionId === question.id}
-                  />
-                ))}
-              </div>
-            )}
+            <button
+              onClick={handleAddQuestion}
+              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow-sm"
+            >
+              <BiPlus size={18} />
+              Tambah Soal
+            </button>
           </div>
+
+          {questions.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-xl border border-dashed">
+              <BsQuestionCircle
+                size={48}
+                className="mx-auto text-gray-300 mb-4"
+              />
+              <p className="text-gray-500">
+                Belum ada soal. Klik &quot;Tambah Soal&quot; untuk memulai.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {questions.map((question, index) => (
+                <QuestionCard
+                  key={question.id}
+                  question={question}
+                  index={index}
+                  onUpdateText={updateQuestionText}
+                  onUpdateOption={updateOption}
+                  onSetCorrect={setCorrectAnswer}
+                  onDelete={setDeleteQuestionId}
+                  onSave={handleSaveQuestion}
+                  isSaving={savingQuestionId === question.id}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Delete Modal */}
       <DeleteConfirmationModal
         isOpen={deleteQuestionId !== null}
         onClose={() => setDeleteQuestionId(null)}
