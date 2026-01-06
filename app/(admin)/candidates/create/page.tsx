@@ -42,7 +42,7 @@ export default function CreateCandidatePage() {
         formData.email
       );
 
-      if (response.success) {
+      if (response.data) {
         setShowSuccess(true);
         console.log("Created candidate:", response.data);
 
