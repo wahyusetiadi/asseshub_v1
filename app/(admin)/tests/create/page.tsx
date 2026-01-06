@@ -31,7 +31,6 @@ export default function CreateTestPage() {
 
   const handleSave = async () => {
     try {
-      // ✅ Validasi
       if (!testData.title.trim()) {
         alert("❌ Judul ujian tidak boleh kosong");
         return;
@@ -51,30 +50,32 @@ export default function CreateTestPage() {
 
       setIsSaving(true);
 
-      // ✅ Hanya buat Exam (tanpa questions)
-      const response = await examService.createExam(testData) as CreateExamResponse;
-
-      // Handle berbagai struktur response
+      const response = (await examService.createExam(
+        testData
+      )) as CreateExamResponse;
       const newExamId = response?.data?.data?.id || response?.data?.id;
-
       if (!newExamId) {
         throw new Error("ID exam tidak ditemukan dalam response");
       }
-
       alert("✅ Exam berhasil dibuat! Silakan tambahkan soal.");
-
-      // ✅ Redirect ke halaman edit untuk tambah questions
       router.push(`/tests/${newExamId}`);
-
     } catch (error) {
       console.error("Error creating exam:", error);
-
-      // ✅ Type guard untuk error handling
       if (error instanceof Error) {
         alert(`❌ Gagal membuat exam: ${error.message}`);
-      } else if (typeof error === 'object' && error !== null && 'response' in error) {
-        const apiError = error as { response?: { data?: { message?: string } } };
-        alert(`❌ Gagal membuat exam: ${apiError.response?.data?.message || 'Unknown error'}`);
+      } else if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error
+      ) {
+        const apiError = error as {
+          response?: { data?: { message?: string } };
+        };
+        alert(
+          `❌ Gagal membuat exam: ${
+            apiError.response?.data?.message || "Unknown error"
+          }`
+        );
       } else {
         alert("❌ Gagal membuat exam");
       }
@@ -202,7 +203,8 @@ export default function CreateTestPage() {
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">
                 <FiClock className="inline mr-1" />
-                Durasi Pengerjaan (Menit) <span className="text-red-500">*</span>
+                Durasi Pengerjaan (Menit){" "}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"

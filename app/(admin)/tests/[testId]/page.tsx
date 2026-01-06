@@ -8,10 +8,8 @@ import { BsArrowLeft, BsQuestionCircle } from "react-icons/bs";
 import { BiPlus } from "react-icons/bi";
 import { TestData } from "@/types/testTypes";
 import QuestionCard, { Question } from "@/components/Tests/QuestionCard";
-import ExamDetailsForm from "@/components/Tests/ExamDetailsForm";
 import DeleteConfirmationModal from "@/components/Tests/DeleteConfirmationModal";
 
-// ✅ Response dari getQuestion(examId) - SUDAH ADA QUESTIONS!
 interface ExamWithQuestionsResponse {
   id: string;
   title: string;
@@ -27,7 +25,6 @@ interface ExamWithQuestionsResponse {
   }>;
 }
 
-// ✅ Response dari getExamDetail(examId) - HANYA BASIC INFO
 interface ExamDetailResponse {
   id: string;
   title: string;
@@ -53,6 +50,7 @@ export default function EditTestPage() {
   });
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isSavingExam, setIsSavingExam] = useState(false);
   const [savingQuestionId, setSavingQuestionId] = useState<number | null>(null);
   const [deleteQuestionId, setDeleteQuestionId] = useState<number | null>(null);
@@ -151,33 +149,6 @@ export default function EditTestPage() {
     if (examId) fetchExamData();
   }, [examId, router]);
 
-  const handleUpdateExam = async () => {
-    try {
-      if (!testData.title.trim()) {
-        alert("❌ Judul ujian tidak boleh kosong");
-        return;
-      }
-      if (!testData.startAt || !testData.endAt) {
-        alert("❌ Mohon tentukan waktu mulai dan selesai");
-        return;
-      }
-      if (new Date(testData.startAt) >= new Date(testData.endAt)) {
-        alert("❌ Waktu mulai harus lebih awal dari waktu selesai");
-        return;
-      }
-
-      setIsSavingExam(true);
-      alert(
-        "ℹ️ Fitur update exam info belum tersedia. Silakan tunggu update API."
-      );
-    } catch (error) {
-      console.error("Error updating exam:", error);
-      alert("❌ Gagal memperbarui info ujian");
-    } finally {
-      setIsSavingExam(false);
-    }
-  };
-
   // ✅ Save individual question
   const handleSaveQuestion = async (question: Question) => {
     try {
@@ -201,11 +172,26 @@ export default function EditTestPage() {
       setSavingQuestionId(question.id);
 
       if (question.dbId) {
-        alert(
-          "ℹ️ Fitur update question belum tersedia. Hapus dan buat ulang jika perlu update."
-        );
+        await examService.updateQuestion(question.dbId, question.text);
+
+        for (const option of question.options) {
+          if (!option.text.trim()) continue;
+
+          if (option.id) {
+            await examService.updateOption(option.id, {
+              text: option.text,
+              isCorrect: option.isCorrect,
+            });
+          } else {
+            await examService.createOptions(question.dbId, {
+              text: option.text,
+              isCorrect: option.isCorrect,
+            });
+          }
+        }
+
+        alert("✅ Soal berhasil diperbarui!");
       } else {
-        // Create new question
         const qResponse = await examService.createQuestion(
           examId,
           question.text
@@ -216,7 +202,6 @@ export default function EditTestPage() {
           throw new Error("ID question tidak ditemukan dalam response");
         }
 
-        // Create options
         for (const option of question.options) {
           if (!option.text.trim()) continue;
 

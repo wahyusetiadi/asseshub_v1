@@ -1,0 +1,177 @@
+"use client";
+
+import { Test } from "@/app/(admin)/tests/page";
+import examService from "@/app/api/services/examService";
+import { useEffect, useState } from "react";
+
+interface Props {
+  test: Test;
+  onClose: () => void;
+  onSuccess?: (updated: Test) => void;
+}
+
+export default function EditTestModal({ test, onClose, onSuccess }: Props) {
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    durationMinutes: 0,
+    startAt: "",
+    endAt: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setForm({
+      title: test.title,
+      description: test.description,
+      durationMinutes: test.durationMinutes,
+      startAt: test.startAt.slice(0, 16),
+      endAt: test.endAt.slice(0, 16),
+    });
+  }, [test]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: name === "durationMinutes" ? Number(value) : value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      if (new Date(form.startAt) >= new Date(form.endAt)) {
+        alert("❌ Waktu selesai harus lebih besar dari waktu mulai");
+        return;
+      }
+
+      const payload = {
+        title: form.title,
+        description: form.description,
+        startAt: form.startAt,
+        endAt: form.endAt,
+        durationMinutes: form.durationMinutes,
+      };
+
+      await examService.updateExam(test.id, payload);
+
+      const updated: Test = {
+        ...test,
+        ...payload,
+        startAt: new Date(payload.startAt).toISOString(),
+        endAt: new Date(payload.endAt).toISOString(),
+      };
+
+      onSuccess?.(updated);
+      onClose();
+      alert("✅ Ujian berhasil diperbarui");
+    } catch (error) {
+      console.error("Update exam error:", error);
+      alert("❌ Gagal memperbarui ujian");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="w-full max-w-lg bg-white rounded-xl shadow-lg p-6 space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-semibold">Edit Ujian</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-black">
+            ✕
+          </button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="text-sm font-medium">Judul</label>
+            <input
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              className="w-full mt-1 border rounded-lg px-3 py-2"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Deskripsi</label>
+            <textarea
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              rows={3}
+              className="w-full mt-1 border rounded-lg px-3 py-2"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Durasi (menit)</label>
+            <input
+              type="number"
+              name="durationMinutes"
+              value={form.durationMinutes}
+              onChange={handleChange}
+              className="w-full mt-1 border rounded-lg px-3 py-2"
+              min={1}
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium">Mulai</label>
+              <input
+                type="datetime-local"
+                name="startAt"
+                value={form.startAt}
+                onChange={handleChange}
+                className="w-full mt-1 border rounded-lg px-3 py-2"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Selesai</label>
+              <input
+                type="datetime-local"
+                name="endAt"
+                value={form.endAt}
+                onChange={handleChange}
+                className="w-full mt-1 border rounded-lg px-3 py-2"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end gap-2 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-lg border"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+            >
+              {loading ? "Menyimpan..." : "Simpan Perubahan"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

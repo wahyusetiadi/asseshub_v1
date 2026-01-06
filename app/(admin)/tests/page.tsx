@@ -1,6 +1,7 @@
 "use client";
 import examService from "@/app/api/services/examService";
 import DeleteConfirmModal from "@/components/Tests/DeleteConfirmModal";
+import EditTestModal from "@/components/Tests/EditTestModal";
 import TestCard from "@/components/Tests/TestCard";
 import TestDetailModal from "@/components/Tests/TestModalDetail";
 import Link from "next/link";
@@ -32,6 +33,7 @@ export default function TestPage() {
   const [selectedTest, setSelectedTest] = useState<Test | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [editTest, setEditTest] = useState<Test | null>(null);
 
   const fetchTestData = async () => {
     try {
@@ -126,7 +128,7 @@ export default function TestPage() {
               test={test}
               onDelete={() => setDeleteId(test.id)}
               onView={() => setSelectedTest(test)}
-              onEditExam={() => alert("Belum tersedia")}
+              onEditExam={() => setEditTest(test)}
             />
           ))}
         </div>
@@ -143,6 +145,18 @@ export default function TestPage() {
         <DeleteConfirmModal
           onConfirm={handleDelete}
           onCancel={() => setDeleteId(null)}
+        />
+      )}
+
+      {editTest && (
+        <EditTestModal
+          test={editTest}
+          onClose={() => setEditTest(null)}
+          onSuccess={(updated) => {
+            setTests((prev) =>
+              prev.map((t) => (t.id === updated.id ? updated : t))
+            );
+          }}
         />
       )}
     </div>

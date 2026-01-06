@@ -26,6 +26,7 @@ export default function TestCard({
         <button
           onClick={() => onEditExam(test.id)}
           className="flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600"
+          title="Edit Pertanyaan"
         >
           <FiEdit3 size={16} />
         </button>

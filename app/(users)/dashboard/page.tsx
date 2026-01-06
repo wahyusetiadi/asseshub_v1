@@ -1,10 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { BiLogOut, BiTime, BiTask, BiPlay } from "react-icons/bi";
+import { BiTime, BiTask, BiPlay } from "react-icons/bi";
 import { BsCheckCircle, BsClockHistory } from "react-icons/bs";
-import { api } from "@/helpers/lib/api";
 import { Test } from "@/types/api";
+import examService from "@/app/api/services/examService";
 
 interface TestAssignment {
   id: number;
@@ -13,6 +13,10 @@ interface TestAssignment {
   startedAt?: string;
   completedAt?: string;
   score?: number;
+  title: string;
+  description: string;
+  durationMinutes: number;
+  question: number | undefined;
 }
 
 export default function DashboardPage() {
@@ -41,70 +45,16 @@ export default function DashboardPage() {
     try {
       // TODO: Replace with real API call
       // const response = await api.getMyTests();
+      const response = await examService.getAllExams();
 
-      // Mock data
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      console.log("response", response.data.data);
 
-      const mockAssignments: TestAssignment[] = [
-        {
-          id: 1,
-          test: {
-            id: 1,
-            title: "Software Engineering Assessment",
-            description: "Test kemampuan programming dan problem solving",
-            duration: 90,
-            questions: 50,
-            passingScore: 70,
-            status: "active",
-            createdAt: "2024-01-10T08:00:00Z",
-          },
-          status: "not_started",
-        },
-        {
-          id: 2,
-          test: {
-            id: 2,
-            title: "Product Management Test",
-            description: "Test untuk product manager",
-            duration: 60,
-            questions: 30,
-            passingScore: 75,
-            status: "active",
-            createdAt: "2024-01-12T10:00:00Z",
-          },
-          status: "in_progress",
-          startedAt: "2024-01-20T14:30:00Z",
-        },
-        {
-          id: 3,
-          test: {
-            id: 3,
-            title: "UI/UX Design Challenge",
-            description: "Test kemampuan design dan user experience",
-            duration: 120,
-            questions: 40,
-            passingScore: 70,
-            status: "active",
-            createdAt: "2024-01-15T09:00:00Z",
-          },
-          status: "completed",
-          completedAt: "2024-01-18T16:45:00Z",
-          score: 85,
-        },
-      ];
-
-      setAssignments(mockAssignments);
+      setAssignments(response.data.data);
     } catch (error) {
       console.error("Error fetching assignments:", error);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    router.push("/login");
   };
 
   const handleStartTest = (testId: number) => {
@@ -224,10 +174,10 @@ export default function DashboardPage() {
                     <div className="flex justify-between items-start mb-4">
                       <div>
                         <h4 className="text-lg font-bold text-gray-800 mb-1">
-                          {assignment.test.title}
+                          {assignment.title}
                         </h4>
                         <p className="text-sm text-gray-500">
-                          {assignment.test.description}
+                          {assignment.description}
                         </p>
                       </div>
                       <span
@@ -240,11 +190,11 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
                       <div className="flex items-center gap-1">
                         <BiTime size={16} />
-                        <span>{assignment.test.duration} menit</span>
+                        <span>{assignment.durationMinutes} menit</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <BiTask size={16} />
-                        <span>{assignment.test.questions} soal</span>
+                        <span>{assignment.question || 0} soal</span>
                       </div>
                     </div>
 

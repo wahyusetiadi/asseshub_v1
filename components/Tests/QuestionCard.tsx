@@ -164,11 +164,11 @@ export default function QuestionCard({
               : "Simpan Soal"}
           </button>
 
-          {question.dbId && (
+          {/* {question.dbId && (
             <p className="text-xs text-gray-400 text-center">
               ⚠️ Fitur update belum tersedia
             </p>
-          )}
+          )} */}
         </div>
       )}
     </div>

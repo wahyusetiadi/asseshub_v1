@@ -5,30 +5,12 @@ import { BiX } from "react-icons/bi";
 import { BsClock, BsQuestionCircle } from "react-icons/bs";
 import Button from "../ui/Button";
 import { MdDateRange } from "react-icons/md";
+import { fullDateFormat } from "@/helpers/DateFormat";
 
 interface Props {
   test: Test;
   onClose: () => void;
 }
-
-export const formatDate = (
-  dateInput: string | Date | undefined | null
-): string => {
-  if (!dateInput) return "-";
-  const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
-
-  if (isNaN(date.getTime())) {
-    return "Format Tanggal Salah";
-  }
-
-  return new Intl.DateTimeFormat("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-};
 
 export default function TestDetailModal({ test, onClose }: Props) {
   const Info = [
@@ -45,12 +27,12 @@ export default function TestDetailModal({ test, onClose }: Props) {
     {
       label: "Start At",
       icon: <MdDateRange />,
-      value: test.startAt,
+      value: fullDateFormat(test.startAt),
     },
     {
       label: "End At",
       icon: <MdDateRange />,
-      value: test.endAt,
+      value: fullDateFormat(test.endAt),
     },
   ];
   return (
@@ -78,26 +60,6 @@ export default function TestDetailModal({ test, onClose }: Props) {
                 value={i.value}
               />
             ))}
-            <InfoBox
-              icon={<BsClock />}
-              label="Durasi"
-              value={`${test.durationMinutes}m`}
-            />
-            <InfoBox
-              icon={<BsQuestionCircle />}
-              label="Total Soal"
-              value={test._count?.questions || 0}
-            />
-            <InfoBox
-              icon={<BsClock />}
-              label="Start At"
-              value={formatDate(test.endAt)}
-            />
-            <InfoBox
-              icon={<BsQuestionCircle />}
-              label="End At"
-              value={formatDate(test.startAt)}
-            />
           </div>
         </div>
         <div className="p-4 flex gap-3 w-full rounded-lg">
