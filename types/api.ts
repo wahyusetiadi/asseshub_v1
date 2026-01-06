@@ -33,16 +33,13 @@ export interface User {
 
 // Candidate Types
 export interface Candidate {
-  name: string;
-  id: number;
-  fullName: string;
-  email: string;
-  phone: string;
-  position: string;
+  id: string;
   username: string;
-  password?: string;
-  status: "pending" | "sent" | "opened" | "completed";
+  name: string;
+  email: string;
+  password: string;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateCandidateRequest {

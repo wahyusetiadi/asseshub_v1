@@ -33,7 +33,7 @@ export default function TestCard({
       </div>
 
       <p className="text-sm text-gray-500 mb-4">
-        {test._count?.questions || 0} Pertanyaan • {test.durationMinutes} Menit
+        {test.totalQuestions|| 0} Pertanyaan • {test.durationMinutes} Menit
       </p>
 
       <div className="flex justify-between items-center pt-4 border-t">

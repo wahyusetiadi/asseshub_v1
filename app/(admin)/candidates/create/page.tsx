@@ -1,10 +1,10 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { BiArrowBack, BiUser, BiEnvelope, BiLock, BiSave } from "react-icons/bi";
+import { BiArrowBack, BiUser, BiEnvelope, BiSave } from "react-icons/bi";
 import { BsCheckCircle } from "react-icons/bs";
 import Link from "next/link";
-import { api } from "@/helpers/lib/api";
+import adminService from "@/app/api/services/adminService";
 
 export default function CreateCandidatePage() {
   const router = useRouter();
@@ -13,25 +13,12 @@ export default function CreateCandidatePage() {
     email: "",
     phone: "",
     position: "",
-    generatePassword: true,
-    password: "",
     sendEmail: true,
   });
 
-  const [generatedPassword, setGeneratedPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState("");
-
-  const generateRandomPassword = () => {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%";
-    let password = "";
-    for (let i = 0; i < 12; i++) {
-      password += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    setGeneratedPassword(password);
-    setFormData({ ...formData, password: password });
-  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -50,13 +37,10 @@ export default function CreateCandidatePage() {
     setError("");
 
     try {
-      const response = await api.createCandidate({
-        fullName: formData.fullName,
-        email: formData.email,
-        phone: formData.phone,
-        position: formData.position,
-        password: formData.password,
-      });
+      const response = await adminService.generateAccount(
+        formData.fullName,
+        formData.email
+      );
 
       if (response.success) {
         setShowSuccess(true);
@@ -101,9 +85,8 @@ export default function CreateCandidatePage() {
           <div>
             <p className="font-semibold text-green-800">Akun berhasil dibuat!</p>
             <p className="text-sm text-green-600">
-              {formData.sendEmail
-                ? "Kredensial telah dikirim ke email kandidat."
-                : "Kredensial berhasil disimpan."}
+              Username dan password telah digenerate otomatis oleh sistem.
+              {formData.sendEmail && " Kredensial telah dikirim ke email kandidat."}
             </p>
           </div>
         </div>
@@ -145,7 +128,7 @@ export default function CreateCandidatePage() {
             </div>
 
             {/* Email */}
-            <div>
+            <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email <span className="text-red-500">*</span>
               </label>
@@ -160,10 +143,10 @@ export default function CreateCandidatePage() {
               />
             </div>
 
-            {/* Phone */}
+            {/* Phone - Optional untuk info tambahan */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                No. Telepon
+                No. Telepon <span className="text-gray-400 text-xs">(opsional)</span>
               </label>
               <input
                 type="tel"
@@ -175,10 +158,10 @@ export default function CreateCandidatePage() {
               />
             </div>
 
-            {/* Position */}
-            <div className="md:col-span-2">
+            {/* Position - Optional untuk info tambahan */}
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Posisi yang Dilamar
+                Posisi yang Dilamar <span className="text-gray-400 text-xs">(opsional)</span>
               </label>
               <select
                 name="position"
@@ -197,63 +180,22 @@ export default function CreateCandidatePage() {
           </div>
         </div>
 
-        {/* Password Configuration Card */}
-        <div className="bg-white rounded-xl border shadow-sm p-6 space-y-5">
-          <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-            <BiLock className="text-blue-600" />
-            Konfigurasi Password
-          </h2>
-
-          <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
-            <input
-              type="checkbox"
-              name="generatePassword"
-              checked={formData.generatePassword}
-              onChange={handleChange}
-              className="w-4 h-4 text-blue-600"
-            />
-            <label className="text-sm font-medium text-gray-700">
-              Generate password otomatis (direkomendasikan)
-            </label>
-          </div>
-
-          {formData.generatePassword ? (
-            <div className="space-y-3">
-              <button
-                type="button"
-                onClick={generateRandomPassword}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition"
-              >
-                Generate Password
-              </button>
-              {generatedPassword && (
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-sm text-gray-600 mb-1">Password yang digenerate:</p>
-                  <p className="text-lg font-mono font-bold text-blue-900 break-all">
-                    {generatedPassword}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Password ini akan dikirim ke email kandidat
-                  </p>
-                </div>
-              )}
+        {/* Info Card - Auto Generate */}
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+          <div className="flex items-start gap-3">
+            <div className="bg-blue-100 p-2 rounded-lg">
+              <BiUser className="text-blue-600" size={24} />
             </div>
-          ) : (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password Manual <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required={!formData.generatePassword}
-                placeholder="Masukkan password"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-              />
+              <h3 className="font-semibold text-blue-900 mb-1">
+                Username & Password Otomatis
+              </h3>
+              <p className="text-sm text-blue-700">
+                Sistem akan secara otomatis generate <strong>username</strong> dan <strong>password</strong> yang aman untuk kandidat. 
+                Kredensial ini akan dikirim ke email kandidat.
+              </p>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Email Notification Card */}
@@ -279,7 +221,7 @@ export default function CreateCandidatePage() {
           {formData.sendEmail && (
             <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
               <p className="text-sm text-yellow-800">
-                📧 Email akan dikirim berisi username, password, dan link untuk akses ujian.
+                📧 Email akan dikirim berisi <strong>username</strong>, <strong>password</strong>, dan link untuk akses ujian.
               </p>
             </div>
           )}

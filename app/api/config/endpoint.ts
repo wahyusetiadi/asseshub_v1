@@ -8,8 +8,8 @@ export const API_ENDPOINTS = {
 
   ADMIN: {
     //Account
-    GENERATE_ACCOUNT: "/admin/account",
-    GET_ACCOUNT: (id: string) => `/admin/account/${id}`,
+    GENERATE_ACCOUNT: "/admin/accounts",
+    GET_ACCOUNT: (id: string) => `/admin/accounts/${id}`,
     GET_ALL_CANDIDATES: "admin/accounts",
 
     //Exams
@@ -35,6 +35,11 @@ export const API_ENDPOINTS = {
     QUESTION_ANSWER: "/user/exam/questions/answers",
     START_EXAM: "/user/exam/start",
     FINISH_EXAM: "/user/exam/submit",
-    ANSWER: (id:string) => `/user/exam/${id}/answer`,
+    ANSWER: (id: string) => `/user/exam/${id}/answer`,
+  },
+
+  POSITION: {
+    GENERATE_POSITION: "/admin/positions",
+    GET_ALL_POSITIONS: "/admin/positions",
   },
 };

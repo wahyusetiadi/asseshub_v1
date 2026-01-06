@@ -1,3 +1,4 @@
+// components/ui/Card.tsx
 import { BsArrowUpRight } from "react-icons/bs";
 
 type StatCardProps = {
@@ -7,6 +8,7 @@ type StatCardProps = {
   bg: string;
   color: string;
   growth?: number;
+  showGrowth?: boolean; // Ganti dari hiddenGrowth
 };
 
 const StatCard: React.FC<StatCardProps> = ({
@@ -15,21 +17,23 @@ const StatCard: React.FC<StatCardProps> = ({
   value,
   bg,
   color,
-  growth = 12,
+  growth = 0,
+  showGrowth = false, // Default tidak tampil
 }) => {
   return (
     <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start">
         <div className={`p-3 rounded-xl ${bg} ${color}`}>{icon}</div>
-
-        <span className="flex items-center text-green-500 text-xs font-medium bg-green-50 px-2 py-1 rounded-lg">
-          <BsArrowUpRight size={14} /> {growth}%
-        </span>
+        {showGrowth && growth !== undefined && (
+          <span className="flex items-center text-green-500 text-xs font-medium bg-green-50 px-2 py-1 rounded-lg">
+            <BsArrowUpRight size={14} /> {growth}%
+          </span>
+        )}
       </div>
 
       <div className="mt-4">
         <h3 className="text-gray-500 text-sm font-medium">{label}</h3>
-        <p className="text-xl font-bold mt-1">{value}</p>
+        <p className="text-2xl font-bold mt-1">{value}</p>
       </div>
     </div>
   );

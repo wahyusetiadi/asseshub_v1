@@ -40,6 +40,7 @@ export default function AdminDashboard() {
             value={stat.value}
             bg={stat.bg}
             color={stat.color}
+            showGrowth={true}
           />
         ))}
       </div>

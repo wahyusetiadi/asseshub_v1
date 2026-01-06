@@ -3,17 +3,20 @@ import { API_ENDPOINTS } from "../config/endpoint";
 import { createApiMethod } from "../utils/apiUtils";
 
 class AdminService {
-  generateAccount = createApiMethod(async (name: string, email: string) => {
-    const response = await apiConfig.post(
-      API_ENDPOINTS.ADMIN.GENERATE_ACCOUNT,
-      {
-        name,
-        email,
-      }
-    );
+  generateAccount = createApiMethod(
+    async (name: string, email: string, positionId?: string) => {
+      const response = await apiConfig.post(
+        API_ENDPOINTS.ADMIN.GENERATE_ACCOUNT,
+        {
+          name,
+          email,
+          positionId,
+        }
+      );
 
-    return response;
-  });
+      return response;
+    }
+  );
 
   getAllCandicates = createApiMethod(async () => {
     return apiConfig.get(API_ENDPOINTS.ADMIN.GET_ALL_CANDIDATES);
@@ -26,6 +29,24 @@ class AdminService {
         Authorization: `Bearer ${token}`,
       },
     });
+  });
+
+  generatePositions = createApiMethod(async (name: string) => {
+    const response = await apiConfig.post(
+      API_ENDPOINTS.POSITION.GENERATE_POSITION,
+      {
+        name,
+      }
+    );
+
+    return response;
+  });
+
+  getAllPositions = createApiMethod(async () => {
+    const response = await apiConfig.get(
+      API_ENDPOINTS.POSITION.GET_ALL_POSITIONS
+    );
+    return response;
   });
 }
 
