@@ -16,7 +16,7 @@ interface TestAssignment {
   title: string;
   description: string;
   durationMinutes: number;
-  question: number | undefined;
+  totalQuestions: number | undefined;
 }
 
 export default function DashboardPage() {
@@ -194,7 +194,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="flex items-center gap-1">
                         <BiTask size={16} />
-                        <span>{assignment.question || 0} soal</span>
+                        <span>{assignment.totalQuestions || 0} soal</span>
                       </div>
                     </div>
 

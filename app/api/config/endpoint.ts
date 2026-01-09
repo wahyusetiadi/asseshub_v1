@@ -35,7 +35,7 @@ export const API_ENDPOINTS = {
     QUESTION_ANSWER: "/user/exam/questions/answers",
     START_EXAM: "/user/exam/start",
     FINISH_EXAM: "/user/exam/submit",
-    ANSWER: (id: string) => `/user/exam/${id}/answer`,
+    ANSWER: (id: string) => `/user/exam/${id}/question/answer`,
   },
 
   POSITION: {

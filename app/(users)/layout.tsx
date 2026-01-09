@@ -55,7 +55,7 @@ export default function LayoutExample({
   ];
 
   const handleLogout = () => {
-    router.push("/");
+    router.push("/users");
   };
 
   return (

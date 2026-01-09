@@ -17,6 +17,7 @@ class ExamService {
       startAt: new Date(data.startAt).toISOString(),
       endAt: new Date(data.endAt).toISOString(),
       durationMinutes: data.durationMinutes,
+      categoryId: data.categoryId,
     });
 
     return response;
@@ -83,14 +84,15 @@ class ExamService {
     }
   );
 
-  updateOption = createApiMethod(async (id: string, data: { text: string; isCorrect?: boolean }) => {
-  const response = await apiConfig.patch(
-    API_ENDPOINTS.ADMIN.UPDATE_OPTION(id),
-    data
+  updateOption = createApiMethod(
+    async (id: string, data: { text: string; isCorrect?: boolean }) => {
+      const response = await apiConfig.patch(
+        API_ENDPOINTS.ADMIN.UPDATE_OPTION(id),
+        data
+      );
+      return response;
+    }
   );
-  return response;
-});
-
 }
 
 const examService = new ExamService();

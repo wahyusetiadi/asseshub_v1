@@ -1,22 +1,12 @@
 "use client";
-import { useState, useEffect, use } from "react";
+import { useState, use, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { BiTime, BiCheckCircle } from "react-icons/bi";
-import { BsArrowLeft } from "react-icons/bs";
-
-interface Question {
-  id: number;
-  text: string;
-  options: string[];
-  correctAnswer: number;
-}
-
-interface ExamData {
-  id: number;
-  title: string;
-  duration: number;
-  questions: Question[];
-}
+import userService from "@/app/api/services/userService";
+import { useExamData } from "@/hooks/useExamData";
+import { useExamTimer } from "@/hooks/useExamTimer";
+import ExamHeader from "@/components/exam/ExamHeader";
+import QuestionCard from "@/components/exam/QuestionCard";
+import ExamSidebar from "@/components/exam/ExamSidebae";
 
 export default function ExamExecutionPage({
   params,
@@ -24,213 +14,506 @@ export default function ExamExecutionPage({
   params: Promise<{ testId: string }>;
 }) {
   const resolvedParams = use(params);
+  const testId = resolvedParams.testId;
   const router = useRouter();
-  const [exam, setExam] = useState<ExamData | null>(null);
+
+  // 🔑 LocalStorage key untuk menyimpan jawaban
+  const ANSWERS_STORAGE_KEY = `exam_answers_${testId}`;
+
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, number>>({});
-  const [timeRemaining, setTimeRemaining] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    fetchExam(resolvedParams.testId);
-  }, [resolvedParams.testId]);
+  // ✅ FIX 1: Gunakan lazy initialization untuk load dari localStorage
+  const [answers, setAnswers] = useState<Record<string, string>>(() => {
+    if (typeof window === "undefined") return {};
 
-  useEffect(() => {
-    if (timeRemaining <= 0) return;
-
-    const timer = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          handleSubmit();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeRemaining]);
-
-  const fetchExam = async (testId: string) => {
-    // Mock exam data
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    const mockExam: ExamData = {
-      id: Number(testId),
-      title: "Software Engineering Assessment",
-      duration: 90,
-      questions: [
-        {
-          id: 1,
-          text: "Apa kepanjangan dari HTML?",
-          options: [
-            "Hyper Text Markup Language",
-            "High Tech Modern Language",
-            "Home Tool Markup Language",
-            "Hyperlinks and Text Markup Language",
-          ],
-          correctAnswer: 0,
-        },
-        {
-          id: 2,
-          text: "Bahasa pemrograman mana yang digunakan untuk React?",
-          options: ["Python", "Java", "JavaScript", "C++"],
-          correctAnswer: 2,
-        },
-        {
-          id: 3,
-          text: "Apa fungsi dari CSS?",
-          options: [
-            "Membuat logika program",
-            "Styling tampilan web",
-            "Mengelola database",
-            "Membuat API",
-          ],
-          correctAnswer: 1,
-        },
-        {
-          id: 4,
-          text: "Apa itu Git?",
-          options: [
-            "Bahasa pemrograman",
-            "Framework JavaScript",
-            "Version control system",
-            "Database",
-          ],
-          correctAnswer: 2,
-        },
-        {
-          id: 5,
-          text: "HTTP status code 404 artinya?",
-          options: ["Server Error", "Not Found", "Forbidden", "Unauthorized"],
-          correctAnswer: 1,
-        },
-        {
-          id: 6,
-          text: "Apa itu API?",
-          options: [
-            "Application Programming Interface",
-            "Advanced Programming Integration",
-            "Automated Process Interaction",
-            "Application Process Interface",
-          ],
-          correctAnswer: 0,
-        },
-        {
-          id: 7,
-          text: "Framework JavaScript mana yang dikembangkan oleh Facebook?",
-          options: ["Angular", "Vue", "React", "Svelte"],
-          correctAnswer: 2,
-        },
-        {
-          id: 8,
-          text: "Apa fungsi dari useState di React?",
-          options: [
-            "Fetch data dari API",
-            "Manage component state",
-            "Route navigation",
-            "Style component",
-          ],
-          correctAnswer: 1,
-        },
-        {
-          id: 9,
-          text: "Database SQL termasuk jenis database?",
-          options: ["NoSQL", "Relational", "Document", "Graph"],
-          correctAnswer: 1,
-        },
-        {
-          id: 10,
-          text: "Apa kepanjangan dari JSON?",
-          options: [
-            "JavaScript Object Notation",
-            "Java Syntax Object Network",
-            "JavaScript Online Network",
-            "Java System Object Notation",
-          ],
-          correctAnswer: 0,
-        },
-      ],
-    };
-
-    setExam(mockExam);
-    setTimeRemaining(mockExam.duration * 60);
-  };
-
-  const handleAnswerSelect = (optionIndex: number) => {
-    if (!exam) return;
-    setAnswers({
-      ...answers,
-      [exam.questions[currentQuestionIndex].id]: optionIndex,
-    });
-  };
-
-  const handleNext = () => {
-    if (!exam || currentQuestionIndex >= exam.questions.length - 1) return;
-    setCurrentQuestionIndex(currentQuestionIndex + 1);
-  };
-
-  const handlePrevious = () => {
-    if (currentQuestionIndex <= 0) return;
-    setCurrentQuestionIndex(currentQuestionIndex - 1);
-  };
-
-  const handleSubmit = async () => {
-    if (!exam) return;
-
-    const unansweredCount = exam.questions.length - Object.keys(answers).length;
-
-    if (unansweredCount > 0) {
-      if (
-        !confirm(
-          `Masih ada ${unansweredCount} soal yang belum dijawab. Apakah Anda yakin ingin submit?`
-        )
-      ) {
-        return;
+    try {
+      const savedAnswers = localStorage.getItem(ANSWERS_STORAGE_KEY);
+      if (savedAnswers) {
+        const parsedAnswers = JSON.parse(savedAnswers);
+        console.log("📦 Loaded answers from localStorage:", parsedAnswers);
+        return parsedAnswers;
       }
-    } else {
-      if (!confirm("Apakah Anda yakin ingin submit test?")) {
-        return;
+    } catch (error) {
+      console.error("Error parsing saved answers:", error);
+      localStorage.removeItem(ANSWERS_STORAGE_KEY);
+    }
+    return {};
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const hasAutoSubmitted = useRef(false);
+  const isExamFinished = useRef(false);
+  const hasCheckedInitialStatus = useRef(false);
+  const isFirstLoad = useRef(true);
+
+  const {
+    exam,
+    questions,
+    isLoading,
+    timeRemaining: initialTimeRemaining, // Ini dari backend
+    setTimeRemaining: setInitialTimeRemaining,
+    shouldAutoSubmit,
+  } = useExamData(testId);
+
+  const { timeRemaining, formatTime, isTimeUp } =
+    useExamTimer(initialTimeRemaining);
+
+  // ✅ Fungsi untuk menyimpan jawaban ke localStorage
+  const saveAnswerToStorage = useCallback(
+    (updatedAnswers: Record<string, string>) => {
+      try {
+        localStorage.setItem(
+          ANSWERS_STORAGE_KEY,
+          JSON.stringify(updatedAnswers)
+        );
+        console.log("💾 Saved answer to localStorage");
+      } catch (error) {
+        console.error("Error saving to localStorage:", error);
+      }
+    },
+    [ANSWERS_STORAGE_KEY]
+  );
+
+  // ✅ FIX 2: Pisahkan fungsi submitAllAnswers dari useCallback
+  const submitAllAnswers = useCallback(async () => {
+    const answersArray = Object.entries(answers);
+
+    if (answersArray.length === 0) {
+      console.log("⚠️ No answers to submit");
+      return true;
+    }
+
+    console.log(`📤 Submitting ${answersArray.length} answers to backend...`);
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const [questionId, optionId] of answersArray) {
+      try {
+        await userService.answerQuestion(testId, {
+          questionId,
+          optionId,
+        });
+        successCount++;
+        console.log(`✅ Answer submitted: Q${questionId} -> ${optionId}`);
+      } catch (error) {
+        failCount++;
+        console.error(`❌ Failed to submit answer for Q${questionId}:`, error);
       }
     }
 
-    setIsSubmitting(true);
+    console.log(
+      `📊 Submit summary: ${successCount} success, ${failCount} failed`
+    );
 
-    // Calculate score
-    let correctCount = 0;
-    exam.questions.forEach((question) => {
-      if (answers[question.id] === question.correctAnswer) {
-        correctCount++;
+    if (failCount > 0) {
+      const shouldContinue = confirm(
+        `⚠️ ${failCount} dari ${answersArray.length} jawaban gagal dikirim. Tetap lanjut submit ujian?`
+      );
+      return shouldContinue;
+    }
+
+    return true;
+  }, [answers, testId]);
+
+  // ✅ FIX 3: Tambahkan submitAllAnswers ke dependency array
+  const handleSubmit = useCallback(
+    async (isManual: boolean = false) => {
+      if (isSubmitting) {
+        console.log("⚠️ Already submitting, skipping...");
+        return;
       }
-    });
 
-    const score = Math.round((correctCount / exam.questions.length) * 100);
+      if (!isInitialized) {
+        console.warn("⚠️ Prevented submit: Exam not initialized yet");
+        return;
+      }
 
-    // TODO: Send to API and get resultId
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+      if (!isManual && hasAutoSubmitted.current) {
+        console.log("⚠️ Already auto-submitted, skipping...");
+        return;
+      }
 
-    const mockResultId = Date.now(); // Mock result ID
+      if (!isManual && timeRemaining > 5) {
+        console.warn(
+          "⚠️ Prevented auto submit, time remaining:",
+          timeRemaining
+        );
+        return;
+      }
 
-    console.log("Test submitted:", {
-      testId: exam.id,
-      resultId: mockResultId,
+      const unansweredCount = questions.length - Object.keys(answers).length;
+
+      if (isManual && timeRemaining > 0) {
+        if (unansweredCount > 0) {
+          if (
+            !confirm(
+              `Masih ada ${unansweredCount} soal yang belum dijawab. Apakah Anda yakin ingin submit?`
+            )
+          ) {
+            return;
+          }
+        } else {
+          if (!confirm("Apakah Anda yakin ingin submit test?")) {
+            return;
+          }
+        }
+      }
+
+      if (!isManual) {
+        hasAutoSubmitted.current = true;
+      }
+
+      setIsSubmitting(true);
+
+      try {
+        // 🔥 STEP 1: Submit semua jawaban ke backend
+        console.log("🚀 Step 1: Submitting answers...");
+        const canProceed = await submitAllAnswers();
+
+        if (!canProceed) {
+          setIsSubmitting(false);
+          if (!isManual) {
+            hasAutoSubmitted.current = false;
+          }
+          return;
+        }
+
+        // 🔥 STEP 2: Finish exam
+        console.log("🚀 Step 2: Finishing exam...");
+        await userService.finishExam(testId);
+
+        // 🔥 STEP 3: Clear localStorage dan redirect
+        localStorage.removeItem(ANSWERS_STORAGE_KEY);
+        isExamFinished.current = true;
+        alert("✅ Ujian berhasil diselesaikan!");
+        router.push("/exam");
+      } catch (error) {
+        console.error("Error submitting exam:", error);
+        const err = error as {
+          response?: { data?: { message?: string } };
+          message?: string;
+        };
+        const errorMessage =
+          err?.response?.data?.message ||
+          err?.message ||
+          "Gagal mengirim jawaban";
+        alert(`❌ ${errorMessage}`);
+        setIsSubmitting(false);
+
+        if (!isManual) {
+          hasAutoSubmitted.current = false;
+        }
+      }
+    },
+    [
+      isSubmitting,
+      isInitialized,
+      timeRemaining,
+      questions.length,
       answers,
-      score,
-      correctCount,
-      totalQuestions: exam.questions.length,
+      testId,
+      router,
+      ANSWERS_STORAGE_KEY,
+      submitAllAnswers, // ✅ Tambahkan ini
+    ]
+  );
+
+  // ✅ Set initialized setelah data siap
+  useEffect(() => {
+    if (
+      !isLoading &&
+      exam &&
+      questions.length > 0 &&
+      initialTimeRemaining > 0
+    ) {
+      const initTimer = setTimeout(() => {
+        setIsInitialized(true);
+        isFirstLoad.current = false;
+        console.log("✅ Exam initialized, auto-submit enabled");
+      }, 2000);
+
+      return () => clearTimeout(initTimer);
+    }
+  }, [isLoading, exam, questions.length, initialTimeRemaining]);
+
+  // ✅ CHECK STATUS saat component mount
+  useEffect(() => {
+    if (hasCheckedInitialStatus.current || isLoading || !initialTimeRemaining) {
+      return;
+    }
+
+    const checkExamStatus = async () => {
+      try {
+        console.log("🔍 Running initial exam status check...");
+
+        const statusResponse = await userService.checkStatus(testId);
+        const statusData = statusResponse?.data?.data || statusResponse?.data;
+        const { is_exam_ongoing, remaining_duration } = statusData || {};
+
+        // ✅ Konversi milidetik ke detik
+        const remainingInSeconds = Math.floor((remaining_duration || 0) / 1000);
+
+        console.log("📊 Initial status:", {
+          is_exam_ongoing,
+          remaining_duration_ms: remaining_duration,
+          remaining_duration_sec: remainingInSeconds,
+          initialTimeRemaining,
+        });
+
+        hasCheckedInitialStatus.current = true;
+
+        // ✅ Hanya redirect jika waktu BENAR-BENAR habis
+        if (remainingInSeconds <= 0) {
+          console.log("⚠️ Exam time is up (remaining <= 0)");
+          localStorage.removeItem(ANSWERS_STORAGE_KEY);
+          alert("⏰ Ujian ini sudah selesai atau waktu telah habis.");
+          router.push("/exam");
+          return;
+        }
+
+        // ✅ Sync waktu jika masih ada remaining
+        if (remainingInSeconds > 0) {
+          console.log(
+            "✅ Exam still ongoing, syncing time:",
+            remainingInSeconds,
+            "seconds"
+          );
+          setInitialTimeRemaining(remainingInSeconds);
+        }
+      } catch (error) {
+        console.error("Error checking exam status:", error);
+      }
+    };
+
+    const checkTimer = setTimeout(() => {
+      checkExamStatus();
+    }, 1000);
+
+    return () => clearTimeout(checkTimer);
+  }, [
+    testId,
+    isLoading,
+    initialTimeRemaining,
+    router,
+    setInitialTimeRemaining,
+    ANSWERS_STORAGE_KEY,
+  ]);
+
+  // ✅ Prevent navigation saat exam berlangsung
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!isExamFinished.current) {
+        e.preventDefault();
+        e.returnValue = "Ujian masih berlangsung. Yakin ingin keluar?";
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
+  // ✅ Prevent browser back button
+  useEffect(() => {
+    const handlePopState = () => {
+      if (!isExamFinished.current) {
+        const confirmLeave = window.confirm(
+          "Ujian masih berlangsung. Jika Anda keluar, ujian akan otomatis tersubmit. Yakin ingin keluar?"
+        );
+
+        if (!confirmLeave) {
+          window.history.pushState(null, "", window.location.href);
+        } else {
+          handleSubmit(false);
+        }
+      }
+    };
+
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [handleSubmit]);
+
+  // ✅ Prevent keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        (e.ctrlKey && (e.key === "w" || e.key === "q")) ||
+        (e.altKey && e.key === "F4")
+      ) {
+        if (!isExamFinished.current) {
+          e.preventDefault();
+          alert("Tidak dapat menutup tab saat ujian berlangsung!");
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // ✅ Auto submit when time is up
+  useEffect(() => {
+    if (
+      isInitialized &&
+      (isTimeUp || shouldAutoSubmit) &&
+      !isSubmitting &&
+      !hasAutoSubmitted.current &&
+      questions.length > 0 &&
+      timeRemaining <= 0
+    ) {
+      console.log("🚨 Auto submit will be triggered:", {
+        isTimeUp,
+        shouldAutoSubmit,
+        timeRemaining,
+      });
+
+      const submitTimer = setTimeout(() => {
+        handleSubmit(false);
+      }, 100);
+
+      return () => clearTimeout(submitTimer);
+    }
+  }, [
+    isTimeUp,
+    shouldAutoSubmit,
+    isSubmitting,
+    questions.length,
+    isInitialized,
+    timeRemaining,
+    handleSubmit,
+  ]);
+
+  // ✅ Sync timer dengan backend setiap 30 detik
+  useEffect(() => {
+    if (!exam || isLoading || !isInitialized) return;
+
+    const syncInterval = setInterval(async () => {
+      try {
+        console.log("🔄 Syncing timer with backend...");
+
+        const statusResponse = await userService.checkStatus(testId);
+        const statusData = statusResponse?.data?.data || statusResponse?.data;
+        const remaining_ms = statusData?.remaining_duration;
+        const isOngoing = statusData?.is_exam_ongoing;
+
+        // ✅ Validasi response
+        if (typeof remaining_ms !== "number") {
+          console.warn("⚠️ Invalid remaining_duration, skipping sync");
+          return;
+        }
+
+        // ✅ Konversi milidetik ke detik
+        const remaining = Math.floor(remaining_ms / 1000);
+
+        console.log("📊 Sync result:", {
+          remaining_ms,
+          remaining_sec: remaining,
+          isOngoing,
+          currentLocalTime: timeRemaining,
+        });
+
+        // ✅ Sync waktu dari backend
+        console.log(`🔄 Updating time: ${timeRemaining}s → ${remaining}s`);
+        setInitialTimeRemaining(remaining);
+
+        // ✅ Hanya auto-submit jika remaining_duration <= 0
+        if (remaining <= 0) {
+          if (!hasAutoSubmitted.current && !isExamFinished.current) {
+            console.log(
+              "⚠️ Time is up from backend sync, triggering auto-submit..."
+            );
+            hasAutoSubmitted.current = true;
+            await handleSubmit(false);
+          }
+        }
+      } catch (error) {
+        console.error("❌ Error syncing timer:", error);
+      }
+    }, 30000);
+
+    return () => clearInterval(syncInterval);
+  }, [
+    exam,
+    isLoading,
+    testId,
+    isInitialized,
+    setInitialTimeRemaining,
+    timeRemaining,
+    handleSubmit,
+  ]);
+
+  // ✅ Visibility change detection
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (isFirstLoad.current || isExamFinished.current) {
+        console.log(
+          "⏭️ Skipping visibility check (first load or exam finished)"
+        );
+        return;
+      }
+
+      if (document.visibilityState === "visible") {
+        console.log("👁️ Tab became visible, checking exam status...");
+
+        try {
+          const statusResponse = await userService.checkStatus(testId);
+          const statusData = statusResponse?.data?.data || statusResponse?.data;
+          const remaining_ms = statusData?.remaining_duration || 0;
+          const isOngoing = statusData?.is_exam_ongoing;
+
+          // ✅ Konversi milidetik ke detik
+          const remaining = Math.floor(remaining_ms / 1000);
+
+          console.log("🔍 Status after tab visible:", {
+            remaining_ms,
+            remaining_sec: remaining,
+            isOngoing,
+          });
+
+          // ✅ Hanya redirect jika waktu benar-benar habis
+          if (remaining <= 0) {
+            alert("⏰ Waktu ujian telah habis saat Anda tidak aktif.");
+            localStorage.removeItem(ANSWERS_STORAGE_KEY);
+            isExamFinished.current = true;
+            router.push("/exam");
+          } else if (remaining > 0) {
+            console.log("✅ Syncing time from backend:", remaining, "seconds");
+            setInitialTimeRemaining(remaining);
+          }
+        } catch (error) {
+          console.error("Error checking status on visibility change:", error);
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [testId, router, setInitialTimeRemaining, ANSWERS_STORAGE_KEY]);
+
+  // ✅ Handle answer select dengan simpan ke localStorage
+  const handleAnswerSelect = (questionId: string, optionId: string) => {
+    setAnswers((prev) => {
+      const updatedAnswers = { ...prev, [questionId]: optionId };
+
+      // 💾 Simpan ke localStorage
+      saveAnswerToStorage(updatedAnswers);
+
+      console.log(`✍️ Answer selected: Q${questionId} -> ${optionId}`);
+      return updatedAnswers;
     });
-
-    // Redirect to result page with resultId
-    router.push(`/result-exam/${mockResultId}`);
   };
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  if (!exam) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
@@ -238,150 +521,66 @@ export default function ExamExecutionPage({
     );
   }
 
-  const currentQuestion = exam.questions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + 1) / exam.questions.length) * 100;
-  const answeredCount = Object.keys(answers).length;
+  if (!exam || questions.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-500 mb-4">Tidak ada soal ujian</p>
+          <button
+            onClick={() => router.push("/exam")}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Kembali
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const currentQuestion = questions[currentQuestionIndex];
+  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b shadow-sm sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-xl font-bold text-gray-800">{exam.title}</h1>
-              <p className="text-sm text-gray-500">
-                Soal {currentQuestionIndex + 1} dari {exam.questions.length}
-              </p>
-            </div>
-            <div
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono font-bold ${
-                timeRemaining < 300 ? "bg-red-100 text-red-700" : "bg-blue-100 text-blue-700"
-              }`}
-            >
-              <BiTime size={20} />
-              {formatTime(timeRemaining)}
-            </div>
-          </div>
+      <div className="bg-red-600 text-white py-2 px-6 text-center text-sm">
+        ⚠️ Jangan meninggalkan halaman ini saat ujian berlangsung. Exam akan
+        otomatis tersubmit jika Anda keluar!
+      </div>
 
-          {/* Progress Bar */}
-          <div className="mt-4 h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-blue-600 transition-all duration-300"
-              style={{ width: `${progress}%` }}
+      <ExamHeader
+        exam={exam}
+        currentQuestionIndex={currentQuestionIndex}
+        totalQuestions={questions.length}
+        timeRemaining={timeRemaining}
+        formatTime={formatTime}
+        progress={progress}
+      />
+
+      <main className="max-w-7xl mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-3">
+            <QuestionCard
+              question={currentQuestion}
+              questionIndex={currentQuestionIndex}
+              selectedAnswer={answers[currentQuestion.id]}
+              onAnswerSelect={handleAnswerSelect}
+              onPrevious={() => setCurrentQuestionIndex((prev) => prev - 1)}
+              onNext={() => setCurrentQuestionIndex((prev) => prev + 1)}
+              isFirstQuestion={currentQuestionIndex === 0}
+              isLastQuestion={currentQuestionIndex === questions.length - 1}
+              onSubmit={() => handleSubmit(true)}
+              isSubmitting={isSubmitting}
             />
           </div>
-        </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Question Area */}
-          <div className="lg:col-span-3">
-            <div className="bg-white rounded-xl border shadow-sm p-8">
-              <div className="mb-6">
-                <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full mb-4">
-                  Pertanyaan #{currentQuestionIndex + 1}
-                </span>
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">{currentQuestion.text}</h2>
-              </div>
-
-              <div className="space-y-3">
-                {currentQuestion.options.map((option, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleAnswerSelect(index)}
-                    className={`w-full text-left p-4 rounded-lg border-2 transition ${
-                      answers[currentQuestion.id] === index
-                        ? "border-blue-600 bg-blue-50"
-                        : "border-gray-200 hover:border-blue-300 hover:bg-gray-50"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                          answers[currentQuestion.id] === index
-                            ? "border-blue-600 bg-blue-600"
-                            : "border-gray-300"
-                        }`}
-                      >
-                        {answers[currentQuestion.id] === index && (
-                          <BiCheckCircle className="text-white" size={16} />
-                        )}
-                      </div>
-                      <span className="font-medium text-gray-700">
-                        {String.fromCharCode(65 + index)}. {option}
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              {/* Navigation */}
-              <div className="flex justify-between items-center mt-8 pt-6 border-t">
-                <button
-                  onClick={handlePrevious}
-                  disabled={currentQuestionIndex === 0}
-                  className="flex items-center gap-2 px-6 py-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
-                >
-                  <BsArrowLeft size={18} />
-                  Sebelumnya
-                </button>
-
-                {currentQuestionIndex < exam.questions.length - 1 ? (
-                  <button
-                    onClick={handleNext}
-                    className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
-                  >
-                    Selanjutnya
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleSubmit}
-                    disabled={isSubmitting}
-                    className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-400 transition"
-                  >
-                    {isSubmitting ? "Mengirim..." : "Submit Test"}
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl border shadow-sm p-6 sticky top-24">
-              <h3 className="font-bold text-gray-800 mb-4">Navigasi Soal</h3>
-              <p className="text-sm text-gray-500 mb-4">
-                {answeredCount} dari {exam.questions.length} soal terjawab
-              </p>
-
-              <div className="grid grid-cols-5 gap-2">
-                {exam.questions.map((question, index) => (
-                  <button
-                    key={question.id}
-                    onClick={() => setCurrentQuestionIndex(index)}
-                    className={`aspect-square rounded-lg font-semibold text-sm transition ${
-                      currentQuestionIndex === index
-                        ? "bg-blue-600 text-white"
-                        : answers[question.id] !== undefined
-                        ? "bg-green-100 text-green-700 border border-green-300"
-                        : "bg-gray-100 text-gray-600 border border-gray-300 hover:bg-gray-200"
-                    }`}
-                  >
-                    {index + 1}
-                  </button>
-                ))}
-              </div>
-
-              <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-xs text-yellow-800">
-                  💡 <span className="font-semibold">Tips:</span> Pastikan semua soal sudah
-                  terjawab sebelum submit.
-                </p>
-              </div>
-            </div>
+            <ExamSidebar
+              questions={questions}
+              currentQuestionIndex={currentQuestionIndex}
+              answers={answers}
+              timeRemaining={timeRemaining}
+              onQuestionSelect={setCurrentQuestionIndex}
+            />
           </div>
         </div>
       </main>

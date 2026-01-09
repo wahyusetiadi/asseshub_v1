@@ -10,5 +10,6 @@ export interface TestData {
   description: string;
   startAt: string;
   endAt: string;
+  categoryId: string;
   durationMinutes: number;
 }

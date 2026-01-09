@@ -2,11 +2,13 @@
 import examService from "@/app/api/services/examService";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BsArrowLeft } from "react-icons/bs";
 import { BiSave } from "react-icons/bi";
 import { FiCalendar, FiClock } from "react-icons/fi";
 import { TestData } from "@/types/testTypes";
+import adminService from "@/app/api/services/adminService";
+import SelectField from "@/components/ui/SelectField";
 
 // ✅ Type untuk response API
 interface CreateExamResponse {
@@ -18,6 +20,11 @@ interface CreateExamResponse {
   };
 }
 
+interface Position {
+  id: string;
+  name: string;
+}
+
 export default function CreateTestPage() {
   const router = useRouter();
   const [testData, setTestData] = useState<TestData>({
@@ -25,9 +32,33 @@ export default function CreateTestPage() {
     description: "",
     startAt: "",
     endAt: "",
+    categoryId: "",
     durationMinutes: 120,
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [positions, setPositions] = useState<Position[]>([]);
+
+  const fetchPositionData = async () => {
+    try {
+      const response = await adminService.getAllPositions();
+      const data = response.data?.data || response.data || [];
+
+      console.log("data");
+
+      setPositions(data);
+    } catch (error) {
+      console.error("Error fetching positions:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPositionData();
+  }, []);
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setTestData((prev) => ({ ...prev, categoryId: e.target.value }));
+    // setError("");
+  };
 
   const handleSave = async () => {
     try {
@@ -145,6 +176,21 @@ export default function CreateTestPage() {
                 {testData.title.length}/100 karakter
               </p>
             </div>
+
+            <SelectField
+              label="Posisi Jabatan"
+              placeholder="-- Pilih Posisi --"
+              // Transform data posisi menjadi format label & value
+              options={positions.map((pos) => ({
+                label: pos.name,
+                value: pos.id,
+              }))}
+              value={testData.categoryId}
+              onChange={handleSelectChange}
+              required
+              helperText="Pilih posisi yang dilamar oleh kandidat"
+              // disabled={isSubmitting}
+            />
 
             {/* Deskripsi */}
             <div>
