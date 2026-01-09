@@ -26,6 +26,7 @@ export interface Test {
   startAt: string;
   endAt: string;
   totalQuestions?: number;
+  categoryId?: string;
   _count?: { questions: number };
 }
 

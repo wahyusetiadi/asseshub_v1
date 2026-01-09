@@ -32,6 +32,7 @@ class ExamService {
         startAt: new Date(data.startAt).toISOString(),
         endAt: new Date(data.endAt).toISOString(),
         durationMinutes: data.durationMinutes,
+        categoryId: data.categoryId,
       }
     );
     return response;

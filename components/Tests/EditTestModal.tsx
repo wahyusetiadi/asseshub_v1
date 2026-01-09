@@ -17,6 +17,7 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
     durationMinutes: 0,
     startAt: "",
     endAt: "",
+    categoryId: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -28,6 +29,7 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
       durationMinutes: test.durationMinutes,
       startAt: test.startAt.slice(0, 16),
       endAt: test.endAt.slice(0, 16),
+      categoryId: test.categoryId || "",
     });
   }, [test]);
 
@@ -57,6 +59,7 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
         startAt: form.startAt,
         endAt: form.endAt,
         durationMinutes: form.durationMinutes,
+        categoryId: form.categoryId,
       };
 
       await examService.updateExam(test.id, payload);
