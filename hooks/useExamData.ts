@@ -65,13 +65,6 @@ export const useExamData = (testId: string) => {
           // ✅ FIX: Konversi milidetik ke detik
           const remainingInSeconds = Math.floor(remaining_duration / 1000);
 
-          console.log("🔄 Converted:", {
-            fromBackend: remaining_duration,
-            unit: "milliseconds",
-            converted: remainingInSeconds,
-            unit: "seconds",
-          });
-
           // ✅ Gunakan remaining_duration sebagai sumber kebenaran
           if (
             typeof remaining_duration === "number" &&

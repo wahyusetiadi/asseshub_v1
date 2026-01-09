@@ -34,6 +34,7 @@ interface ExamDetailResponse {
   durationMinutes: number;
   createdAt: string;
   updatedAt: string;
+  categoryId?: string;
 }
 
 export default function EditTestPage() {
@@ -47,6 +48,7 @@ export default function EditTestPage() {
     startAt: "",
     endAt: "",
     durationMinutes: 120,
+    categoryId: ""
   });
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -86,6 +88,7 @@ export default function EditTestPage() {
             ? new Date(examDetail.endAt).toISOString().slice(0, 16)
             : "",
           durationMinutes: examDetail.durationMinutes || 120,
+          categoryId: examDetail.categoryId || ""
         });
 
         // 2️⃣ Fetch exam WITH questions menggunakan getQuestion(examId)
