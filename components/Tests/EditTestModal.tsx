@@ -1,8 +1,10 @@
 "use client";
 
-import { Test } from "@/app/(admin)/tests/page";
+import { Position, Test } from "@/app/(admin)/tests/page";
 import examService from "@/app/api/services/examService";
 import { useEffect, useState } from "react";
+import SelectField from "../ui/SelectField";
+import adminService from "@/app/api/services/adminService";
 
 interface Props {
   test: Test;
@@ -18,20 +20,46 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
     startAt: "",
     endAt: "",
     categoryId: "",
+    category: "",
   });
 
   const [loading, setLoading] = useState(false);
+  const [positions, setPositions] = useState<Position[]>([]);
 
+  const fetchPositionData = async () => {
+    try {
+      const response = await adminService.getAllPositions();
+      const data = response.data?.data || response.data || [];
+      setPositions(data);
+    } catch (error) {
+      console.error("Error fetching positions:", error);
+    }
+  };
+
+  // Fetch positions saat modal dibuka
   useEffect(() => {
-    setForm({
-      title: test.title,
-      description: test.description,
-      durationMinutes: test.durationMinutes,
-      startAt: test.startAt.slice(0, 16),
-      endAt: test.endAt.slice(0, 16),
-      categoryId: test.categoryId || "",
-    });
-  }, [test]);
+    fetchPositionData();
+  }, []);
+
+  // Set form setelah positions ter-load
+  useEffect(() => {
+    if (positions.length > 0) {
+      // Cari position yang match dengan category name
+      const matchedPosition = positions.find(
+        pos => pos.name.toLowerCase() === test.category?.toLowerCase()
+      );
+
+      setForm({
+        title: test.title,
+        description: test.description,
+        durationMinutes: test.durationMinutes,
+        startAt: test.startAt.slice(0, 16),
+        endAt: test.endAt.slice(0, 16),
+        categoryId: matchedPosition?.id || "",
+        category: test.category || "",
+      });
+    }
+  }, [test, positions]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -40,6 +68,17 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
     setForm((prev) => ({
       ...prev,
       [name]: name === "durationMinutes" ? Number(value) : value,
+    }));
+  };
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedId = e.target.value;
+    const selectedPosition = positions.find(pos => pos.id === selectedId);
+    
+    setForm((prev) => ({ 
+      ...prev, 
+      categoryId: selectedId,
+      category: selectedPosition?.name || ""
     }));
   };
 
@@ -67,6 +106,7 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
       const updated: Test = {
         ...test,
         ...payload,
+        category: form.category, // ✅ Update category juga
         startAt: new Date(payload.startAt).toISOString(),
         endAt: new Date(payload.endAt).toISOString(),
       };
@@ -105,6 +145,19 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
               required
             />
           </div>
+
+          <SelectField
+            label="Posisi"
+            placeholder="-- Pilih Posisi --"
+            options={positions.map((pos) => ({
+              label: pos.name,
+              value: pos.id,
+            }))}
+            value={form.categoryId}
+            onChange={handleSelectChange}
+            required
+            helperText="Pilih Posisi yang dialamar kandidat"
+          />
 
           <div>
             <label className="text-sm font-medium">Deskripsi</label>
