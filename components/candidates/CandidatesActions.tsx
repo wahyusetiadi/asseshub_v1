@@ -20,9 +20,9 @@ export default function CandidateActions({
 }: CandidateActionsProps) {
   return (
     <div className="flex items-center justify-center gap-2">
-      <ActionButton icon={BsEye} onClick={() => onDetail(candidate.id)} />
-      <ActionButton icon={BiEdit} onClick={() => onEdit(candidate.id)} />
-      <ActionButton icon={BiTrash} onClick={() => onDelete(candidate.id)} />
+      <ActionButton icon={BsEye} variant="primary" onClick={() => onDetail(candidate.id)} />
+      <ActionButton icon={BiEdit} variant="warning" onClick={() => onEdit(candidate.id)} />
+      <ActionButton icon={BiTrash} variant="danger" onClick={() => onDelete(candidate.id)} />
     </div>
   );
 }

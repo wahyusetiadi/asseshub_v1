@@ -18,6 +18,20 @@ class AdminService {
     }
   );
 
+  updatedAccount = createApiMethod(
+    async (id: string, name?: string, email?: string, position?: string) => {
+      const response = await apiConfig.patch(
+        API_ENDPOINTS.ADMIN.UPDATE_ACCOUNT(id),
+        {
+          name,
+          email,
+          position,
+        }
+      );
+      return response;
+    }
+  );
+
   getAllCandicates = createApiMethod(async () => {
     return apiConfig.get(API_ENDPOINTS.ADMIN.GET_ALL_CANDIDATES);
   });

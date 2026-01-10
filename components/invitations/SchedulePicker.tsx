@@ -17,7 +17,7 @@ export default function SchedulePicker({
 }: SchedulePickerProps) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+      <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
         <BsCalendar size={14} />
         Jadwal Mulai Test (Opsional)
       </label>

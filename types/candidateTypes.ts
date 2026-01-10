@@ -6,7 +6,10 @@ export interface Candidate {
   name: string;
   email: string;
   position: string;
-  status?: "pending" | "sent" | "opened" | "completed"; // Optional field
+  status?: "pending" | "sent" | "opened" | "completed";
+  // Tambahkan field dari API
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Position {

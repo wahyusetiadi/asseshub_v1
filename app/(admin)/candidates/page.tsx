@@ -8,9 +8,10 @@ import DataTable from "@/components/ui/DataTable";
 import CreateCandidateModal from "@/components/candidates/CreateModal";
 import Button from "@/components/ui/Button";
 import CandidateDetailModal from "@/components/candidates/DetailModal";
-import { Candidate } from "@/types/api";
 import CandidateStats from "@/components/candidates/CandidateState";
 import { CreateCandidateColumns } from "@/components/candidates/CandidateColumns";
+import CandidateEditModal from "@/components/candidates/EditModal";
+import { Candidate } from "@/types/candidateTypes";
 
 export default function CandidatesPage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -20,6 +21,10 @@ export default function CandidatesPage() {
   const [createModal, setCreateModal] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(
+    null
+  );
+  const [isEditModal, setIsEditModal] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(
     null
   );
 
@@ -82,13 +87,22 @@ export default function CandidatesPage() {
   };
 
   const handleEdit = (candidateId: string) => {
-    console.log("Edit candidate:", candidateId);
-    alert(`Edit candidate: ${candidateId} `);
+    // Cari data kandidat berdasarkan ID
+    const candidate = candidates.find((c) => c.id === candidateId);
+    if (candidate) {
+      setSelectedCandidate(candidate);
+      setIsEditModal(true);
+    }
   };
 
   const handleCloseDetail = () => {
     setIsDetailModalOpen(false);
     setSelectedCandidateId(null);
+  };
+
+  const handleCloseEdit = () => {
+    setIsEditModal(false);
+    setSelectedCandidate(null);
   };
 
   const handleSuccess = () => {
@@ -168,6 +182,13 @@ export default function CandidatesPage() {
         isOpen={isDetailModalOpen}
         onClose={handleCloseDetail}
         candidateId={selectedCandidateId}
+      />
+
+      <CandidateEditModal
+        isOpen={isEditModal}
+        onClose={handleCloseEdit}
+        onSuccess={handleSuccess}
+        candidate={selectedCandidate}
       />
     </div>
   );
