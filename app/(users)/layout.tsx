@@ -38,18 +38,18 @@ export default function LayoutExample({
           href: "/dashboard",
           icon: <FiHome />,
         },
-        {
-          key: "exam",
-          label: "Exam",
-          href: "/exam",
-          icon: <FaChalkboardTeacher />,
-        },
-        {
-          key: "result_exam",
-          label: "Hasil Tes",
-          href: "/result-exam",
-          icon: <IoDocumentTextOutline />,
-        },
+        // {
+        //   key: "exam",
+        //   label: "Exam",
+        //   href: "/exam",
+        //   icon: <FaChalkboardTeacher />,
+        // },
+        // {
+        //   key: "result_exam",
+        //   label: "Hasil Tes",
+        //   href: "/result-exam",
+        //   icon: <IoDocumentTextOutline />,
+        // },
       ],
     },
   ];

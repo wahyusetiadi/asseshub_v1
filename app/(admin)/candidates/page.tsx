@@ -83,7 +83,7 @@ export default function CandidatesPage() {
 
   const handleEdit = (candidateId: string) => {
     console.log("Edit candidate:", candidateId);
-    alert(`Edit candidate: ${candidateId} `)
+    alert(`Edit candidate: ${candidateId} `);
   };
 
   const handleCloseDetail = () => {
@@ -115,12 +115,11 @@ export default function CandidatesPage() {
             <p className="font-semibold text-red-800">Error</p>
             <p className="text-sm text-red-600">{error}</p>
           </div>
-          <button
+          <Button
+            title="Coba Lagi"
             onClick={fetchCandidates}
-            className="ml-auto text-sm text-red-600 hover:text-red-700 underline"
-          >
-            Coba Lagi
-          </button>
+            variant="destructive"
+          />
         </div>
       )}
 
@@ -150,7 +149,7 @@ export default function CandidatesPage() {
 
       <CandidateStats candidates={candidates} />
 
-      <div className="bg-white border rounded-2xl overflow-hidden shadow-sm">
+      <div className="bg-white rounded-lg overflow-hidden shadow-sm">
         <DataTable
           columns={columns}
           data={candidates}

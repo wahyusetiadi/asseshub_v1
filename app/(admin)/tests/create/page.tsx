@@ -9,6 +9,8 @@ import { FiCalendar, FiClock } from "react-icons/fi";
 import { TestData } from "@/types/testTypes";
 import adminService from "@/app/api/services/adminService";
 import SelectField from "@/components/ui/SelectField";
+import InputField from "@/components/ui/InputFieled";
+import Button from "@/components/ui/Button";
 
 // ✅ Type untuk response API
 interface CreateExamResponse {
@@ -137,19 +139,19 @@ export default function CreateTestPage() {
             </div>
           </div>
 
-          <button
+          <Button
+            size="lg"
+            variant="primary"
             onClick={handleSave}
             disabled={isSaving}
-            className="bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-blue-700 shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <BiSave size={20} />
-            {isSaving ? "Menyimpan..." : "Lanjut ke Soal"}
-          </button>
+            leftIcon={<BiSave />}
+            title={isSaving ? "Menyimpan..." : "Lanjut ke Soal"}
+          />
         </div>
 
         {/* Form Detail Exam */}
-        <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
-          <div className="p-6 border-b bg-linear-to-r from-blue-50 to-purple-50">
+        <div className="bg-white rounded-lg shadow-sm border border-slate-300 overflow-hidden">
+          <div className="p-6 border-b border-slate-300 bg-linear-to-r from-blue-50 to-purple-50">
             <h2 className="font-bold text-lg text-gray-800">Detail Ujian</h2>
             <p className="text-sm text-gray-500">
               Isi informasi dasar tentang ujian
@@ -158,25 +160,18 @@ export default function CreateTestPage() {
 
           <div className="p-6 space-y-6">
             {/* Judul Ujian */}
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
-                Judul Ujian <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={testData.title}
-                onChange={(e) =>
-                  setTestData({ ...testData, title: e.target.value })
-                }
-                placeholder="Contoh: Tes Kemampuan Logika"
-                className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                maxLength={100}
-              />
-              <p className="text-xs text-gray-400 mt-1">
-                {testData.title.length}/100 karakter
-              </p>
-            </div>
-
+            <InputField
+              label="Judul Ujian"
+              type="text"
+              value={testData.title}
+              onChange={(e) =>
+                setTestData({ ...testData, title: e.target.value })
+              }
+              placeholder="Contoh: Tes Kemampuan logika"
+              maxLength={100}
+              helperText={`${testData.title.length}/100 karakter`}
+              required
+            />
             <SelectField
               label="Posisi Jabatan"
               placeholder="-- Pilih Posisi --"
@@ -204,73 +199,56 @@ export default function CreateTestPage() {
                 }
                 placeholder="Jelaskan tujuan dan materi ujian ini..."
                 rows={4}
-                className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none"
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none"
                 maxLength={500}
               />
               <p className="text-xs text-gray-400 mt-1">
                 {testData.description.length}/500 karakter
               </p>
             </div>
-
             {/* Waktu Ujian */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  <FiCalendar className="inline mr-1" />
-                  Waktu Mulai <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="datetime-local"
-                  value={testData.startAt}
-                  onChange={(e) =>
-                    setTestData({ ...testData, startAt: e.target.value })
-                  }
-                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  <FiCalendar className="inline mr-1" />
-                  Waktu Selesai <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="datetime-local"
-                  value={testData.endAt}
-                  onChange={(e) =>
-                    setTestData({ ...testData, endAt: e.target.value })
-                  }
-                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                />
-              </div>
+              <InputField
+                label="Waktu Mulai"
+                type="datetime-local"
+                leftIcon={<FiCalendar />}
+                value={testData.startAt}
+                onChange={(e) =>
+                  setTestData({ ...testData, startAt: e.target.value })
+                }
+                required
+              />
+              <InputField
+                label="Waktu Selesai"
+                type="datetime-local"
+                leftIcon={<FiCalendar />}
+                value={testData.endAt}
+                onChange={(e) =>
+                  setTestData({ ...testData, endAt: e.target.value })
+                }
+                required
+              />
             </div>
 
             {/* Durasi */}
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
-                <FiClock className="inline mr-1" />
-                Durasi Pengerjaan (Menit){" "}
-                <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                value={testData.durationMinutes}
-                onChange={(e) =>
-                  setTestData({
-                    ...testData,
-                    durationMinutes: parseInt(e.target.value) || 0,
-                  })
-                }
-                min={1}
-                max={480}
-                className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-              />
-              <p className="text-xs text-gray-400 mt-1">
-                Kandidat akan memiliki waktu{" "}
-                <strong>{testData.durationMinutes} menit</strong> untuk
-                menyelesaikan ujian
-              </p>
-            </div>
+            <InputField
+              label="Durasi Pengerjaan (Menit)"
+              type="number"
+              leftIcon={<FiClock />}
+              value={testData.durationMinutes}
+              onChange={(e) =>
+                setTestData({
+                  ...testData,
+                  durationMinutes: parseInt(e.target.value),
+                })
+              }
+              min={1}
+              max={480}
+              required
+              helperText={`Kandidat akan memiliki waktu ${
+                testData.durationMinutes || "-"
+              } untuk menyelesaikan ujian`}
+            />
           </div>
         </div>
 

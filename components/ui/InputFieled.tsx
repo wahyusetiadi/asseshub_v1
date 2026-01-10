@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import React from 'react';
 import clsx from 'clsx';
+import './style.css'
 
 type Variant = 'default' | 'outline' | 'ghost';
 type Size = 'sm' | 'md' | 'lg';
@@ -70,7 +71,7 @@ function FieldLabel({
   return (
     <label
       htmlFor={htmlFor}
-      className={clsx('mb-1 block text-sm font-medium', disabled ? 'text-gray-400' : 'text-gray-700')}
+      className={clsx('mb-1 block text-sm font-semibold', disabled ? 'text-gray-400' : 'text-gray-700')}
     >
       {text}
       {required && <span className="text-red-600"> *</span>}

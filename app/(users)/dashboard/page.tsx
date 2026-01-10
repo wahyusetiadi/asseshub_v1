@@ -5,6 +5,7 @@ import { BiTime, BiTask, BiPlay } from "react-icons/bi";
 import { BsCheckCircle, BsClockHistory } from "react-icons/bs";
 import { Test } from "@/types/api";
 import examService from "@/app/api/services/examService";
+import { ExamData } from "@/types/exam.types";
 
 interface TestAssignment {
   id: number;
@@ -43,13 +44,53 @@ export default function DashboardPage() {
   const fetchAssignments = async () => {
     setIsLoading(true);
     try {
-      // TODO: Replace with real API call
-      // const response = await api.getMyTests();
       const response = await examService.getAllExams();
 
-      console.log("response", response.data.data);
+      let exams: ExamData[] = [];
 
-      setAssignments(response.data.data);
+      // Normalisasi response API
+      if (Array.isArray(response)) {
+        exams = response;
+      } else if (response && typeof response === "object") {
+        const responseData = response as {
+          data?: { data?: ExamData[] } | ExamData[];
+        };
+
+        if (Array.isArray(responseData.data)) {
+          exams = responseData.data;
+        } else if (
+          responseData.data &&
+          "data" in responseData.data &&
+          Array.isArray(responseData.data.data)
+        ) {
+          exams = responseData.data.data;
+        }
+      }
+
+      // Ambil user dari localStorage
+      const storedUser = localStorage.getItem("user");
+      const user = storedUser ? JSON.parse(storedUser) : null;
+      const userPosition = user?.position?.toLowerCase();
+
+      // Filter berdasarkan position === category
+      if (userPosition) {
+        exams = exams.filter(
+          (exam) => exam.category?.toLowerCase() === userPosition
+        );
+      }
+
+      // 🔁 MAP ExamData → TestAssignment
+      const mappedAssignments: TestAssignment[] = exams.map((exam, index) => ({
+        id: index + 1, // sementara (idealnya dari backend assignment id)
+        test: exam as unknown as Test, // atau sesuaikan jika ExamData ≈ Test
+        status: "not_started",
+        title: exam.title,
+        description: exam.description ?? "",
+        durationMinutes: exam.durationMinutes ?? 0,
+        totalQuestions: exam.totalQuestions ?? 0,
+      }));
+
+      setAssignments(mappedAssignments);
     } catch (error) {
       console.error("Error fetching assignments:", error);
     } finally {

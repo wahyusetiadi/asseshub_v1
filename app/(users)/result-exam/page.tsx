@@ -1,8 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { BiHome, BiLogOut, BiSearch, BiTrendingUp, BiTrendingDown } from "react-icons/bi";
+import { BiSearch, BiTrendingUp, BiTrendingDown } from "react-icons/bi";
 import { BsCheckCircle, BsXCircle, BsEye, BsCalendar, BsAward } from "react-icons/bs";
 
 interface TestResult {

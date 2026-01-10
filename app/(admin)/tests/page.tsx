@@ -87,6 +87,8 @@ export default function TestPage() {
       setDeleteId(null);
       alert("✅ Berhasil dihapus");
     } catch (error) {
+      console.error("error deleted:", error);
+
       alert("❌ Gagal menghapus");
     }
   };
@@ -127,26 +129,24 @@ export default function TestPage() {
         <div>
           <h1 className="text-2xl font-bold text-black">Manajemen Rekrutmen</h1>
           <div className="flex gap-6 mt-4">
-            <button
+            <Button
+              title="Daftar Ujian"
               onClick={() => setActiveTab("exams")}
               className={`pb-2 text-sm font-medium transition-colors ${
                 activeTab === "exams"
-                  ? "border-b-2 border-blue-600 text-blue-600"
+                  ? "border-b-2 border-blue-600 text-blue-600 rounded-none"
                   : "text-gray-500 hover:text-blue-600"
               }`}
-            >
-              Daftar Ujian
-            </button>
-            <button
+            />
+            <Button
+              title="Daftar Ujian"
               onClick={() => setActiveTab("positions")}
               className={`pb-2 text-sm font-medium transition-colors ${
                 activeTab === "positions"
-                  ? "border-b-2 border-blue-600 text-blue-600"
+                  ? "border-b-2 border-blue-600 text-blue-600 rounded-none"
                   : "text-gray-500 hover:text-blue-600"
               }`}
-            >
-              Daftar Posisi
-            </button>
+            />
           </div>
         </div>
 
@@ -154,7 +154,7 @@ export default function TestPage() {
           {activeTab === "exams" ? (
             <Link
               href="/tests/create"
-              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow-sm text-sm"
+              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 transition shadow-sm text-sm"
             >
               <BiPlus size={18} /> Buat Tes Baru
             </Link>
@@ -194,7 +194,7 @@ export default function TestPage() {
         )
       ) : (
         /* TABLE POSITIONS - Menggunakan DataTable Component */
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+        <div className="bg-white rounded-lg overflow-hidden shadow-sm">
           <DataTable
             columns={positionColumns}
             data={positions}

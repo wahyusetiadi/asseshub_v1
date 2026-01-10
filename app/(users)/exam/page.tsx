@@ -8,9 +8,9 @@ import userService from "@/app/api/services/userService";
 
 interface UserProgress {
   user_id?: string;
-  remaining_duration?: number; // dalam detik
+  remaining_duration?: number;
   is_exam_ongoing?: boolean;
-  status?: string; // fallback for old format
+  status?: string;
   startedAt?: string;
   finishedAt?: string;
   score?: number;
@@ -23,6 +23,7 @@ interface ExamResponse {
   durationMinutes: number;
   startAt: string;
   endAt: string;
+  category?: string;
   _count?: {
     questions: number;
   };
@@ -52,25 +53,32 @@ export default function ExamListPage() {
   const [startingExam, setStartingExam] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check authentication
     const userData = localStorage.getItem("user");
     if (!userData) {
       router.push("/login");
       return;
     }
     setUser(JSON.parse(userData));
-
-    // Fetch assigned tests
     fetchTests();
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchTests();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [router]);
 
   const fetchTests = async () => {
     setIsLoading(true);
     try {
-      // Fetch all exams
       const response = await examService.getAllExams();
 
-      // Parse response to get array of exams
       let exams: ExamResponse[] = [];
       if (Array.isArray(response)) {
         exams = response;
@@ -90,50 +98,26 @@ export default function ExamListPage() {
         }
       }
 
-      // Check status for each exam
-      const testsWithStatus = await Promise.all(
-        exams.map(async (exam: ExamResponse) => {
-          try {
-            // Check exam status
-            const statusResponse = await userService.checkStatus(exam.id);
+      const storedUser = localStorage.getItem("user");
+      const user = storedUser ? JSON.parse(storedUser) : null;
+      const userPosition = user?.position?.toLowerCase();
 
-            // Parse status data
-            let statusData: UserProgress | null = null;
-            if (statusResponse?.data) {
-              // Format baru: {status: "success", data: {user_id, remaining_duration, is_exam_ongoing}}
-              statusData = statusResponse.data;
-            } else if (statusResponse && typeof statusResponse === "object") {
-              // Fallback untuk format lama
-              statusData = statusResponse as unknown as UserProgress;
-            }
+      if (userPosition) {
+        exams = exams.filter(
+          (exam) => exam.category?.toLowerCase() === userPosition
+        );
+      }
 
-            return {
-              id: exam.id,
-              title: exam.title,
-              description: exam.description,
-              durationMinutes: exam.durationMinutes,
-              startAt: exam.startAt,
-              endAt: exam.endAt,
-              totalQuestions: exam._count?.questions || 0,
-              status: determineStatus(exam, statusData),
-              userProgress: statusData || undefined,
-              score: statusData?.score,
-            };
-          } catch (error) {
-            console.error(`Error checking status for exam ${exam.id}:`, error);
-            return {
-              id: exam.id,
-              title: exam.title,
-              description: exam.description,
-              durationMinutes: exam.durationMinutes,
-              startAt: exam.startAt,
-              endAt: exam.endAt,
-              totalQuestions: exam._count?.questions || 0,
-              status: "not_started" as const,
-            };
-          }
-        })
-      );
+      const testsWithStatus = exams.map((exam: ExamResponse) => ({
+        id: exam.id,
+        title: exam.title,
+        description: exam.description,
+        durationMinutes: exam.durationMinutes,
+        startAt: exam.startAt,
+        endAt: exam.endAt,
+        totalQuestions: exam._count?.questions || 0,
+        status: "not_started" as const, 
+      }));
 
       setTests(testsWithStatus);
     } catch (error) {
@@ -143,49 +127,12 @@ export default function ExamListPage() {
     }
   };
 
-  const determineStatus = (
-    exam: ExamResponse,
-    statusData: UserProgress | null
-  ): "not_started" | "in_progress" | "completed" | "expired" => {
-    const now = new Date();
-    const startDate = new Date(exam.startAt);
-    const endDate = new Date(exam.endAt);
-
-    // Check if exam period has expired
-    if (now > endDate) {
-      return statusData?.is_exam_ongoing === false &&
-        statusData?.remaining_duration === 0
-        ? "completed"
-        : "expired";
-    }
-
-    // Check if exam hasn't started yet
-    if (now < startDate) {
-      return "not_started";
-    }
-
-    // 👇 Gunakan is_exam_ongoing dari backend
-    if (statusData) {
-      // Jika exam tidak ongoing dan remaining duration 0, berarti completed
-      if (!statusData.is_exam_ongoing && statusData.remaining_duration === 0) {
-        return "completed";
-      }
-
-      // Jika exam ongoing, berarti in_progress
-      if (statusData.is_exam_ongoing && statusData.remaining_duration! > 0) {
-        return "in_progress";
-      }
-    }
-
-    return "not_started";
-  };
-
   const handleStartTest = async (test: Test) => {
-    // Validations
     const now = new Date();
     const startDate = new Date(test.startAt);
     const endDate = new Date(test.endAt);
 
+    // Validasi waktu
     if (now > endDate) {
       alert("❌ Ujian ini sudah berakhir dan tidak dapat dikerjakan lagi.");
       return;
@@ -200,37 +147,65 @@ export default function ExamListPage() {
       return;
     }
 
-    if (test.status === "completed") {
-      alert("✅ Anda sudah menyelesaikan ujian ini.");
-      return;
-    }
-
     if (startingExam !== null) return;
 
     setStartingExam(test.id);
 
     try {
-      if (test.status === "not_started") {
-        console.log("🚀 Starting exam...");
+      // Cek localStorage dulu
+      const localProgress = localStorage.getItem(`exam_progress_${test.id}`);
 
-        const response = await userService.startExam(test.id);
+      if (localProgress) {
+        const progress = JSON.parse(localProgress);
 
-        // 👇 Parse response dengan benar
-        const startData = response?.data?.data || response?.data;
+        if (progress.completed) {
+          alert("✅ Anda sudah menyelesaikan ujian ini.");
+          setStartingExam(null);
+          return;
+        }
 
-        console.log("✅ Exam started:", {
-          progressId: startData?.id,
-          startedAt: startData?.startedAt,
-          status: startData?.status,
-        });
-
-        // 👇 Verify dengan checkStatus
-        const statusCheck = await userService.checkStatus(test.id);
-        console.log("📊 Status check:", statusCheck?.data);
-
-        // Tunggu 1 detik untuk memastikan backend ready
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // Jika ada progress tapi belum selesai, lanjutkan
+        console.log("📝 Melanjutkan ujian yang sedang berjalan...");
+        router.push(`/exam/${test.id}`);
+        return;
       }
+
+      // Jika belum ada di localStorage, cek ke backend
+      console.log("🔍 Checking exam status from backend...");
+      const statusCheck = await userService.checkStatus(test.id);
+      const statusData = statusCheck?.data;
+
+      if (statusData?.is_exam_ongoing) {
+        // Sudah pernah start tapi tidak ada di localStorage (mungkin clear cache)
+        alert(
+          "⚠️ Anda sudah memulai ujian ini sebelumnya. Silakan hubungi administrator."
+        );
+        setStartingExam(null);
+        return;
+      }
+
+      // Mulai ujian baru
+      console.log("🚀 Starting new exam...");
+      const response = await userService.startExam(test.id);
+      const startData = response?.data?.data || response?.data;
+
+      // Simpan ke localStorage
+      const examProgress = {
+        examId: test.id,
+        progressId: startData?.id,
+        startedAt: startData?.startedAt,
+        status: startData?.status,
+        answers: {},
+        completed: false,
+      };
+      localStorage.setItem(
+        `exam_progress_${test.id}`,
+        JSON.stringify(examProgress)
+      );
+
+      console.log("✅ Exam started:", startData);
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       console.log("➡️ Redirecting to exam page...");
       router.push(`/exam/${test.id}`);

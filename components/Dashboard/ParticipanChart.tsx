@@ -13,7 +13,7 @@ const ParticipationChart: React.FC<ParticipationChartProps> = ({
   data,
 }) => {
   return (
-    <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+    <div className="lg:col-span-2 bg-white p-6 rounded-lg border border-gray-100 shadow-sm">
       <div className="flex justify-between items-center mb-6">
         <h3 className="font-bold text-gray-800">{title}</h3>
 

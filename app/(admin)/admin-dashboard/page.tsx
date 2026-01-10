@@ -47,7 +47,7 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <ParticipationChart data={participationMockData} />
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+        <div className="bg-white p-6 rounded-lg border border-gray-100 shadow-sm">
           <h3 className="font-bold text-gray-800 mb-6">Aktivitas Terbaru</h3>
           <div className="space-y-6">
             {recentActivities.map((activity) => (

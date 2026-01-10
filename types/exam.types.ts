@@ -18,6 +18,11 @@ export interface ExamData {
   durationMinutes: number;
   startAt: string;
   endAt: string;
+  category?: string;
+  totalQuestions?: number;
+  _count?: {
+    questions: number;
+  };
 }
 
 export interface UserProgress {

@@ -18,7 +18,7 @@ export default function TestCard({
   onEditExam,
 }: TestCardProps) {
   return (
-    <div className="bg-white p-5 rounded-xl border shadow-sm hover:border-blue-300 transition-all group">
+    <div className="bg-white p-5 rounded-lg border border-slate-300 shadow-sm hover:border-blue-300 transition-all group">
       <div className=" flex items-center justify-between">
         <h3 className="font-bold text-lg mb-1 text-black group-hover:text-blue-600">
           {test.title}
@@ -36,7 +36,7 @@ export default function TestCard({
         {test.totalQuestions|| 0} Pertanyaan • {test.durationMinutes} Menit
       </p>
 
-      <div className="flex justify-between items-center pt-4 border-t">
+      <div className="flex justify-between items-center pt-4 border-t border-slate-400">
         <div className="flex gap-3">
           <Link
             href={`/tests/${test.id}`}

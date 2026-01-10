@@ -48,6 +48,19 @@ class AdminService {
     );
     return response;
   });
+
+  sendInvitation = createApiMethod(
+    async (data: { examId: string; userIds: string[] }) => {
+      const response = await apiConfig.post(
+        API_ENDPOINTS.ADMIN.SEND_INVITATIONS,
+        {
+          examId: data.examId,
+          userIds: data.userIds,
+        }
+      );
+      return response;
+    }
+  );
 }
 
 const adminService = new AdminService();

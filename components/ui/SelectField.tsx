@@ -77,7 +77,7 @@ function FieldLabel({
     <label
       htmlFor={htmlFor}
       className={clsx(
-        "mb-1 block text-sm font-medium",
+        "mb-1 block text-sm font-semibold",
         disabled ? "text-gray-400" : "text-gray-700"
       )}
     >

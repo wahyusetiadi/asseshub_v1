@@ -94,6 +94,12 @@ class ExamService {
       return response;
     }
   );
+
+  //===RESULT (ADMIN_ONLY)
+  resultsExam = createApiMethod(async () => {
+    const response = await apiConfig.get(API_ENDPOINTS.ADMIN.GET_ALL_RESULTS);
+    return response;
+  });
 }
 
 const examService = new ExamService();

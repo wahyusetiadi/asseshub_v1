@@ -10,7 +10,9 @@ export const API_ENDPOINTS = {
     //Account
     GENERATE_ACCOUNT: "/admin/accounts",
     GET_ACCOUNT: (id: string) => `/admin/accounts/${id}`,
-    GET_ALL_CANDIDATES: "admin/accounts",
+    GET_ALL_CANDIDATES: "/admin/accounts",
+    UPDATE_ACCOUNT: (id: string) => `/admin/accounts/${id}`,
+    SEND_INVITATIONS: `/admin/accounts/invitation`,
 
     //Exams
     GENERATE_EXAMS: "/admin/exams",
@@ -22,11 +24,16 @@ export const API_ENDPOINTS = {
     GENERATE_QUESTIONS: (id: string) => `/admin/exams/${id}/questions`,
     GET_QUESTION: (examId: string) => `/admin/exams/${examId}/questions`,
     UPDATE_QUESTION: (id: string) => `/admin/questions/${id}`,
+    DELETE_QUESTION: (id: string) => `admin/questions/${id}`,
 
     //Options
     GENERATE_OPTIONS: (questionId: string) =>
       `/admin/questions/${questionId}/options`,
     UPDATE_OPTION: (optionId: string) => `/admin/options/${optionId}`,
+    DELETE_OPTION: (optionId: string) => `/admin/options/${optionId}`,
+
+    //Results (Admin Only)
+    GET_ALL_RESULTS: "/admin/exams/candidates/results"
   },
 
   USER: {

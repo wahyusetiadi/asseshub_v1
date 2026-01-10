@@ -4,7 +4,7 @@ import React from "react";
 export interface Column<T> {
   key: keyof T | string;
   label: string;
-  render?: (row: T) => React.ReactNode;
+  render?: (row: T, index: number) => React.ReactNode;
   align?: "left" | "center" | "right";
 }
 
@@ -31,16 +31,12 @@ export default function DataTable<T>({
   }
 
   if (!data.length) {
-    return (
-      <div className="p-8 text-center text-gray-500">
-        {emptyMessage}
-      </div>
-    );
+    return <div className="p-8 text-center text-gray-500">{emptyMessage}</div>;
   }
 
   return (
     <table className="w-full text-left">
-      <thead className="bg-gray-50 border-b text-gray-600 uppercase text-[11px] font-bold tracking-widest">
+      <thead className="bg-gray-50 border-b border-slate-400 text-gray-600 uppercase text-[11px] font-bold tracking-widest">
         <tr>
           {columns.map((col) => (
             <th
@@ -59,12 +55,9 @@ export default function DataTable<T>({
         </tr>
       </thead>
 
-      <tbody className="divide-y text-sm text-gray-700">
+      <tbody className="divide-y divide-slate-300 text-sm text-gray-700">
         {data.map((row, rowIndex) => (
-          <tr
-            key={rowIndex}
-            className="hover:bg-blue-50/50 transition"
-          >
+          <tr key={rowIndex} className="hover:bg-blue-50/50 transition">
             {columns.map((col) => (
               <td
                 key={String(col.key)}
@@ -77,9 +70,8 @@ export default function DataTable<T>({
                 }`}
               >
                 {col.render
-                  ? col.render(row)
-                  : 
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  ? col.render(row, rowIndex)
+                  : // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     (row as any)[col.key]}
               </td>
             ))}

@@ -7,6 +7,8 @@ import { useExamTimer } from "@/hooks/useExamTimer";
 import ExamHeader from "@/components/exam/ExamHeader";
 import QuestionCard from "@/components/exam/QuestionCard";
 import ExamSidebar from "@/components/exam/ExamSidebae";
+import { useExamProtection } from "@/hooks/useExamProtection";
+import { useExamSync } from "@/hooks/useExamSync";
 
 export default function ExamExecutionPage({
   params,
@@ -165,32 +167,46 @@ export default function ExamExecutionPage({
         hasAutoSubmitted.current = true;
       }
 
+      // 🔥 SET FLAG SEBELUM SUBMIT
+      isExamFinished.current = true;
       setIsSubmitting(true);
 
       try {
-        // 🔥 STEP 1: Submit semua jawaban ke backend
         console.log("🚀 Step 1: Submitting answers...");
         const canProceed = await submitAllAnswers();
 
         if (!canProceed) {
           setIsSubmitting(false);
+          isExamFinished.current = false; // Reset jika gagal
           if (!isManual) {
             hasAutoSubmitted.current = false;
           }
           return;
         }
 
-        // 🔥 STEP 2: Finish exam
         console.log("🚀 Step 2: Finishing exam...");
         await userService.finishExam(testId);
 
-        // 🔥 STEP 3: Clear localStorage dan redirect
+        console.log("🚀 Step 3: Cleaning up and redirecting...");
         localStorage.removeItem(ANSWERS_STORAGE_KEY);
-        isExamFinished.current = true;
+
+        // 🔥 PASTI REDIRECT
         alert("✅ Ujian berhasil diselesaikan!");
+
+        // Force redirect dengan window.location sebagai backup
         router.push("/exam");
+
+        // Backup redirect jika router.push gagal
+        setTimeout(() => {
+          if (window.location.pathname !== "/exam") {
+            console.log("⚠️ Router.push failed, using window.location");
+            window.location.href = "/exam";
+          }
+        }, 1000);
       } catch (error) {
         console.error("Error submitting exam:", error);
+        isExamFinished.current = false; // Reset flag jika error
+
         const err = error as {
           response?: { data?: { message?: string } };
           message?: string;
@@ -216,11 +232,24 @@ export default function ExamExecutionPage({
       testId,
       router,
       ANSWERS_STORAGE_KEY,
-      submitAllAnswers, // ✅ Tambahkan ini
+      submitAllAnswers,
     ]
   );
 
-  // ✅ Set initialized setelah data siap
+  useExamProtection(isExamFinished, () => handleSubmit(false));
+
+  useExamSync(
+    testId,
+    isInitialized,
+    isExamFinished,
+    (seconds) => setInitialTimeRemaining(seconds),
+    () => {
+      if (!hasAutoSubmitted.current) {
+        handleSubmit(false);
+      }
+    }
+  );
+
   useEffect(() => {
     if (
       !isLoading &&
@@ -231,14 +260,14 @@ export default function ExamExecutionPage({
       const initTimer = setTimeout(() => {
         setIsInitialized(true);
         isFirstLoad.current = false;
-        console.log("✅ Exam initialized, auto-submit enabled");
+        console.log("✅ Exam initialized");
       }, 2000);
 
       return () => clearTimeout(initTimer);
     }
   }, [isLoading, exam, questions.length, initialTimeRemaining]);
 
-  // ✅ CHECK STATUS saat component mount
+  // Check initial status
   useEffect(() => {
     if (hasCheckedInitialStatus.current || isLoading || !initialTimeRemaining) {
       return;
@@ -252,34 +281,24 @@ export default function ExamExecutionPage({
         const statusData = statusResponse?.data?.data || statusResponse?.data;
         const { is_exam_ongoing, remaining_duration } = statusData || {};
 
-        // ✅ Konversi milidetik ke detik
         const remainingInSeconds = Math.floor((remaining_duration || 0) / 1000);
 
         console.log("📊 Initial status:", {
           is_exam_ongoing,
-          remaining_duration_ms: remaining_duration,
           remaining_duration_sec: remainingInSeconds,
-          initialTimeRemaining,
         });
 
         hasCheckedInitialStatus.current = true;
 
-        // ✅ Hanya redirect jika waktu BENAR-BENAR habis
         if (remainingInSeconds <= 0) {
-          console.log("⚠️ Exam time is up (remaining <= 0)");
+          console.log("⚠️ Exam time is up");
           localStorage.removeItem(ANSWERS_STORAGE_KEY);
           alert("⏰ Ujian ini sudah selesai atau waktu telah habis.");
           router.push("/exam");
           return;
         }
 
-        // ✅ Sync waktu jika masih ada remaining
         if (remainingInSeconds > 0) {
-          console.log(
-            "✅ Exam still ongoing, syncing time:",
-            remainingInSeconds,
-            "seconds"
-          );
           setInitialTimeRemaining(remainingInSeconds);
         }
       } catch (error) {
@@ -287,10 +306,7 @@ export default function ExamExecutionPage({
       }
     };
 
-    const checkTimer = setTimeout(() => {
-      checkExamStatus();
-    }, 1000);
-
+    const checkTimer = setTimeout(checkExamStatus, 1000);
     return () => clearTimeout(checkTimer);
   }, [
     testId,
@@ -301,66 +317,7 @@ export default function ExamExecutionPage({
     ANSWERS_STORAGE_KEY,
   ]);
 
-  // ✅ Prevent navigation saat exam berlangsung
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (!isExamFinished.current) {
-        e.preventDefault();
-        e.returnValue = "Ujian masih berlangsung. Yakin ingin keluar?";
-        return e.returnValue;
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, []);
-
-  // ✅ Prevent browser back button
-  useEffect(() => {
-    const handlePopState = () => {
-      if (!isExamFinished.current) {
-        const confirmLeave = window.confirm(
-          "Ujian masih berlangsung. Jika Anda keluar, ujian akan otomatis tersubmit. Yakin ingin keluar?"
-        );
-
-        if (!confirmLeave) {
-          window.history.pushState(null, "", window.location.href);
-        } else {
-          handleSubmit(false);
-        }
-      }
-    };
-
-    window.history.pushState(null, "", window.location.href);
-    window.addEventListener("popstate", handlePopState);
-
-    return () => {
-      window.removeEventListener("popstate", handlePopState);
-    };
-  }, [handleSubmit]);
-
-  // ✅ Prevent keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        (e.ctrlKey && (e.key === "w" || e.key === "q")) ||
-        (e.altKey && e.key === "F4")
-      ) {
-        if (!isExamFinished.current) {
-          e.preventDefault();
-          alert("Tidak dapat menutup tab saat ujian berlangsung!");
-        }
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
-  // ✅ Auto submit when time is up
+  // Auto submit when time is up
   useEffect(() => {
     if (
       isInitialized &&
@@ -370,11 +327,7 @@ export default function ExamExecutionPage({
       questions.length > 0 &&
       timeRemaining <= 0
     ) {
-      console.log("🚨 Auto submit will be triggered:", {
-        isTimeUp,
-        shouldAutoSubmit,
-        timeRemaining,
-      });
+      console.log("🚨 Auto submit triggered");
 
       const submitTimer = setTimeout(() => {
         handleSubmit(false);
@@ -391,114 +344,6 @@ export default function ExamExecutionPage({
     timeRemaining,
     handleSubmit,
   ]);
-
-  // ✅ Sync timer dengan backend setiap 30 detik
-  useEffect(() => {
-    if (!exam || isLoading || !isInitialized) return;
-
-    const syncInterval = setInterval(async () => {
-      try {
-        console.log("🔄 Syncing timer with backend...");
-
-        const statusResponse = await userService.checkStatus(testId);
-        const statusData = statusResponse?.data?.data || statusResponse?.data;
-        const remaining_ms = statusData?.remaining_duration;
-        const isOngoing = statusData?.is_exam_ongoing;
-
-        // ✅ Validasi response
-        if (typeof remaining_ms !== "number") {
-          console.warn("⚠️ Invalid remaining_duration, skipping sync");
-          return;
-        }
-
-        // ✅ Konversi milidetik ke detik
-        const remaining = Math.floor(remaining_ms / 1000);
-
-        console.log("📊 Sync result:", {
-          remaining_ms,
-          remaining_sec: remaining,
-          isOngoing,
-          currentLocalTime: timeRemaining,
-        });
-
-        // ✅ Sync waktu dari backend
-        console.log(`🔄 Updating time: ${timeRemaining}s → ${remaining}s`);
-        setInitialTimeRemaining(remaining);
-
-        // ✅ Hanya auto-submit jika remaining_duration <= 0
-        if (remaining <= 0) {
-          if (!hasAutoSubmitted.current && !isExamFinished.current) {
-            console.log(
-              "⚠️ Time is up from backend sync, triggering auto-submit..."
-            );
-            hasAutoSubmitted.current = true;
-            await handleSubmit(false);
-          }
-        }
-      } catch (error) {
-        console.error("❌ Error syncing timer:", error);
-      }
-    }, 30000);
-
-    return () => clearInterval(syncInterval);
-  }, [
-    exam,
-    isLoading,
-    testId,
-    isInitialized,
-    setInitialTimeRemaining,
-    timeRemaining,
-    handleSubmit,
-  ]);
-
-  // ✅ Visibility change detection
-  useEffect(() => {
-    const handleVisibilityChange = async () => {
-      if (isFirstLoad.current || isExamFinished.current) {
-        console.log(
-          "⏭️ Skipping visibility check (first load or exam finished)"
-        );
-        return;
-      }
-
-      if (document.visibilityState === "visible") {
-        console.log("👁️ Tab became visible, checking exam status...");
-
-        try {
-          const statusResponse = await userService.checkStatus(testId);
-          const statusData = statusResponse?.data?.data || statusResponse?.data;
-          const remaining_ms = statusData?.remaining_duration || 0;
-          const isOngoing = statusData?.is_exam_ongoing;
-
-          // ✅ Konversi milidetik ke detik
-          const remaining = Math.floor(remaining_ms / 1000);
-
-          console.log("🔍 Status after tab visible:", {
-            remaining_ms,
-            remaining_sec: remaining,
-            isOngoing,
-          });
-
-          // ✅ Hanya redirect jika waktu benar-benar habis
-          if (remaining <= 0) {
-            alert("⏰ Waktu ujian telah habis saat Anda tidak aktif.");
-            localStorage.removeItem(ANSWERS_STORAGE_KEY);
-            isExamFinished.current = true;
-            router.push("/exam");
-          } else if (remaining > 0) {
-            console.log("✅ Syncing time from backend:", remaining, "seconds");
-            setInitialTimeRemaining(remaining);
-          }
-        } catch (error) {
-          console.error("Error checking status on visibility change:", error);
-        }
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () =>
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [testId, router, setInitialTimeRemaining, ANSWERS_STORAGE_KEY]);
 
   // ✅ Handle answer select dengan simpan ke localStorage
   const handleAnswerSelect = (questionId: string, optionId: string) => {
