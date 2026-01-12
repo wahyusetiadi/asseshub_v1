@@ -103,8 +103,8 @@ export default function AuthPage() {
 
         <p className="text-xs text-gray-500 text-center mt-4">Demo:</p>
         <ul className="text-xs text-gray-500 text-center mt-4">
-          <li>admin@mail.com / admin123</li>
-          <li>user@mail.com / user123</li>
+          <li>arisbara / arisbara</li>
+          {/* <li>user@mail.com / user123</li> */}
         </ul>
       </div>
     </div>

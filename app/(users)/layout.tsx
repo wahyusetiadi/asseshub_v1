@@ -1,13 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FiHome,
-  FiShoppingCart,
-  FiUsers,
   FiBell,
-  FiSearch,
   FiMenu,
   FiLogOut,
 } from "react-icons/fi";
@@ -15,9 +12,15 @@ import avatar from "@/public/avatar.jpg";
 import { SidebarGroup } from "@/helpers/sidebar.helper";
 import Sidebar from "@/components/Layout/Sidebar";
 import Topbar from "@/components/Layout/Topbar";
-import { FaChalkboardTeacher } from "react-icons/fa";
 import { useRouter } from "next/navigation";
-import { IoDocumentTextOutline } from "react-icons/io5";
+
+// 1. Definisikan tipe data agar tidak error 'username does not exist'
+interface UserData {
+  id: string;
+  username: string;
+  role: string;
+  position: string;
+}
 
 export default function LayoutExample({
   children,
@@ -26,6 +29,9 @@ export default function LayoutExample({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const router = useRouter();
+  
+  // 2. State dengan tipe data UserData
+  const [user, setUser] = useState<UserData | null>(null);
 
   const groups: SidebarGroup[] = [
     {
@@ -38,25 +44,27 @@ export default function LayoutExample({
           href: "/dashboard",
           icon: <FiHome />,
         },
-        // {
-        //   key: "exam",
-        //   label: "Exam",
-        //   href: "/exam",
-        //   icon: <FaChalkboardTeacher />,
-        // },
-        // {
-        //   key: "result_exam",
-        //   label: "Hasil Tes",
-        //   href: "/result-exam",
-        //   icon: <IoDocumentTextOutline />,
-        // },
       ],
     },
   ];
 
   const handleLogout = () => {
+    localStorage.removeItem("user"); // Hapus data saat logout
     router.push("/users");
   };
+
+  // 3. Ambil data HANYA saat komponen pertama kali dimuat
+  useEffect(() => {
+    const data = localStorage.getItem("user");
+    if (data) {
+      try {
+        const parsed: UserData = JSON.parse(data);
+        setUser(parsed);
+      } catch (error) {
+        console.error("Gagal parse data user", error);
+      }
+    }
+  }, []); // Dependency array kosong [] menjamin TIDAK AKAN LOOP
 
   return (
     <div className="flex">
@@ -67,7 +75,7 @@ export default function LayoutExample({
         logo={
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded bg-blue-600" />
-            {!collapsed && <span className="font-semibold">AssesHub</span>}
+            {!collapsed && <span className="font-semibold text-black">AssesHub</span>}
           </div>
         }
         footer={
@@ -99,15 +107,12 @@ export default function LayoutExample({
               <FiMenu />
             </button>
           }
-          // center={
-          //   <div className="relative max-w-md w-full">
-          //     <FiSearch className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          //     <input
-          //       className="h-9 w-full rounded-md border border-gray-300 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-          //       placeholder="Search..."
-          //     />
-          //   </div>
-          // }
+          // 4. Menampilkan username di tengah Topbar
+          center={
+            <div className="w-full flex items-center justify-center text-center font-semibold text-xl">
+               {user ? user.username : "Loading..."}
+            </div>
+          }
           right={
             <>
               <button

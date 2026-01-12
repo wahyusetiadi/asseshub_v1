@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  allowedDevOrigins: [
+    "rekrutmen.ridjstudio.cloud",
+    // opsional:
+    // "localhost",
+    "*.ridjstudio.cloud",
+  ],
 };
 
 export default nextConfig;

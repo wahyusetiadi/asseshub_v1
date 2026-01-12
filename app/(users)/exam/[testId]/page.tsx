@@ -236,19 +236,37 @@ export default function ExamExecutionPage({
     ]
   );
 
-  useExamProtection(isExamFinished, () => handleSubmit(false));
+  const ENABLE_EXAM_PROTECTION = false;
 
-  useExamSync(
-    testId,
-    isInitialized,
-    isExamFinished,
-    (seconds) => setInitialTimeRemaining(seconds),
-    () => {
-      if (!hasAutoSubmitted.current) {
-        handleSubmit(false);
+  if (ENABLE_EXAM_PROTECTION) {
+    useExamProtection(isExamFinished, () => handleSubmit(false));
+
+    useExamSync(
+      testId,
+      isInitialized,
+      isExamFinished,
+      (seconds) => setInitialTimeRemaining(seconds),
+      () => {
+        if (!hasAutoSubmitted.current) {
+          handleSubmit(false);
+        }
       }
-    }
-  );
+    );
+  }
+
+  // useExamProtection(isExamFinished, () => handleSubmit(false));
+
+  // useExamSync(
+  //   testId,
+  //   isInitialized,
+  //   isExamFinished,
+  //   (seconds) => setInitialTimeRemaining(seconds),
+  //   () => {
+  //     if (!hasAutoSubmitted.current) {
+  //       handleSubmit(false);
+  //     }
+  //   }
+  // );
 
   useEffect(() => {
     if (
@@ -269,7 +287,12 @@ export default function ExamExecutionPage({
 
   // Check initial status
   useEffect(() => {
-    if (hasCheckedInitialStatus.current || isLoading || !initialTimeRemaining) {
+    if (
+      hasCheckedInitialStatus.current ||
+      isLoading ||
+      initialTimeRemaining === null ||
+      initialTimeRemaining === undefined
+    ) {
       return;
     }
 
@@ -282,6 +305,7 @@ export default function ExamExecutionPage({
         const { is_exam_ongoing, remaining_duration } = statusData || {};
 
         const remainingInSeconds = Math.floor((remaining_duration || 0) / 1000);
+        console.log("remaining duration:", remainingInSeconds);
 
         console.log("📊 Initial status:", {
           is_exam_ongoing,
@@ -290,11 +314,23 @@ export default function ExamExecutionPage({
 
         hasCheckedInitialStatus.current = true;
 
-        if (remainingInSeconds <= 0) {
+        if (remainingInSeconds === 0) {
           console.log("⚠️ Exam time is up");
+
+          isExamFinished.current = true;
+          hasAutoSubmitted.current = true;
+
           localStorage.removeItem(ANSWERS_STORAGE_KEY);
           alert("⏰ Ujian ini sudah selesai atau waktu telah habis.");
+
           router.push("/exam");
+
+          setTimeout(() => {
+            if (window.location.pathname !== "/exam") {
+              window.location.href = "/exam";
+            }
+          }, 300);
+
           return;
         }
 
@@ -318,32 +354,32 @@ export default function ExamExecutionPage({
   ]);
 
   // Auto submit when time is up
-  useEffect(() => {
-    if (
-      isInitialized &&
-      (isTimeUp || shouldAutoSubmit) &&
-      !isSubmitting &&
-      !hasAutoSubmitted.current &&
-      questions.length > 0 &&
-      timeRemaining <= 0
-    ) {
-      console.log("🚨 Auto submit triggered");
+  // useEffect(() => {
+  //   if (
+  //     isInitialized &&
+  //     (isTimeUp || shouldAutoSubmit) &&
+  //     !isSubmitting &&
+  //     !hasAutoSubmitted.current &&
+  //     questions.length > 0 &&
+  //     timeRemaining <= 0
+  //   ) {
+  //     console.log("🚨 Auto submit triggered");
 
-      const submitTimer = setTimeout(() => {
-        handleSubmit(false);
-      }, 100);
+  //     const submitTimer = setTimeout(() => {
+  //       handleSubmit(false);
+  //     }, 100);
 
-      return () => clearTimeout(submitTimer);
-    }
-  }, [
-    isTimeUp,
-    shouldAutoSubmit,
-    isSubmitting,
-    questions.length,
-    isInitialized,
-    timeRemaining,
-    handleSubmit,
-  ]);
+  //     return () => clearTimeout(submitTimer);
+  //   }
+  // }, [
+  //   isTimeUp,
+  //   shouldAutoSubmit,
+  //   isSubmitting,
+  //   questions.length,
+  //   isInitialized,
+  //   timeRemaining,
+  //   handleSubmit,
+  // ]);
 
   // ✅ Handle answer select dengan simpan ke localStorage
   const handleAnswerSelect = (questionId: string, optionId: string) => {
