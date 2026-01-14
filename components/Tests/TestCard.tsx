@@ -1,4 +1,4 @@
-import { Test } from "@/app/(admin)/tests/page";
+import { Test } from "@/types/testTypes";
 import Link from "next/link";
 import { BsEye, BsTrash2 } from "react-icons/bs";
 import { CgFileAdd } from "react-icons/cg";

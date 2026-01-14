@@ -6,30 +6,16 @@ import { useEffect, useState } from "react";
 import { BsArrowLeft } from "react-icons/bs";
 import { BiSave } from "react-icons/bi";
 import { FiCalendar, FiClock } from "react-icons/fi";
-import { TestData } from "@/types/testTypes";
 import adminService from "@/app/api/services/adminService";
 import SelectField from "@/components/ui/SelectField";
 import InputField from "@/components/ui/InputFieled";
 import Button from "@/components/ui/Button";
-
-// ✅ Type untuk response API
-interface CreateExamResponse {
-  data?: {
-    data?: {
-      id: string;
-    };
-    id?: string;
-  };
-}
-
-interface Position {
-  id: string;
-  name: string;
-}
+import { Position } from "@/types/positions.type";
+import { CreateTestReponse, TestBase } from "@/types/testTypes";
 
 export default function CreateTestPage() {
   const router = useRouter();
-  const [testData, setTestData] = useState<TestData>({
+  const [testData, setTestData] = useState<TestBase>({
     title: "",
     description: "",
     startAt: "",
@@ -85,7 +71,7 @@ export default function CreateTestPage() {
 
       const response = (await examService.createExam(
         testData
-      )) as CreateExamResponse;
+      )) as CreateTestReponse;
       const newExamId = response?.data?.data?.id || response?.data?.id;
       if (!newExamId) {
         throw new Error("ID exam tidak ditemukan dalam response");

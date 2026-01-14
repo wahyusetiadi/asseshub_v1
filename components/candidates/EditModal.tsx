@@ -55,16 +55,18 @@ export default function CandidateEditModal({
 
   // Isi form dari data kandidat
   useEffect(() => {
-    if (isOpen && candidate) {
+    if (isOpen && candidate && positions.length > 0) {
+      const matchedPosition = positions.find(
+        (pos) => pos.name === candidate.position
+      );
+
       setFormData({
         fullName: candidate.name || "",
         email: candidate.email || "",
-        positionId: candidate.position || "",
+        positionId: matchedPosition?.id || "",
       });
-      // Reset error saat data kandidat berubah
-      setError("");
     }
-  }, [isOpen, candidate]);
+  }, [isOpen, candidate, positions]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -136,9 +138,7 @@ export default function CandidateEditModal({
         <div className="flex items-center justify-between p-6 border-b sticky top-0 bg-white z-10">
           <div>
             <h2 className="text-xl font-bold text-gray-800">Edit Kandidat</h2>
-            <p className="text-sm text-gray-500 mt-1">
-              Perbarui data kandidat
-            </p>
+            <p className="text-sm text-gray-500 mt-1">Perbarui data kandidat</p>
           </div>
           <button
             onClick={handleClose}

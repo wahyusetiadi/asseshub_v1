@@ -77,19 +77,19 @@ export default function CandidateTable({
         <span className="text-gray-500">{candidate.position}</span>
       ),
     },
-    {
-      key: "status",
-      label: "Status",
-      render: (candidate) => (
-        <span
-          className={`px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusBadge(
-            candidate.status
-          )}`}
-        >
-          {getStatusLabel(candidate.status)}
-        </span>
-      ),
-    },
+    // {
+    //   key: "status",
+    //   label: "Status",
+    //   render: (candidate) => (
+    //     <span
+    //       className={`px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusBadge(
+    //         candidate.status
+    //       )}`}
+    //     >
+    //       {getStatusLabel(candidate.status)}
+    //     </span>
+    //   ),
+    // },
   ];
 
   return (

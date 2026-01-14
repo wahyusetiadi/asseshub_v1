@@ -3,21 +3,13 @@ import { useState, useEffect } from "react";
 import { BiX, BiUser, BiEnvelope, BiCalendar, BiHash } from "react-icons/bi";
 import { BsShieldCheck } from "react-icons/bs";
 import adminService from "@/app/api/services/adminService";
+import { CandidateDetail } from "@/types/candidateTypes";
+import { formatDate } from "@/helpers/DateFormat";
 
 interface CandidateDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   candidateId: string | null;
-}
-
-interface CandidateDetail {
-  id: string;
-  name: string;
-  email: string;
-  username?: string;
-  role?: string;
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 export default function CandidateDetailModal({
@@ -43,7 +35,7 @@ export default function CandidateDetailModal({
 
     try {
       const response = await adminService.getAccountById(candidateId);
-      console.log("response", response);
+      console.log("candidate", response);
 
       let data: CandidateDetail | null = null;
       if (response?.data?.data) {
@@ -73,17 +65,6 @@ export default function CandidateDetailModal({
     onClose();
   };
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "-";
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("id-ID", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(date);
-  };
 
   if (!isOpen) return null;
 
@@ -196,7 +177,7 @@ export default function CandidateDetailModal({
                   </div>
                 </div>
 
-                <div className="p-4">
+                <div className="p-4 hidden">
                   <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
                     <BiCalendar className="text-blue-600" />
                     Timeline
@@ -231,7 +212,7 @@ export default function CandidateDetailModal({
               </div>
 
               {/* Info Box */}
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div className="hidden bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <p className="text-sm text-yellow-800">
                   <strong>💡 Info:</strong> Password kandidat telah digenerate
                   otomatis saat pembuatan akun. Jika kandidat lupa password,

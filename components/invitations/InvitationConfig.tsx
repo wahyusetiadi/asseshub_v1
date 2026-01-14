@@ -4,10 +4,10 @@ import { BiEnvelope, BiInfoCircle } from "react-icons/bi";
 import { BsSend } from "react-icons/bs";
 import TestSelector from "./TestSelector";
 import SchedulePicker from "./SchedulePicker";
-import { Test } from "@/types/candidateTypes";
+import { TestBase } from "@/types/testTypes";
 
 interface InvitationConfigProps {
-  tests: Test[];
+  tests: TestBase[];
   selectedTest: string;
   onSelectTest: (testId: string) => void;
   scheduleDate: string;

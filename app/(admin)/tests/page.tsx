@@ -9,27 +9,11 @@ import TestDetailModal from "@/components/Tests/TestModalDetail";
 import ActionButton from "@/components/ui/ActionButton";
 import Button from "@/components/ui/Button";
 import DataTable, { Column } from "@/components/ui/DataTable";
+import { Position } from "@/types/positions.type";
+import { Test } from "@/types/testTypes";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BiPlus, BiPencil, BiTrash } from "react-icons/bi";
-
-export interface Position {
-  id: string;
-  name: string;
-}
-
-export interface Test {
-  id: string;
-  title: string;
-  description: string;
-  durationMinutes: number;
-  startAt: string;
-  endAt: string;
-  totalQuestions?: number;
-  categoryId?: string;
-  category?: string;
-  _count?: { questions: number };
-}
 
 export default function TestPage() {
   const [activeTab, setActiveTab] = useState<"exams" | "positions">("exams");
@@ -139,7 +123,7 @@ export default function TestPage() {
               }`}
             />
             <Button
-              title="Daftar Ujian"
+              title="Daftar Posisi"
               onClick={() => setActiveTab("positions")}
               className={`pb-2 text-sm font-medium transition-colors ${
                 activeTab === "positions"

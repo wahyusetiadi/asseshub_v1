@@ -1,10 +1,13 @@
 "use client";
 
-import { Position, Test } from "@/app/(admin)/tests/page";
 import examService from "@/app/api/services/examService";
 import { useEffect, useState } from "react";
 import SelectField from "../ui/SelectField";
 import adminService from "@/app/api/services/adminService";
+import { Test } from "@/types/testTypes";
+import { Position } from "@/types/positions.type";
+import InputField from "../ui/InputFieled";
+import Button from "../ui/Button";
 
 interface Props {
   test: Test;
@@ -46,7 +49,7 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
     if (positions.length > 0) {
       // Cari position yang match dengan category name
       const matchedPosition = positions.find(
-        pos => pos.name.toLowerCase() === test.category?.toLowerCase()
+        (pos) => pos.name.toLowerCase() === test.category?.toLowerCase()
       );
 
       setForm({
@@ -73,12 +76,12 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedId = e.target.value;
-    const selectedPosition = positions.find(pos => pos.id === selectedId);
-    
-    setForm((prev) => ({ 
-      ...prev, 
+    const selectedPosition = positions.find((pos) => pos.id === selectedId);
+
+    setForm((prev) => ({
+      ...prev,
       categoryId: selectedId,
-      category: selectedPosition?.name || ""
+      category: selectedPosition?.name || "",
     }));
   };
 
@@ -135,16 +138,13 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="text-sm font-medium">Judul</label>
-            <input
-              name="title"
-              value={form.title}
-              onChange={handleChange}
-              className="w-full mt-1 border rounded-lg px-3 py-2"
-              required
-            />
-          </div>
+          <InputField
+            label="Judul"
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            required
+          />
 
           <SelectField
             label="Posisi"
@@ -160,31 +160,30 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
           />
 
           <div>
-            <label className="text-sm font-medium">Deskripsi</label>
+            <label className="text-sm font-semibold text-gray-700">
+              Deskripsi
+            </label>
             <textarea
               name="description"
               value={form.description}
               onChange={handleChange}
               rows={3}
-              className="w-full mt-1 border rounded-lg px-3 py-2"
+              className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2"
             />
           </div>
 
-          <div>
-            <label className="text-sm font-medium">Durasi (menit)</label>
-            <input
-              type="number"
-              name="durationMinutes"
-              value={form.durationMinutes}
-              onChange={handleChange}
-              className="w-full mt-1 border rounded-lg px-3 py-2"
-              min={1}
-              required
-            />
-          </div>
+          <InputField
+            label="Durasi (menit)"
+            type="number"
+            name="durationMinutes"
+            value={form.durationMinutes}
+            onChange={handleChange}
+            min={1}
+            required
+          />
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
+            {/* <div>
               <label className="text-sm font-medium">Mulai</label>
               <input
                 type="datetime-local"
@@ -194,9 +193,25 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
                 className="w-full mt-1 border rounded-lg px-3 py-2"
                 required
               />
-            </div>
+            </div> */}
+            <InputField
+              label="Mulai"
+              type="datetime-local"
+              name="startAt"
+              value={form.startAt}
+              onChange={handleChange}
+              required
+            />
+            <InputField
+              label="Selesai"
+              type="datetime-local"
+              name="endAt"
+              value={form.endAt}
+              onChange={handleChange}
+              required
+            />
 
-            <div>
+            {/* <div>
               <label className="text-sm font-medium">Selesai</label>
               <input
                 type="datetime-local"
@@ -206,12 +221,24 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
                 className="w-full mt-1 border rounded-lg px-3 py-2"
                 required
               />
-            </div>
+            </div> */}
           </div>
 
           {/* Actions */}
           <div className="flex justify-end gap-2 pt-4">
-            <button
+            <Button
+              type="button"
+              title="Batal"
+              onClick={onClose}
+              variant="outline"
+            />
+            <Button
+              type="submit"
+              title={loading ? "Menyimpan..." : "Simpan Perubahan"}
+              disabled={loading}
+              variant="primary"
+            />
+            {/* <button
               type="button"
               onClick={onClose}
               className="px-4 py-2 rounded-lg border"
@@ -224,7 +251,7 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
               className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
             >
               {loading ? "Menyimpan..." : "Simpan Perubahan"}
-            </button>
+            </button> */}
           </div>
         </form>
       </div>

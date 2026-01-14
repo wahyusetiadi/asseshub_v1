@@ -63,24 +63,24 @@ export interface ImportCandidatesRequest {
 }
 
 // Test Types
-export interface Test {
-  id: number;
-  title: string;
-  description: string;
-  duration: number;
-  questions: number;
-  passingScore: number;
-  status: "active" | "inactive" | "draft";
-  createdAt: string;
-}
+// export interface Test {
+//   id: number;
+//   title: string;
+//   description: string;
+//   duration: number;
+//   questions: number;
+//   passingScore: number;
+//   status: "active" | "inactive" | "draft";
+//   createdAt: string;
+// }
 
-export interface CreateTestRequest {
-  title: string;
-  description: string;
-  duration: number;
-  questions: number;
-  passingScore: number;
-}
+// export interface CreateTestRequest {
+//   title: string;
+//   description: string;
+//   duration: number;
+//   questions: number;
+//   passingScore: number;
+// }
 
 // Invitation Types
 export interface SendInvitationRequest {

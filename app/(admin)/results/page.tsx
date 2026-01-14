@@ -113,7 +113,7 @@ export default function ResultsPage() {
       render: (row) => (
         <span
           className={`px-3 py-1 rounded-full text-[10px] font-bold ${
-            row.status === "Lulus"
+            row.status === "SUBMITTED"
               ? "bg-green-100 text-green-700"
               : "bg-red-100 text-red-700"
           }`}
@@ -122,15 +122,15 @@ export default function ResultsPage() {
         </span>
       ),
     },
-    {
-      key: "action",
-      label: "Detail",
-      render: () => (
-        <button className="hover:underline flex items-center gap-1 font-semibold text-blue-600">
-          Analisis <FaExternalLinkAlt size={14} />
-        </button>
-      ),
-    },
+    // {
+    //   key: "action",
+    //   label: "Detail",
+    //   render: () => (
+    //     <button className="hover:underline flex items-center gap-1 font-semibold text-blue-600">
+    //       Analisis <FaExternalLinkAlt size={14} />
+    //     </button>
+    //   ),
+    // },
   ];
 
   return (

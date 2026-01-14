@@ -7,26 +7,28 @@ export interface Candidate {
   email: string;
   position: string;
   status?: "pending" | "sent" | "opened" | "completed";
-  // Tambahkan field dari API
   createdAt: string;
   updatedAt: string;
 }
 
-export interface Position {
+export interface CandidateDetail {
   id: string;
   name: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Test {
-  id: string;
-  title: string;
-  duration: number;
-  questions: number;
+  email: string;
+  username?: string;
+  role?: string;
   createdAt?: string;
   updatedAt?: string;
 }
+
+// export interface Test {
+//   id: string;
+//   title: string;
+//   duration: number;
+//   questions: number;
+//   createdAt?: string;
+//   updatedAt?: string;
+// }
 
 export interface SendInvitationRequest {
   examId: string;

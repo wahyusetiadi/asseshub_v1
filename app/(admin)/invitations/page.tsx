@@ -3,11 +3,12 @@ import InvitationConfig from "@/components/invitations/InvitationConfig";
 import InvitationStats from "@/components/invitations/InvitationStats";
 import SuccessNotification from "@/components/invitations/SuccessNotification";
 import adminService from "@/app/api/services/adminService";
-import { Candidate, Test } from "@/types/candidateTypes";
+import { Candidate } from "@/types/candidateTypes";
 import { useEffect, useState } from "react";
 import examService from "@/app/api/services/examService";
 import SearchBar from "@/components/ui/Searchbar";
 import CandidateTable from "@/components/invitations/Candidatetable";
+import { TestBase } from "@/types/testTypes";
 
 export default function InvitationsPage() {
   const [selectedCandidates, setSelectedCandidates] = useState<string[]>([]);
@@ -18,7 +19,7 @@ export default function InvitationsPage() {
   const [scheduleDate, setScheduleDate] = useState("");
   const [scheduleTime, setScheduleTime] = useState("");
   const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [tests, setTests] = useState<Test[]>([]);
+  const [tests, setTests] = useState<TestBase[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // Fetch candidates data
@@ -71,46 +72,55 @@ export default function InvitationsPage() {
     }
   };
 
-  const handleSendInvitations = async () => {
-    if (!selectedTest || selectedCandidates.length === 0) {
-      alert("Pilih test dan minimal 1 kandidat!");
-      return;
+const handleSendInvitations = async () => {
+  // Tambahkan logging untuk debugging
+  console.log("Selected Test:", selectedTest);
+  console.log("Selected Candidates:", selectedCandidates);
+  console.log("Candidates Count:", selectedCandidates.length);
+
+  if (!selectedTest) {
+    alert("Pilih test terlebih dahulu!");
+    return;
+  }
+  
+  if (selectedCandidates.length === 0) {
+    alert("Pilih minimal 1 kandidat!");
+    return;
+  }
+
+  setIsSending(true);
+
+  try {
+    const requestData = {
+      examId: selectedTest,
+      userIds: selectedCandidates,
+    };
+
+    console.log("Sending request:", requestData); // Debug log
+
+    const response = await adminService.sendInvitation(requestData);
+
+    if (response.data?.success) {
+      setSendSuccess(true);
+      await fetchCandidatesData();
+
+      setTimeout(() => {
+        setSendSuccess(false);
+        setSelectedCandidates([]);
+        setSelectedTest("");
+        setScheduleDate("");
+        setScheduleTime("");
+      }, 3000);
+    } else {
+      throw new Error("Failed to send invitations");
     }
-
-    setIsSending(true);
-
-    try {
-      const requestData = {
-        examId: selectedTest,
-        userIds: selectedCandidates,
-      };
-
-      const response = await adminService.sendInvitation(requestData);
-
-      if (response.data?.success) {
-        setSendSuccess(true);
-        console.log("Invitations sent:", response.data);
-
-        // Refresh candidates data to get updated status
-        await fetchCandidatesData();
-
-        setTimeout(() => {
-          setSendSuccess(false);
-          setSelectedCandidates([]);
-          setSelectedTest("");
-          setScheduleDate("");
-          setScheduleTime("");
-        }, 3000);
-      } else {
-        throw new Error("Failed to send invitations");
-      }
-    } catch (error) {
-      console.error("Send invitation error:", error);
-      alert("Gagal mengirim undangan. Silakan coba lagi.");
-    } finally {
-      setIsSending(false);
-    }
-  };
+  } catch (error) {
+    console.error("Send invitation error:", error);
+    alert("Gagal mengirim undangan. Silakan coba lagi.");
+  } finally {
+    setIsSending(false);
+  }
+};
 
   const filteredCandidates = candidates.filter(
     (c) =>
@@ -137,7 +147,6 @@ export default function InvitationsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Content - Candidate List */}
         <div className="lg:col-span-2 space-y-6">
           {/* Search Bar */}
           <SearchBar
@@ -173,7 +182,7 @@ export default function InvitationsPage() {
           />
 
           {/* Stats Card */}
-          <InvitationStats candidates={candidates} />
+          {/* <InvitationStats candidates={candidates} />  */}
         </div>
       </div>
     </div>

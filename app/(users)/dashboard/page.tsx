@@ -6,6 +6,7 @@ import { BsCheckCircle, BsClockHistory } from "react-icons/bs";
 import { Test } from "@/types/api";
 import examService from "@/app/api/services/examService";
 import { ExamData } from "@/types/exam.types";
+import userService from "@/app/api/services/userService";
 
 interface TestAssignment {
   id: number;
@@ -20,11 +21,16 @@ interface TestAssignment {
   totalQuestions: number | undefined;
 }
 
+interface UserData {
+  id: string;
+  username: string;
+  role: string;
+  position: string;
+}
+
 export default function DashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState<{ name: string; email: string } | null>(
-    null
-  );
+  const [user, setUser] = useState<UserData | null>(null);
   const [assignments, setAssignments] = useState<TestAssignment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -35,7 +41,15 @@ export default function DashboardPage() {
       router.push("/login");
       return;
     }
-    setUser(JSON.parse(userData));
+
+    if (userData) {
+      try {
+        const parsed: UserData = JSON.parse(userData);
+        setUser(parsed);
+      } catch (error) {
+        console.error("Gagal parse data user:", error);
+      }
+    }
 
     // Fetch assigned tests (mock data)
     fetchAssignments();
@@ -98,8 +112,18 @@ export default function DashboardPage() {
     }
   };
 
-  const handleStartTest = (testId: number) => {
-    router.push(`/exam/${testId}`);
+  const handleStartTest = async (testId: string) => {
+    try {
+      console.log("🚀 Starting exam...");
+
+      await userService.startExam(testId);
+
+      console.log("✅ Exam session created, redirecting...");
+      router.push(`/exam/${testId}`);
+    } catch (error) {
+      console.error("❌ Failed to start exam:", error);
+      alert("Gagal memulai ujian. Silakan coba lagi.");
+    }
   };
 
   const handleContinueTest = (testId: number) => {
@@ -135,11 +159,11 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Main Content */}
-      <main className="max-w-7xl px-6 py-8">
+      <main className="w-full px-6 py-8">
         {/* Welcome Section */}
         <div className="bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-2xl p-8 mb-8 shadow-lg">
           <h2 className="text-3xl font-bold mb-2">
-            Selamat Datang, {user?.name}! 👋
+            Selamat Datang, {user?.username}! 👋
           </h2>
           <p className="text-blue-100">
             Anda memiliki{" "}
@@ -149,7 +173,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="hidden grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-xl p-6 shadow-sm border">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-blue-100 rounded-lg">
@@ -195,92 +219,59 @@ export default function DashboardPage() {
 
         {/* Test List */}
         <div>
-          <h3 className="text-xl font-bold text-gray-800 mb-4">
+          <h3 className="hidden text-xl font-bold text-gray-800 mb-4">
             Test yang Tersedia
           </h3>
 
           {assignments.length === 0 ? (
-            <div className="bg-white rounded-xl p-12 text-center border">
-              <p className="text-gray-500">Belum ada test yang ditugaskan</p>
+            <div className="bg-white rounded-xl p-12 text-center border shadow-sm">
+              <div className="flex justify-center mb-4 text-gray-300">
+                <BiTask size={48} />
+              </div>
+              <p className="text-gray-500 font-medium">
+                Belum ada test yang tersedia untuk posisi Anda.
+              </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {assignments.map((assignment) => {
-                const statusBadge = getStatusBadge(assignment.status);
-                return (
-                  <div
-                    key={assignment.id}
-                    className="bg-white rounded-xl border shadow-sm hover:shadow-md transition p-6"
-                  >
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h4 className="text-lg font-bold text-gray-800 mb-1">
-                          {assignment.title}
-                        </h4>
-                        <p className="text-sm text-gray-500">
-                          {assignment.description}
-                        </p>
-                      </div>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${statusBadge.style}`}
-                      >
-                        {statusBadge.label}
-                      </span>
-                    </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {assignments.map((assignment) => (
+                <div
+                  key={assignment.id}
+                  className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all flex flex-col"
+                >
+                  <div className="p-6 flex-1">
+                    <h4 className="text-lg font-bold text-gray-800 mb-2 leading-tight">
+                      {assignment.title}
+                    </h4>
+                    <p className="text-sm text-gray-500 line-clamp-2 mb-4">
+                      {assignment.description}
+                    </p>
 
-                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
-                      <div className="flex items-center gap-1">
-                        <BiTime size={16} />
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                      <div className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded">
+                        <BiTime className="text-blue-500" size={16} />
                         <span>{assignment.durationMinutes} menit</span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <BiTask size={16} />
-                        <span>{assignment.totalQuestions || 0} soal</span>
+                      <div className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded">
+                        <BiTask className="text-blue-500" size={16} />
+                        <span>{assignment.totalQuestions} soal</span>
                       </div>
                     </div>
-
-                    {assignment.status === "completed" &&
-                      assignment.score !== undefined && (
-                        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                          <p className="text-sm text-green-800">
-                            <span className="font-semibold">Skor Anda:</span>{" "}
-                            {assignment.score}/100
-                          </p>
-                        </div>
-                      )}
-
-                    {assignment.status === "not_started" && (
-                      <button
-                        onClick={() => handleStartTest(assignment.test.id)}
-                        className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
-                      >
-                        <BiPlay size={20} />
-                        Mulai Test
-                      </button>
-                    )}
-
-                    {assignment.status === "in_progress" && (
-                      <button
-                        onClick={() => handleContinueTest(assignment.test.id)}
-                        className="w-full flex items-center justify-center gap-2 bg-yellow-600 text-white py-3 rounded-lg font-semibold hover:bg-yellow-700 transition"
-                      >
-                        <BiPlay size={20} />
-                        Lanjutkan Test
-                      </button>
-                    )}
-
-                    {assignment.status === "completed" && (
-                      <button
-                        onClick={() => handleViewResult(assignment.id)}
-                        className="w-full flex items-center justify-center gap-2 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition"
-                      >
-                        <BsCheckCircle size={18} />
-                        Lihat Hasil
-                      </button>
-                    )}
                   </div>
-                );
-              })}
+
+                  <div className="p-4 bg-gray-50 border-t border-slate-300 rounded-b-xl">
+                    <button
+                      onClick={() =>
+                        handleStartTest(String(assignment.test.id))
+                      }
+                      className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all"
+                    >
+                      <BiPlay size={22} />
+                      Mulai Test
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>

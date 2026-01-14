@@ -2,12 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import {
-  FiHome,
-  FiBell,
-  FiMenu,
-  FiLogOut,
-} from "react-icons/fi";
+import { FiHome, FiBell, FiMenu, FiLogOut, FiUser } from "react-icons/fi";
 import avatar from "@/public/avatar.jpg";
 import { SidebarGroup } from "@/helpers/sidebar.helper";
 import Sidebar from "@/components/Layout/Sidebar";
@@ -29,10 +24,6 @@ export default function LayoutExample({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const router = useRouter();
-  
-  // 2. State dengan tipe data UserData
-  const [user, setUser] = useState<UserData | null>(null);
-
   const groups: SidebarGroup[] = [
     {
       key: "main",
@@ -47,89 +38,43 @@ export default function LayoutExample({
       ],
     },
   ];
-
   const handleLogout = () => {
-    localStorage.removeItem("user"); // Hapus data saat logout
+    localStorage.removeItem("user"); 
     router.push("/users");
   };
-
-  // 3. Ambil data HANYA saat komponen pertama kali dimuat
-  useEffect(() => {
-    const data = localStorage.getItem("user");
-    if (data) {
-      try {
-        const parsed: UserData = JSON.parse(data);
-        setUser(parsed);
-      } catch (error) {
-        console.error("Gagal parse data user", error);
-      }
-    }
-  }, []); // Dependency array kosong [] menjamin TIDAK AKAN LOOP
-
   return (
     <div className="flex">
-      <Sidebar
-        groups={groups}
-        collapsed={collapsed}
-        onToggleCollapse={() => setCollapsed((v) => !v)}
-        logo={
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded bg-blue-600" />
-            {!collapsed && <span className="font-semibold text-black">AssesHub</span>}
-          </div>
-        }
-        footer={
-          <div className="p-4">
-            <button
-              onClick={handleLogout}
-              className={`flex items-center gap-3 text-red-500 hover:text-red-700 transition-colors ${
-                collapsed ? "justify-center" : ""
-              }`}
-            >
-              <FiLogOut size={20} />
-              {!collapsed && (
-                <span className="font-medium text-sm">Keluar</span>
-              )}
-            </button>
-          </div>
-        }
-      />
-
       <div className="flex min-h-screen flex-1 flex-col text-black">
         <Topbar
           left={
-            <button
-              type="button"
-              onClick={() => setCollapsed((v) => !v)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded hover:bg-gray-100"
-              aria-label="Toggle sidebar"
-            >
-              <FiMenu />
-            </button>
+            <div className="flex items-center gap-2 px-4">
+              <div className="h-8 w-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold">
+                A
+              </div>
+              <span className="font-bold text-lg tracking-tight">AssesHub</span>
+            </div>
           }
-          // 4. Menampilkan username di tengah Topbar
           center={
-            <div className="w-full flex items-center justify-center text-center font-semibold text-xl">
-               {user ? user.username : "Loading..."}
+            <div className="w-full text-center hidden md:block text-gray-500 font-semibold">
+              Halaman Persiapan Ujian
             </div>
           }
           right={
-            <>
-              <button
-                className="relative inline-flex h-9 w-9 items-center justify-center rounded hover:bg-gray-100"
-                aria-label="Notifications"
-              >
-                <FiBell />
-                <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-500" />
-              </button>
-              <Image
-                src={avatar}
-                alt="User avatar"
-                className="w-9 h-9 rounded-full object-cover"
-                width={36}
-                height={36}
-              />
-            </>
+            <div className="flex items-center gap-3 px-4">
+              <div className="flex items-center gap-2">
+                <div className="hidden h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center border border-blue-200">
+                  <FiUser className="text-blue-600" size={18} />
+                </div>
+
+                <button
+                  onClick={handleLogout}
+                  className="ml-2 p-2 text-gray-400 hover:text-red-600 transition-colors"
+                  title="Keluar"
+                >
+                  <FiLogOut size={20} />
+                </button>
+              </div>
+            </div>
           }
         />
 

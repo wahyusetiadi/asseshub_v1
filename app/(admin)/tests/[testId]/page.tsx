@@ -6,43 +6,16 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BsArrowLeft, BsQuestionCircle } from "react-icons/bs";
 import { BiPlus } from "react-icons/bi";
-import { TestData } from "@/types/testTypes";
 import QuestionCard, { Question } from "@/components/Tests/QuestionCard";
 import DeleteConfirmationModal from "@/components/Tests/DeleteConfirmationModal";
-
-interface ExamWithQuestionsResponse {
-  id: string;
-  title: string;
-  durationMinutes: number;
-  questions: Array<{
-    id: string;
-    text: string;
-    options: Array<{
-      id: string;
-      text: string;
-      isCorrect: boolean;
-    }>;
-  }>;
-}
-
-interface ExamDetailResponse {
-  id: string;
-  title: string;
-  description?: string;
-  startAt?: string;
-  endAt?: string;
-  durationMinutes: number;
-  createdAt: string;
-  updatedAt: string;
-  categoryId?: string;
-}
+import { TestBase, TestWithQuestions } from "@/types/testTypes";
 
 export default function EditTestPage() {
   const router = useRouter();
   const params = useParams();
   const examId = params.testId as string;
 
-  const [testData, setTestData] = useState<TestData>({
+  const [testData, setTestData] = useState<TestBase>({
     title: "",
     description: "",
     startAt: "",
@@ -66,7 +39,7 @@ export default function EditTestPage() {
         // 1️⃣ Fetch exam basic info (untuk form detail - startAt, endAt, description)
         const examDetailResponse = await examService.getExamDetail(examId);
 
-        let examDetail: ExamDetailResponse | null = null;
+        let examDetail: TestBase | null = null;
         if (examDetailResponse?.data?.data) {
           examDetail = examDetailResponse.data.data;
         } else if (examDetailResponse?.data) {
@@ -94,7 +67,7 @@ export default function EditTestPage() {
         // 2️⃣ Fetch exam WITH questions menggunakan getQuestion(examId)
         const examWithQuestionsResponse = await examService.getQuestion(examId);
 
-        let examWithQuestions: ExamWithQuestionsResponse | null = null;
+        let examWithQuestions: TestWithQuestions | null = null;
         if (examWithQuestionsResponse?.data?.data) {
           examWithQuestions = examWithQuestionsResponse.data.data;
         } else if (examWithQuestionsResponse?.data) {
