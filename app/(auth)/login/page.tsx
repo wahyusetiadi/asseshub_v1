@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import InputField from "@/components/ui/InputFieled";
 import authService from "@/app/api/services/authService";
+import { FaEye, FaUser } from "react-icons/fa";
 
 const FormInput = [
   {
@@ -11,12 +12,14 @@ const FormInput = [
     type: "text",
     placeholder: "username",
     name: "username",
+    icon: <FaUser />,
   },
   {
     label: "Password",
     type: "password",
     placeholder: "••••••••",
     name: "password",
+    icon: <FaEye />,
   },
 ];
 
@@ -69,8 +72,12 @@ export default function AuthPage() {
 
   return (
     <div className="w-full h-screen flex items-center justify-center bg-white text-black">
-      <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h1 className="text-2xl font-bold mb-4 text-center">AssesHub</h1>
+      <div className="bg-white p-8 rounded-lg border border-slate-300 shadow-md w-96">
+        <h1 className="font-bold text-2xl text-center">LOGIN</h1>
+        <p className="text-lg text-center">Administrator Panel</p>
+        <p className="text-xs text-slate-500 text-center mb-4">
+          Silakan masuk untuk mengelola data, pengguna, dan konfigurasi sistem.
+        </p>
 
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -84,6 +91,7 @@ export default function AuthPage() {
               key={input.label}
               label={input.label}
               type={input.type}
+              leftIcon={input.icon}
               placeholder={input.placeholder}
               name={input.name}
               value={formData[input.name as keyof typeof formData]}
@@ -104,7 +112,6 @@ export default function AuthPage() {
         <p className="text-xs text-gray-500 text-center mt-4">Demo:</p>
         <ul className="text-xs text-gray-500 text-center mt-4">
           <li>arisbara / arisbara</li>
-          {/* <li>user@mail.com / user123</li> */}
         </ul>
       </div>
     </div>

@@ -3,6 +3,7 @@ import clsx from "clsx";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   title?: string;
+  tooltip?: string;
   children?: React.ReactNode;
   variant?:
     | "primary"
@@ -28,6 +29,7 @@ const Button: React.FC<ButtonProps> = ({
   leftIcon,
   rightIcon,
   type = "button",
+  tooltip,
   ...props
 }) => {
   const base =
@@ -54,6 +56,7 @@ const Button: React.FC<ButtonProps> = ({
   return (
     <button
       type={type}
+      title={tooltip}
       className={clsx(base, variants[variant], sizes[size], className)}
       disabled={disabled || loading}
       {...props}

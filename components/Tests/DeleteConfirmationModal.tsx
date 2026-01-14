@@ -2,6 +2,7 @@
 "use client";
 
 import { FiAlertTriangle } from "react-icons/fi";
+import Button from "../ui/Button";
 
 interface DeleteConfirmationModalProps {
   isOpen: boolean;
@@ -28,19 +29,9 @@ export default function DeleteConfirmationModal({
             Soal ini akan dihapus secara permanen. Lanjutkan?
           </p>
         </div>
-        <div className="p-4 bg-gray-50 flex gap-3 border-t">
-          <button
-            onClick={onClose}
-            className="flex-1 py-2 text-sm font-bold text-gray-600 bg-white border rounded-lg hover:bg-gray-100"
-          >
-            Batal
-          </button>
-          <button
-            onClick={onConfirm}
-            className="flex-1 py-2 text-sm font-bold text-white bg-red-600 rounded-lg hover:bg-red-700"
-          >
-            Ya, Hapus
-          </button>
+        <div className="p-4 bg-gray-50 flex gap-3 border-slate-300 border-t">
+          <Button onClick={onClose} title="Batal" variant="outline" />
+          <Button onClick={onConfirm} title="Ya, Hapus" variant="destructive" />
         </div>
       </div>
     </div>

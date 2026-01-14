@@ -9,6 +9,7 @@ import { BiPlus } from "react-icons/bi";
 import QuestionCard, { Question } from "@/components/Tests/QuestionCard";
 import DeleteConfirmationModal from "@/components/Tests/DeleteConfirmationModal";
 import { TestBase, TestWithQuestions } from "@/types/testTypes";
+import Button from "@/components/ui/Button";
 
 export default function EditTestPage() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function EditTestPage() {
     startAt: "",
     endAt: "",
     durationMinutes: 120,
-    categoryId: ""
+    categoryId: "",
   });
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -61,7 +62,7 @@ export default function EditTestPage() {
             ? new Date(examDetail.endAt).toISOString().slice(0, 16)
             : "",
           durationMinutes: examDetail.durationMinutes || 120,
-          categoryId: examDetail.categoryId || ""
+          categoryId: examDetail.categoryId || "",
         });
 
         // 2️⃣ Fetch exam WITH questions menggunakan getQuestion(examId)
@@ -81,36 +82,18 @@ export default function EditTestPage() {
         }
 
         const transformedQuestions: Question[] =
-          examWithQuestions.questions.map((q, index) => {
-            const existingOptions = q.options.map((opt) => ({
-              id: opt.id,
-              text: opt.text,
-              isCorrect: opt.isCorrect,
-            }));
-
-            const totalOptions = 5;
-            const emptyOptionsNeeded = Math.max(
-              0,
-              totalOptions - existingOptions.length
-            );
-
-            const emptyOptions = Array.from(
-              { length: emptyOptionsNeeded },
-              () => ({
-                text: "",
-                isCorrect: false,
-              })
-            );
-
-            const allOptions = [...existingOptions, ...emptyOptions];
-
-            return {
-              id: index + 1,
-              dbId: q.id,
-              text: q.text,
-              options: allOptions,
-            };
-          });
+          examWithQuestions.questions.map((q, index) => ({
+            id: index + 1,
+            dbId: q.id,
+            text: q.text,
+            options: q.options
+              .slice(0, 5) // ⛔ jaga-jaga kalau BE kirim >5
+              .map((opt) => ({
+                id: opt.id,
+                text: opt.text,
+                isCorrect: opt.isCorrect,
+              })),
+          }));
 
         setQuestions(transformedQuestions);
       } catch (error) {
@@ -211,12 +194,44 @@ export default function EditTestPage() {
       options: [
         { text: "", isCorrect: true },
         { text: "", isCorrect: false },
-        { text: "", isCorrect: false },
-        { text: "", isCorrect: false },
-        { text: "", isCorrect: false },
       ],
     };
-    setQuestions([...questions, newQuestion]);
+
+    setQuestions((prev) => [...prev, newQuestion]);
+  };
+
+  const handleAddOption = (questionId: number) => {
+    setQuestions((prev) =>
+      prev.map((q) =>
+        q.id === questionId
+          ? q.options.length >= 5
+            ? q
+            : {
+                ...q,
+                options: [...q.options, { text: "", isCorrect: false }],
+              }
+          : q
+      )
+    );
+  };
+
+  const handleRemoveOption = (questionId: number, optIndex: number) => {
+    setQuestions((prev) =>
+      prev.map((q) => {
+        if (q.id !== questionId) return q;
+        if (q.options.length <= 2) return q;
+
+        const newOptions = q.options.filter((_, i) => i !== optIndex);
+
+        // jaga kalau yang dihapus adalah jawaban benar
+        const hasCorrect = newOptions.some((o) => o.isCorrect);
+        if (!hasCorrect && newOptions.length > 0) {
+          newOptions[0].isCorrect = true;
+        }
+
+        return { ...q, options: newOptions };
+      })
+    );
   };
 
   const handleDeleteQuestion = (questionId: number) => {
@@ -279,7 +294,7 @@ export default function EditTestPage() {
           <div className="flex items-center gap-4">
             <Link
               href="/tests"
-              className="p-2 bg-white hover:bg-gray-100 rounded-full transition border shadow-sm"
+              className="p-2 bg-white hover:bg-gray-100 rounded-full transition border border-slate-300 shadow-sm"
             >
               <BsArrowLeft size={20} />
             </Link>
@@ -300,13 +315,13 @@ export default function EditTestPage() {
                 Tambah dan kelola soal ujian
               </p>
             </div>
-            <button
+
+            <Button
+              title="Tambah Soal"
               onClick={handleAddQuestion}
-              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow-sm"
-            >
-              <BiPlus size={18} />
-              Tambah Soal
-            </button>
+              leftIcon={<BiPlus size={18} />}
+              variant="primary"
+            />
           </div>
 
           {questions.length === 0 ? (
@@ -332,6 +347,8 @@ export default function EditTestPage() {
                   onDelete={setDeleteQuestionId}
                   onSave={handleSaveQuestion}
                   isSaving={savingQuestionId === question.id}
+                  onAddOption={handleAddOption}
+                  onRemoveOption={handleRemoveOption}
                 />
               ))}
             </div>
