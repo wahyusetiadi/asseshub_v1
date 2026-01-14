@@ -1,4 +1,3 @@
-import { Test } from "@/app/(admin)/tests/page";
 import Link from "next/link";
 import { ReactNode } from "react";
 import { BiX } from "react-icons/bi";
@@ -6,6 +5,7 @@ import { BsClock, BsQuestionCircle } from "react-icons/bs";
 import Button from "../ui/Button";
 import { MdDateRange } from "react-icons/md";
 import { fullDateFormat } from "@/helpers/DateFormat";
+import { Test } from "@/types/testTypes";
 
 interface Props {
   test: Test;
@@ -22,7 +22,7 @@ export default function TestDetailModal({ test, onClose }: Props) {
     {
       label: "Total Soal",
       icon: <BsQuestionCircle />,
-      value: test._count?.questions,
+      value: test.totalQuestions,
     },
     {
       label: "Start At",
@@ -38,7 +38,7 @@ export default function TestDetailModal({ test, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-white rounded-lg w-full max-w-md shadow-2xl">
-        <div className="flex justify-between items-center p-5 border-b">
+        <div className="flex justify-between items-center p-5 border-slate-300 border-b">
           <h3 className="font-bold text-lg">Detail Ujian</h3>
           <button onClick={onClose}>
             <BiX size={24} />
@@ -89,7 +89,7 @@ interface InfoBoxProps {
 
 function InfoBox({ icon, label, value }: InfoBoxProps) {
   return (
-    <div className="p-3 rounded-xl border flex items-center gap-3">
+    <div className="p-3 rounded-lg border-slate-300 border flex items-center gap-3">
       <div className="text-blue-600">{icon}</div>
       <div>
         <p className="text-xs font-bold text-gray-500 uppercase">{label}</p>

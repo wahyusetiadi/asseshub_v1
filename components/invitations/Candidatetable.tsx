@@ -94,7 +94,7 @@ export default function CandidateTable({
 
   return (
     <div className="bg-white border border-slate-300 rounded-lg overflow-hidden shadow-sm">
-      <div className="p-4 bg-gray-50 border-b flex items-center justify-between">
+      <div className="p-4 bg-gray-50 border-slate-300 border-b flex items-center justify-between">
         <div className="flex items-center gap-3">
           <input
             type="checkbox"

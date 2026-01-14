@@ -29,7 +29,9 @@ export default function EditTestPage() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isSavingExam, setIsSavingExam] = useState(false);
   const [savingQuestionId, setSavingQuestionId] = useState<number | null>(null);
-  const [deleteQuestionId, setDeleteQuestionId] = useState<number | null>(null);
+  const [questionToDelete, setQuestionToDelete] = useState<Question | null>(
+    null
+  );
 
   // ✅ Fetch exam & questions
   useEffect(() => {
@@ -194,6 +196,9 @@ export default function EditTestPage() {
       options: [
         { text: "", isCorrect: true },
         { text: "", isCorrect: false },
+        { text: "", isCorrect: false },
+        { text: "", isCorrect: false },
+        { text: "", isCorrect: false },
       ],
     };
 
@@ -234,9 +239,22 @@ export default function EditTestPage() {
     );
   };
 
-  const handleDeleteQuestion = (questionId: number) => {
-    setQuestions(questions.filter((q) => q.id !== questionId));
-    setDeleteQuestionId(null);
+  const handleDeleteQuestion = async (question: Question) => {
+    if (!question.dbId) {
+      alert("Soal belum tersimpan di server");
+      return;
+    }
+
+    try {
+      await examService.deleteQuestion(question.dbId);
+
+      setQuestions((prev) => prev.filter((q) => q.id !== question.id));
+      setQuestionToDelete(null);
+      alert("Soal Berhasil dihapus.");
+    } catch (error) {
+      console.error("Error deleting question:", error);
+      alert("Gagal menghapus pertanyaan");
+    }
   };
 
   const updateQuestionText = (id: number, text: string) => {
@@ -316,12 +334,12 @@ export default function EditTestPage() {
               </p>
             </div>
 
-            <Button
+            {/* <Button
               title="Tambah Soal"
               onClick={handleAddQuestion}
               leftIcon={<BiPlus size={18} />}
               variant="primary"
-            />
+            /> */}
           </div>
 
           {questions.length === 0 ? (
@@ -341,10 +359,10 @@ export default function EditTestPage() {
                   key={question.id}
                   question={question}
                   index={index}
+                  onDelete={setQuestionToDelete}
                   onUpdateText={updateQuestionText}
                   onUpdateOption={updateOption}
                   onSetCorrect={setCorrectAnswer}
-                  onDelete={setDeleteQuestionId}
                   onSave={handleSaveQuestion}
                   isSaving={savingQuestionId === question.id}
                   onAddOption={handleAddOption}
@@ -354,13 +372,28 @@ export default function EditTestPage() {
             </div>
           )}
         </div>
+        <Button
+          onClick={handleAddQuestion}
+          variant="primary"
+          size="lg"
+          tooltip="Tambah Soal"
+          leftIcon={<BiPlus size={22} />}
+          className="
+    fixed bottom-6 right-6 z-50
+    rounded-full
+    shadow-lg shadow-blue-500/30
+    hover:scale-100 active:scale-95
+  "
+        >
+          <span className="hidden sm:inline">Tambah Soal</span>
+        </Button>
       </div>
 
       <DeleteConfirmationModal
-        isOpen={deleteQuestionId !== null}
-        onClose={() => setDeleteQuestionId(null)}
+        isOpen={questionToDelete !== null}
+        onClose={() => setQuestionToDelete(null)}
         onConfirm={() =>
-          deleteQuestionId && handleDeleteQuestion(deleteQuestionId)
+          questionToDelete && handleDeleteQuestion(questionToDelete)
         }
       />
     </div>

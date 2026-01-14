@@ -29,7 +29,7 @@ export default function DeleteConfirmationModal({
             Soal ini akan dihapus secara permanen. Lanjutkan?
           </p>
         </div>
-        <div className="p-4 bg-gray-50 flex gap-3 border-slate-300 border-t">
+        <div className="p-4 bg-gray-50 grid grid-cols-2 gap-3 border-slate-300 border-t">
           <Button onClick={onClose} title="Batal" variant="outline" />
           <Button onClick={onConfirm} title="Ya, Hapus" variant="destructive" />
         </div>

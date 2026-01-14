@@ -12,6 +12,7 @@ import CandidateStats from "@/components/candidates/CandidateState";
 import { CreateCandidateColumns } from "@/components/candidates/CandidateColumns";
 import CandidateEditModal from "@/components/candidates/EditModal";
 import { Candidate } from "@/types/candidateTypes";
+import { FaPlus } from "react-icons/fa";
 
 export default function CandidatesPage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -69,10 +70,9 @@ export default function CandidatesPage() {
     if (!confirm("Yakin ingin menghapus kandidat ini?")) return;
 
     try {
-      // TODO: Implement delete API
-      // await adminService.deleteCandidate(id);
+      await adminService.deleteAccount(id);
 
-      setCandidates(candidates.filter((c) => c.id !== id));
+      setCandidates((prev) => prev.filter((c) => c.id !== id));
       setSentSuccess(true);
       setTimeout(() => setSentSuccess(false), 3000);
     } catch (error) {
@@ -146,7 +146,8 @@ export default function CandidatesPage() {
         </div>
         <div className="flex items-center gap-3">
           <Button
-            title="Generate Account"
+            leftIcon={<FaPlus />}
+            title="Tambah Akun"
             variant="primary"
             onClick={() => setCreateModal(true)}
           />

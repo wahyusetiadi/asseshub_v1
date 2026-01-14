@@ -25,7 +25,7 @@ interface QuestionCardProps {
   onAddOption: (questionId: number) => void; // ➕
   onRemoveOption: (questionId: number, optIndex: number) => void; // ❌
 
-  onDelete: (id: number) => void;
+  onDelete: (question: Question) => void;
   onSave: (question: Question) => void;
   isSaving: boolean;
 }
@@ -71,14 +71,9 @@ export default function QuestionCard({
           <Button
             onClick={(e) => {
               e.stopPropagation();
-              onDelete(question.id);
+              onDelete(question);
             }}
-            leftIcon={
-              <BsTrash2
-                size={18}
-                className="text-slate-400 hover:text-red-500"
-              />
-            }
+            leftIcon={<BsTrash2 size={18} className="text-slate-400 hover:text-red-500" />}
             tooltip="Hapus Soal"
           />
 
@@ -109,7 +104,6 @@ export default function QuestionCard({
           </div>
 
           {/* Options */}
-          {/* Options */}
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-3">
               Pilihan Jawaban
@@ -139,7 +133,7 @@ export default function QuestionCard({
                     {String.fromCharCode(65 + optIndex)}
                   </span>
 
-                  {question.options.length > 2 && (
+                  {/* {question.options.length > 2 && (
                     <button
                       onClick={() => onRemoveOption(question.id, optIndex)}
                       className="text-red-500 hover:text-red-700"
@@ -147,7 +141,7 @@ export default function QuestionCard({
                     >
                       <BsTrash2 size={16} />
                     </button>
-                  )}
+                  )} */}
                 </div>
               ))}
             </div>

@@ -10,8 +10,8 @@ import { FaExternalLinkAlt } from "react-icons/fa";
 
 interface ExamResults {
   id?: string;
-  userId: string;
-  testId: string;
+  name: string;
+  exam: string;
   startedat: string;
   submittedAt: string;
   score: number;
@@ -88,7 +88,7 @@ export default function ResultsPage() {
     {
       key: "userId",
       label: "Kandidat",
-      render: (row) => <p className="font-bold text-gray-900">{row.userId}</p>,
+      render: (row) => <p className="font-bold text-gray-900">{row.name}</p>,
     },
     {
       key: "score",

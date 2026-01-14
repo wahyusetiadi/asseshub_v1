@@ -1,4 +1,4 @@
-import { TestData } from "@/types/testTypes";
+import { TestBase } from "@/types/testTypes";
 import apiConfig from "../config/api";
 import { API_ENDPOINTS } from "../config/endpoint";
 import { createApiMethod } from "../utils/apiUtils";
@@ -10,7 +10,7 @@ interface OptionsPayload {
 
 class ExamService {
   //===EXAM
-  createExam = createApiMethod(async (data: TestData) => {
+  createExam = createApiMethod(async (data: TestBase) => {
     const response = await apiConfig.post(API_ENDPOINTS.ADMIN.GENERATE_EXAMS, {
       title: data.title,
       description: data.description,
@@ -23,7 +23,7 @@ class ExamService {
     return response;
   });
 
-  updateExam = createApiMethod(async (id: string, data: TestData) => {
+  updateExam = createApiMethod(async (id: string, data: TestBase) => {
     const response = await apiConfig.patch(
       API_ENDPOINTS.ADMIN.UPDATE_EXAM(id),
       {
@@ -66,6 +66,13 @@ class ExamService {
     const response = await apiConfig.patch(
       API_ENDPOINTS.ADMIN.UPDATE_QUESTION(id),
       { text }
+    );
+    return response;
+  });
+
+  deleteQuestion = createApiMethod(async (id: string) => {
+    const response = await apiConfig.delete(
+      API_ENDPOINTS.ADMIN.DELETE_QUESTION(id)
     );
     return response;
   });

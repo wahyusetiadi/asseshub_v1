@@ -14,6 +14,7 @@ import { Test } from "@/types/testTypes";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BiPlus, BiPencil, BiTrash } from "react-icons/bi";
+import { FaPlus } from "react-icons/fa";
 
 export default function TestPage() {
   const [activeTab, setActiveTab] = useState<"exams" | "positions">("exams");
@@ -138,16 +139,16 @@ export default function TestPage() {
           {activeTab === "exams" ? (
             <Link
               href="/tests/create"
-              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 transition shadow-sm text-sm"
+              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-md hover:bg-blue-700 transition shadow-sm text-sm"
             >
-              <BiPlus size={18} /> Buat Tes Baru
+              <FaPlus /> Buat Tes Baru
             </Link>
           ) : (
             <Button
               title="Tambah Posisi"
               variant="primary"
               onClick={() => setPositionModal({ isOpen: true, data: null })}
-              leftIcon={<BiPlus />}
+              leftIcon={<FaPlus />}
             />
           )}
         </div>

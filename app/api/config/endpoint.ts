@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
     GET_ALL_CANDIDATES: "/admin/accounts",
     UPDATE_ACCOUNT: (id: string) => `/admin/accounts/${id}`,
     SEND_INVITATIONS: `/admin/accounts/invitation`,
+    DELETE_ACCOUNT: (id: string) => `/admin/accounts/${id}`,
 
     //Exams
     GENERATE_EXAMS: "/admin/exams",
@@ -33,7 +34,7 @@ export const API_ENDPOINTS = {
     DELETE_OPTION: (optionId: string) => `/admin/options/${optionId}`,
 
     //Results (Admin Only)
-    GET_ALL_RESULTS: "/admin/exams/candidates/results"
+    GET_ALL_RESULTS: "/admin/exams/candidates/results",
   },
 
   USER: {

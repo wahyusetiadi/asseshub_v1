@@ -4,10 +4,10 @@ import { BiEnvelope, BiInfoCircle } from "react-icons/bi";
 import { BsSend } from "react-icons/bs";
 import TestSelector from "./TestSelector";
 import SchedulePicker from "./SchedulePicker";
-import { TestBase } from "@/types/testTypes";
+import { Test } from "@/types/testTypes";
 
 interface InvitationConfigProps {
-  tests: TestBase[];
+  tests: Test[];
   selectedTest: string;
   onSelectTest: (testId: string) => void;
   scheduleDate: string;
@@ -31,7 +31,8 @@ export default function InvitationConfig({
   isSending,
   onSendInvitations,
 }: InvitationConfigProps) {
-  const isDisabled = isSending || !selectedTest || selectedCandidatesCount === 0;
+  const isDisabled =
+    isSending || !selectedTest || selectedCandidatesCount === 0;
 
   return (
     <div className="bg-white border border-slate-300 rounded-lg shadow-sm p-6 space-y-5 sticky top-6">
@@ -50,22 +51,19 @@ export default function InvitationConfig({
       <hr />
 
       {/* Schedule */}
-      <SchedulePicker
+      {/* <SchedulePicker
         scheduleDate={scheduleDate}
         scheduleTime={scheduleTime}
         onDateChange={onDateChange}
         onTimeChange={onTimeChange}
       />
 
-      <hr />
+      <hr /> */}
 
       {/* Email Preview Info */}
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
         <div className="flex gap-2">
-          <BiInfoCircle
-            className="text-yellow-600 shrink-0 mt-0.5"
-            size={18}
-          />
+          <BiInfoCircle className="text-yellow-600 shrink-0 mt-0.5" size={18} />
           <div className="text-xs text-yellow-800">
             <p className="font-semibold mb-1">Email akan berisi:</p>
             <ul className="space-y-1 ml-3 list-disc">

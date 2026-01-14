@@ -32,6 +32,13 @@ class AdminService {
     }
   );
 
+  deleteAccount = createApiMethod(async (id: string) => {
+    const response = await apiConfig.delete(
+      API_ENDPOINTS.ADMIN.DELETE_ACCOUNT(id)
+    );
+    return response;
+  });
+
   getAllCandicates = createApiMethod(async () => {
     return apiConfig.get(API_ENDPOINTS.ADMIN.GET_ALL_CANDIDATES);
   });

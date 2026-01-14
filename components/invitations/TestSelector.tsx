@@ -1,6 +1,6 @@
 "use client";
+import { Test } from "@/types/testTypes";
 import React from "react";
-import { Test } from "@/types/candidateTypes";
 
 interface TestSelectorProps {
   tests: Test[];
@@ -35,11 +35,11 @@ export default function TestSelector({
       {selectedTest && currentTest && (
         <div className="mt-3 p-3 bg-blue-50 rounded-lg text-sm">
           <p className="text-gray-700">
-            <span className="font-semibold">Durasi:</span> {currentTest.duration}{" "}
+            <span className="font-semibold">Durasi:</span> {currentTest.durationMinutes}{" "}
             menit
           </p>
           <p className="text-gray-700">
-            <span className="font-semibold">Soal:</span> {currentTest.questions}{" "}
+            <span className="font-semibold">Soal:</span> {currentTest.totalQuestions}{" "}
             pertanyaan
           </p>
         </div>

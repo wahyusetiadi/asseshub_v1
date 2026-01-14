@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import examService from "@/app/api/services/examService";
 import SearchBar from "@/components/ui/Searchbar";
 import CandidateTable from "@/components/invitations/Candidatetable";
-import { TestBase } from "@/types/testTypes";
+import { Test } from "@/types/testTypes";
 
 export default function InvitationsPage() {
   const [selectedCandidates, setSelectedCandidates] = useState<string[]>([]);
@@ -19,7 +19,7 @@ export default function InvitationsPage() {
   const [scheduleDate, setScheduleDate] = useState("");
   const [scheduleTime, setScheduleTime] = useState("");
   const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [tests, setTests] = useState<TestBase[]>([]);
+  const [tests, setTests] = useState<Test[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // Fetch candidates data
@@ -72,55 +72,55 @@ export default function InvitationsPage() {
     }
   };
 
-const handleSendInvitations = async () => {
-  // Tambahkan logging untuk debugging
-  console.log("Selected Test:", selectedTest);
-  console.log("Selected Candidates:", selectedCandidates);
-  console.log("Candidates Count:", selectedCandidates.length);
+  const handleSendInvitations = async () => {
+    // Tambahkan logging untuk debugging
+    console.log("Selected Test:", selectedTest);
+    console.log("Selected Candidates:", selectedCandidates);
+    console.log("Candidates Count:", selectedCandidates.length);
 
-  if (!selectedTest) {
-    alert("Pilih test terlebih dahulu!");
-    return;
-  }
-  
-  if (selectedCandidates.length === 0) {
-    alert("Pilih minimal 1 kandidat!");
-    return;
-  }
-
-  setIsSending(true);
-
-  try {
-    const requestData = {
-      examId: selectedTest,
-      userIds: selectedCandidates,
-    };
-
-    console.log("Sending request:", requestData); // Debug log
-
-    const response = await adminService.sendInvitation(requestData);
-
-    if (response.data?.success) {
-      setSendSuccess(true);
-      await fetchCandidatesData();
-
-      setTimeout(() => {
-        setSendSuccess(false);
-        setSelectedCandidates([]);
-        setSelectedTest("");
-        setScheduleDate("");
-        setScheduleTime("");
-      }, 3000);
-    } else {
-      throw new Error("Failed to send invitations");
+    if (!selectedTest) {
+      alert("Pilih test terlebih dahulu!");
+      return;
     }
-  } catch (error) {
-    console.error("Send invitation error:", error);
-    alert("Gagal mengirim undangan. Silakan coba lagi.");
-  } finally {
-    setIsSending(false);
-  }
-};
+
+    if (selectedCandidates.length === 0) {
+      alert("Pilih minimal 1 kandidat!");
+      return;
+    }
+
+    setIsSending(true);
+
+    try {
+      const requestData = {
+        examId: selectedTest,
+        userIds: selectedCandidates,
+      };
+
+      console.log("Sending request:", requestData); 
+
+      const response = await adminService.sendInvitation(requestData);
+
+      if (response.data?.success) {
+        setSendSuccess(true);
+        await fetchCandidatesData();
+
+        setTimeout(() => {
+          setSendSuccess(false);
+          setSelectedCandidates([]);
+          setSelectedTest("");
+          setScheduleDate("");
+          setScheduleTime("");
+        }, 3000);
+      } else {
+        throw new Error("Failed to send invitations");
+      }
+    } catch (error) {
+      console.error("Send invitation error:", error);
+      alert("Gagal mengirim undangan. Silakan coba lagi.");
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   const filteredCandidates = candidates.filter(
     (c) =>

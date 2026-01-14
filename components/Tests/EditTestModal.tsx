@@ -183,17 +183,6 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
           />
 
           <div className="grid grid-cols-2 gap-4">
-            {/* <div>
-              <label className="text-sm font-medium">Mulai</label>
-              <input
-                type="datetime-local"
-                name="startAt"
-                value={form.startAt}
-                onChange={handleChange}
-                className="w-full mt-1 border rounded-lg px-3 py-2"
-                required
-              />
-            </div> */}
             <InputField
               label="Mulai"
               type="datetime-local"
@@ -210,18 +199,6 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
               onChange={handleChange}
               required
             />
-
-            {/* <div>
-              <label className="text-sm font-medium">Selesai</label>
-              <input
-                type="datetime-local"
-                name="endAt"
-                value={form.endAt}
-                onChange={handleChange}
-                className="w-full mt-1 border rounded-lg px-3 py-2"
-                required
-              />
-            </div> */}
           </div>
 
           {/* Actions */}
@@ -238,20 +215,6 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
               disabled={loading}
               variant="primary"
             />
-            {/* <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-lg border"
-            >
-              Batal
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
-            >
-              {loading ? "Menyimpan..." : "Simpan Perubahan"}
-            </button> */}
           </div>
         </form>
       </div>
