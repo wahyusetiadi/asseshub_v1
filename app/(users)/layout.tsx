@@ -62,7 +62,7 @@ export default function LayoutExample({
           right={
             <div className="flex items-center gap-3 px-4">
               <div className="flex items-center gap-2">
-                <div className="hidden h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center border border-blue-200">
+                <div className="hidden h-9 w-9 rounded-full bg-blue-100 items-center justify-center border border-blue-200">
                   <FiUser className="text-blue-600" size={18} />
                 </div>
 

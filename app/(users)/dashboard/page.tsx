@@ -3,10 +3,11 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BiTime, BiTask, BiPlay } from "react-icons/bi";
 import { BsCheckCircle, BsClockHistory } from "react-icons/bs";
-import { Test } from "@/types/api";
+
 import examService from "@/app/api/services/examService";
 import { ExamData } from "@/types/exam.types";
 import userService from "@/app/api/services/userService";
+import { Test } from "@/types/testTypes";
 
 interface TestAssignment {
   id: number;
@@ -173,7 +174,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="hidden grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="hidden grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-xl p-6 shadow-sm border">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-blue-100 rounded-lg">

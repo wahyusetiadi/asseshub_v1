@@ -1,10 +1,11 @@
 "use client";
-import { TestData } from "@/types/testTypes";
+
+import { Test } from "@/types/testTypes";
 import { BsCalendarEvent, BsClock } from "react-icons/bs";
 
 interface Props {
-  testData: TestData;
-  setTestData: React.Dispatch<React.SetStateAction<TestData>>;
+  testData: Test;
+  setTestData: React.Dispatch<React.SetStateAction<Test>>;
 }
 
 export default function TestDetailsForm({ testData, setTestData }: Props) {

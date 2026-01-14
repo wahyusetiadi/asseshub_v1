@@ -6,13 +6,12 @@ import {
   CreateCandidateRequest,
   UpdateCandidateRequest,
   GetCandidatesParams,
-  Test,
-  CreateTestRequest,
   SendInvitationRequest,
   Invitation,
   TestResult,
   GetResultsParams,
 } from "@/types/api";
+import { CreateTestReponse, Test } from "@/types/testTypes";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -140,14 +139,14 @@ class ApiService {
     return this.request<Test>(`/tests/${id}`);
   }
 
-  async createTest(data: CreateTestRequest): Promise<ApiResponse<Test>> {
+  async createTest(data: CreateTestReponse): Promise<ApiResponse<Test>> {
     return this.request<Test>('/tests', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
-  async updateTest(id: number, data: Partial<CreateTestRequest>): Promise<ApiResponse<Test>> {
+  async updateTest(id: number, data: Partial<Test>): Promise<ApiResponse<Test>> {
     return this.request<Test>(`/tests/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),

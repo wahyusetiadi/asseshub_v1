@@ -291,7 +291,7 @@ export default function ExamListPage() {
             </div>
             <button
               onClick={handleLogout}
-              className="hidden flex items-center gap-2 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg transition"
+              className="hidden items-center gap-2 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg transition"
             >
               <BiLogOut size={18} />
               Logout

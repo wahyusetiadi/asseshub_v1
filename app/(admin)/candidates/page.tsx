@@ -154,7 +154,7 @@ export default function CandidatesPage() {
 
           <Link
             href="/candidates/import"
-            className="hidden flex items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-50 transition"
+            className="hidden items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-50 transition"
           >
             <BiUpload size={18} />
             Import CSV

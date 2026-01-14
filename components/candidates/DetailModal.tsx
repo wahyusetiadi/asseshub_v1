@@ -137,7 +137,7 @@ export default function CandidateDetailModal({
                   </h4>
 
                   <div className="space-y-3">
-                    <div className="hidden flex items-start gap-3">
+                    <div className="hidden items-start gap-3">
                       <BiHash className="text-gray-400 mt-1" size={20} />
                       <div className="flex-1">
                         <p className="text-xs text-gray-500 font-medium">

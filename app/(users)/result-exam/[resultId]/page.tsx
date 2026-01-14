@@ -88,7 +88,7 @@ export default function ResultDetailPage({
       : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-6">
       <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-12 text-center">
         {/* Icon */}
         <div className="mb-6">
@@ -115,7 +115,7 @@ export default function ResultDetailPage({
         </p>
 
         {/* Score Card */}
-        <div className="bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-2xl p-8 mb-8">
+        <div className="bg-linear-to-br from-blue-600 to-indigo-600 text-white rounded-2xl p-8 mb-8">
           <p className="text-sm opacity-90 mb-2">Skor Anda</p>
           <p className="text-6xl font-bold mb-2">{result.score}</p>
           <p className="text-sm opacity-90">dari 100</p>
