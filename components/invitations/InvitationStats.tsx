@@ -1,19 +1,20 @@
 "use client";
+import { CandidateApi } from "@/types";
 import React from "react";
-import { Candidate } from "@/types/candidateTypes";
+// import { Candidate } from "@/types/candidateTypes";
 
 interface InvitationStatsProps {
-  candidates: Candidate[];
+  candidates: CandidateApi[];
 }
 
 export default function InvitationStats({ candidates }: InvitationStatsProps) {
   const totalCandidates = candidates.length;
-  const sentCount = candidates.filter(
-    (c) => c.status === "sent" || c.status === "opened"
-  ).length;
-  const pendingCount = candidates.filter(
-    (c) => !c.status || c.status === "pending"
-  ).length;
+  // const sentCount = candidates.filter(
+  //   (c) => c.status === "sent" || c.status === "opened"
+  // ).length;
+  // const pendingCount = candidates.filter(
+  //   (c) => !c.status || c.status === "pending"
+  // ).length;
 
   return (
     <div className="bg-linear-to-br from-blue-600 to-blue-700 text-white rounded-lg shadow-lg p-6">
@@ -25,11 +26,11 @@ export default function InvitationStats({ candidates }: InvitationStatsProps) {
         </div>
         <div className="flex justify-between items-center">
           <span className="text-sm opacity-80">Sudah Dikirim</span>
-          <span className="text-2xl font-bold">{sentCount}</span>
+          {/* <span className="text-2xl font-bold">{sentCount}</span> */}
         </div>
         <div className="flex justify-between items-center">
           <span className="text-sm opacity-80">Belum Dikirim</span>
-          <span className="text-2xl font-bold">{pendingCount}</span>
+          {/* <span className="text-2xl font-bold">{pendingCount}</span> */}
         </div>
       </div>
     </div>

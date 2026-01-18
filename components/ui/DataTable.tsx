@@ -24,7 +24,7 @@ export default function DataTable<T>({
   if (isLoading) {
     return (
       <div className="p-8 text-center text-gray-500">
-        <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+        <div className="mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
         Loading...
       </div>
     );
@@ -35,49 +35,54 @@ export default function DataTable<T>({
   }
 
   return (
-    <table className="w-full text-left">
-      <thead className="bg-gray-50 border-b border-slate-400 text-gray-600 uppercase text-[11px] font-bold tracking-widest">
-        <tr>
-          {columns.map((col) => (
-            <th
-              key={String(col.key)}
-              className={`px-6 py-4 ${
-                col.align === "center"
-                  ? "text-center"
-                  : col.align === "right"
-                  ? "text-right"
-                  : ""
-              }`}
-            >
-              {col.label}
-            </th>
-          ))}
-        </tr>
-      </thead>
-
-      <tbody className="divide-y divide-slate-300 text-sm text-gray-700">
-        {data.map((row, rowIndex) => (
-          <tr key={rowIndex} className="hover:bg-blue-50/50 transition">
+    <div className="max-w-full overflow-x-auto">
+      <table className="w-full text-left">
+        <thead className="bg-gray-50 border-b border-slate-300 text-gray-600 uppercase text-[11px] font-bold tracking-widest">
+          <tr>
             {columns.map((col) => (
-              <td
+              <th
                 key={String(col.key)}
-                className={`px-6 py-4 ${
+                className={`px-6 py-4 truncate whitespace-nowrap ${
                   col.align === "center"
                     ? "text-center"
                     : col.align === "right"
                     ? "text-right"
-                    : ""
+                    : "text-left"
                 }`}
               >
-                {col.render
-                  ? col.render(row, rowIndex)
-                  : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    (row as any)[col.key]}
-              </td>
+                {col.label}
+              </th>
             ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+
+        <tbody className="divide-y divide-slate-200 text-sm text-gray-700">
+          {data.map((row, rowIndex) => (
+            <tr
+              key={rowIndex}
+              className="hover:bg-blue-50/50 transition"
+            >
+              {columns.map((col) => (
+                <td
+                  key={String(col.key)}
+                  className={`px-6 py-4 truncate whitespace-nowrap overflow-hidden ${
+                    col.align === "center"
+                      ? "text-center"
+                      : col.align === "right"
+                      ? "text-right"
+                      : "text-left"
+                  }`}
+                >
+                  {col.render
+                    ? col.render(row, rowIndex)
+                    : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      (row as any)[col.key]}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

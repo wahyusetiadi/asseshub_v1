@@ -10,8 +10,10 @@ import adminService from "@/app/api/services/adminService";
 import SelectField from "@/components/ui/SelectField";
 import InputField from "@/components/ui/InputFieled";
 import Button from "@/components/ui/Button";
-import { Position } from "@/types/positions.type";
 import { CreateTestReponse, TestBase } from "@/types/testTypes";
+import { Position } from "@/types/api/position.api";
+import { useAlert } from "@/hooks/useAlert";
+import Alert from "@/components/ui/Alert";
 
 export default function CreateTestPage() {
   const router = useRouter();
@@ -25,6 +27,9 @@ export default function CreateTestPage() {
   });
   const [isSaving, setIsSaving] = useState(false);
   const [positions, setPositions] = useState<Position[]>([]);
+  const [countdown, setCountdown] = useState<number | null>(null);
+
+  const { alert, showAlert, closeAlert } = useAlert();
 
   const fetchPositionData = async () => {
     try {
@@ -51,19 +56,38 @@ export default function CreateTestPage() {
   const handleSave = async () => {
     try {
       if (!testData.title.trim()) {
-        alert("❌ Judul ujian tidak boleh kosong");
+        showAlert({
+          variant: "error",
+          title: "Gagal",
+          message: "❌ Judul ujian tidak boleh kosong",
+        });
         return;
       }
       if (!testData.startAt || !testData.endAt) {
-        alert("❌ Mohon tentukan waktu mulai dan selesai");
+        showAlert({
+          variant: "error",
+          title: "Gagal",
+          message: "❌ Mohon tentukan waktu mulai dan selesai",
+        });
+        // alert("❌ Mohon tentukan waktu mulai dan selesai");
         return;
       }
       if (new Date(testData.startAt) >= new Date(testData.endAt)) {
-        alert("❌ Waktu mulai harus lebih awal dari waktu selesai");
+        showAlert({
+          variant: "error",
+          title: "Gagal",
+          message: "❌ Waktu mulai harus lebih awal dari waktu selesai",
+        });
+        // alert("❌ Waktu mulai harus lebih awal dari waktu selesai");
         return;
       }
       if (testData.durationMinutes < 1) {
-        alert("❌ Durasi minimal 1 menit");
+        showAlert({
+          variant: "error",
+          title: "Gagal",
+          message: "❌ Durasi minimal 1 menit",
+        });
+        // alert("❌ Durasi minimal 1 menit");
         return;
       }
 
@@ -76,12 +100,22 @@ export default function CreateTestPage() {
       if (!newExamId) {
         throw new Error("ID exam tidak ditemukan dalam response");
       }
-      alert("✅ Exam berhasil dibuat! Silakan tambahkan soal.");
-      router.push(`/tests/${newExamId}`);
+      showAlert({
+        variant: "success",
+        title: "Berhasil",
+        message: "✅ Exam berhasil dibuat! Silakan tambahkan soal.",
+      });
+      setTimeout(() => {
+        router.push(`/tests/${newExamId}`);
+      }, 3000);
     } catch (error) {
       console.error("Error creating exam:", error);
       if (error instanceof Error) {
-        alert(`❌ Gagal membuat exam: ${error.message}`);
+        showAlert({
+          variant: "error",
+          title: "Gagal",
+          message: `❌ Gagal membuat exam: ${error.message}`,
+        });
       } else if (
         typeof error === "object" &&
         error !== null &&
@@ -90,13 +124,19 @@ export default function CreateTestPage() {
         const apiError = error as {
           response?: { data?: { message?: string } };
         };
-        alert(
-          `❌ Gagal membuat exam: ${
+        showAlert({
+          variant: "error",
+          title: "Gagal",
+          message: `❌ Gagal membuat exam: ${
             apiError.response?.data?.message || "Unknown error"
-          }`
-        );
+          }`,
+        });
       } else {
-        alert("❌ Gagal membuat exam");
+        showAlert({
+          variant: "error",
+          title: "Gagal",
+          message: `❌ Gagal membuat exam`,
+        });
       }
     } finally {
       setIsSaving(false);
@@ -106,33 +146,48 @@ export default function CreateTestPage() {
   return (
     <div className="min-h-screen bg-gray-50/50 pb-20">
       <div className="max-w-4xl mx-auto px-4 pt-8">
+        {alert.show && (
+          <div className="fixed top-5 right-5 z-9999">
+            <Alert
+              variant={alert.variant}
+              title={alert.title}
+              message={alert.message}
+              onClose={closeAlert}
+              className="w-90"
+            />
+          </div>
+        )}
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <Link
               href="/tests"
-              className="p-2 bg-white hover:bg-gray-100 rounded-full transition border shadow-sm"
+              className="p-2 bg-white text-slate-800 hover:bg-gray-100 rounded-full transition border shadow-sm"
             >
               <BsArrowLeft size={20} />
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">
+              <h1 className="text-lg md:text-2xl font-bold text-gray-800">
                 Buat Ujian Baru
               </h1>
-              <p className="text-sm text-gray-500">
+              <p className="text-xs md:text-sm text-gray-500">
                 Langkah 1: Informasi Dasar Ujian
               </p>
             </div>
           </div>
 
           <Button
+            type="button"
             size="lg"
             variant="primary"
             onClick={handleSave}
             disabled={isSaving}
-            leftIcon={<BiSave />}
-            title={isSaving ? "Menyimpan..." : "Lanjut ke Soal"}
-          />
+          >
+            <BiSave className="text-lg" />
+            <span className="hidden md:inline">
+              {isSaving ? "Menyimpan..." : "Lanjut ke Soal"}
+            </span>
+          </Button>
         </div>
 
         {/* Form Detail Exam */}
@@ -144,7 +199,7 @@ export default function CreateTestPage() {
             </p>
           </div>
 
-          <div className="p-6 space-y-6">
+          <div className="p-6 space-y-6 text-slate-800">
             {/* Judul Ujian */}
             <InputField
               label="Judul Ujian"
@@ -174,7 +229,7 @@ export default function CreateTestPage() {
             />
 
             {/* Deskripsi */}
-            <div>
+            <div className="text-lsate-800">
               <label className="block text-sm font-bold text-gray-700 mb-2">
                 Deskripsi
               </label>

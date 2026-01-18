@@ -3,8 +3,10 @@ import { useState, useEffect } from "react";
 import { BiX, BiUser, BiEnvelope, BiCalendar, BiHash } from "react-icons/bi";
 import { BsShieldCheck } from "react-icons/bs";
 import adminService from "@/app/api/services/adminService";
-import { CandidateDetail } from "@/types/candidateTypes";
+// import { CandidateDetail } from "@/types/candidateTypes";
 import { formatDate } from "@/helpers/DateFormat";
+import Button from "../ui/Button";
+import { CandidateApi } from "@/types";
 
 interface CandidateDetailModalProps {
   isOpen: boolean;
@@ -17,7 +19,7 @@ export default function CandidateDetailModal({
   onClose,
   candidateId,
 }: CandidateDetailModalProps) {
-  const [candidate, setCandidate] = useState<CandidateDetail | null>(null);
+  const [candidate, setCandidate] = useState<CandidateApi | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -37,7 +39,7 @@ export default function CandidateDetailModal({
       const response = await adminService.getAccountById(candidateId);
       console.log("candidate", response);
 
-      let data: CandidateDetail | null = null;
+      let data: CandidateApi | null = null;
       if (response?.data?.data) {
         data = response.data.data;
       } else if (response?.data) {
@@ -65,13 +67,12 @@ export default function CandidateDetailModal({
     onClose();
   };
 
-
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b sticky top-0 bg-white rounded-t-xl">
+        <div className="flex items-center justify-between p-6 border-slate-300 border-b sticky top-0 bg-white rounded-t-xl">
           <div>
             <h2 className="text-xl font-bold text-gray-800">Detail Kandidat</h2>
             <p className="text-sm text-gray-500 mt-1">
@@ -120,16 +121,16 @@ export default function CandidateDetailModal({
                     {/* <p className="text-gray-600 text-sm mt-1">
                       {candidate.email}
                     </p> */}
-                    {candidate.role && (
+                    {/* {candidate.role && (
                       <span className="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
                         {candidate.role}
                       </span>
-                    )}
+                    )} */}
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white border rounded-lg divide-y">
+              <div className="bg-white border border-slate-300 rounded-lg">
                 <div className="p-4">
                   <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
                     <BsShieldCheck className="text-blue-600" />
@@ -184,7 +185,7 @@ export default function CandidateDetailModal({
                   </h4>
 
                   <div className="space-y-3">
-                    <div className="flex justify-between items-start">
+                    {/* <div className="flex justify-between items-start">
                       <div>
                         <p className="text-xs text-gray-500 font-medium">
                           Dibuat pada
@@ -193,9 +194,9 @@ export default function CandidateDetailModal({
                           {formatDate(candidate.createdAt)}
                         </p>
                       </div>
-                    </div>
+                    </div> */}
 
-                    {candidate.updatedAt && (
+                    {/* {candidate.updatedAt && (
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="text-xs text-gray-500 font-medium">
@@ -206,7 +207,7 @@ export default function CandidateDetailModal({
                           </p>
                         </div>
                       </div>
-                    )}
+                    )} */}
                   </div>
                 </div>
               </div>
@@ -225,14 +226,15 @@ export default function CandidateDetailModal({
 
         {/* Footer Actions */}
         {candidate && !isLoading && (
-          <div className="p-6 border-t bg-gray-50 rounded-b-xl">
+          <div className="p-6 border-slate-300 border-t bg-gray-50 rounded-b-xl">
             <div className="flex gap-3">
-              <button
+              <Button
                 onClick={handleClose}
-                className="flex-1 px-4 py-2.5 bg-white border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition"
-              >
-                Tutup
-              </button>
+                title="Tutup"
+                variant="destructive"
+                size="lg"
+                className="w-full"
+              />
               {/* Tambahan action buttons bisa ditambahkan disini */}
               {/* <button className="px-4 py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
                 Edit

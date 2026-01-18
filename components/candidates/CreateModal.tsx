@@ -8,7 +8,8 @@ import SelectField from "../ui/SelectField";
 interface CreateCandidateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (message: string) => void;
+  onError?: (message: string) => void;
 }
 
 // Definisikan interface untuk posisi
@@ -21,6 +22,7 @@ export default function CreateCandidateModal({
   isOpen,
   onClose,
   onSuccess,
+  onError,
 }: CreateCandidateModalProps) {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -49,6 +51,8 @@ export default function CreateCandidateModal({
       fetchPositionData();
     }
   }, [isOpen]);
+
+  
 
   // 2. Handle Change untuk Input Biasa
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,19 +86,15 @@ export default function CreateCandidateModal({
 
       if (response.data) {
         setFormData({ fullName: "", email: "", positionId: "" });
-        alert("✅ Akun kandidat berhasil dibuat!");
+        // alert("✅ Akun kandidat berhasil dibuat!");
         onClose();
-        onSuccess();
+        onSuccess("Akun Kandidat berhasil dibuat");
       }
     } catch (err: unknown) {
       let errorMessage = "Gagal membuat akun kandidat";
-      if (err instanceof Error) {
-        errorMessage = err.message;
-      } else if (typeof err === "object" && err !== null && "response" in err) {
-        const apiErr = err as { response: { data: { message: string } } };
-        errorMessage = apiErr.response.data.message || errorMessage;
-      }
-      setError(errorMessage);
+      if (err instanceof Error) errorMessage = err.message;
+
+      onError?.(errorMessage);
       console.error("Error creating candidate:", err);
     } finally {
       setIsSubmitting(false);
@@ -108,6 +108,7 @@ export default function CreateCandidateModal({
       onClose();
     }
   };
+  
 
   if (!isOpen) return null;
 

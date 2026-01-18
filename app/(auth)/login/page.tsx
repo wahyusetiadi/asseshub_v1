@@ -72,9 +72,9 @@ export default function AuthPage() {
 
   return (
     <div className="w-full h-screen flex items-center justify-center bg-white text-black">
-      <div className="bg-white p-8 rounded-lg border border-slate-300 shadow-md w-96">
+      <div className="bg-white p-8 rounded-lg border border-slate-300 shadow-md w-80 md:w-96">
         <h1 className="font-bold text-2xl text-center">LOGIN</h1>
-        <p className="text-lg text-center">Administrator Panel</p>
+        <p className="text-base md:text-lg text-center">Administrator Panel</p>
         <p className="text-xs text-slate-500 text-center mb-4">
           Silakan masuk untuk mengelola data, pengguna, dan konfigurasi sistem.
         </p>

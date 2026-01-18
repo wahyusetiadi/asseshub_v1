@@ -32,7 +32,7 @@ export interface User {
 }
 
 // Candidate Types
-export interface Candidate {
+export interface CandidateApi {
   id: string;
   username: string;
   name: string;

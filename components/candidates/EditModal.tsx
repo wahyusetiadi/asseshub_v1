@@ -4,13 +4,14 @@ import { BiX, BiUser, BiEnvelope } from "react-icons/bi";
 import adminService from "@/app/api/services/adminService";
 import InputField from "../ui/InputFieled";
 import SelectField from "../ui/SelectField";
-import { Candidate } from "@/types/candidateTypes";
+// import { Candidate } from "@/types/candidateTypes";
+import { CandidateApi } from "@/types";
 
 interface CandidateEditModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  candidate: Candidate | null;
+  candidate: CandidateApi | null;
 }
 
 interface Position {
@@ -25,7 +26,7 @@ export default function CandidateEditModal({
   candidate,
 }: CandidateEditModalProps) {
   const [formData, setFormData] = useState({
-    fullName: "",
+    name: "",
     email: "",
     positionId: "",
   });
@@ -61,7 +62,7 @@ export default function CandidateEditModal({
       );
 
       setFormData({
-        fullName: candidate.name || "",
+        name: candidate.name || "",
         email: candidate.email || "",
         positionId: matchedPosition?.id || "",
       });
@@ -98,7 +99,7 @@ export default function CandidateEditModal({
     try {
       await adminService.updatedAccount(
         candidate.id,
-        formData.fullName,
+        formData.name,
         formData.email,
         formData.positionId
       );
@@ -123,7 +124,7 @@ export default function CandidateEditModal({
 
   const handleClose = () => {
     if (!isSubmitting) {
-      setFormData({ fullName: "", email: "", positionId: "" });
+      setFormData({ name: "", email: "", positionId: "" });
       setError("");
       onClose();
     }
@@ -159,8 +160,8 @@ export default function CandidateEditModal({
           <InputField
             label="Nama Lengkap"
             leftIcon={<BiUser />}
-            name="fullName"
-            value={formData.fullName}
+            name="name"
+            value={formData.name}
             onChange={handleChange}
             required
             placeholder="Contoh: John Doe"

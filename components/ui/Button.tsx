@@ -36,14 +36,14 @@ const Button: React.FC<ButtonProps> = ({
     "inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed";
 
   const variants: Record<NonNullable<ButtonProps["variant"]>, string> = {
-    primary: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500",
+    primary: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 font-semibold",
     secondary:
-      "bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-400",
+      "bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-400 font-semibold",
     outline:
-      "border border-gray-300 hover:bg-gray-200 focus:ring-gray-400 text-black",
-    ghost: "bg-transparent text-gray-900 hover:bg-gray-100 focus:ring-gray-300",
-    destructive: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
-    none: "bg-transparent p-0 text-inherit hover:bg-transparent focus:outline-none",
+      "border bg-slate-50 border-gray-300 hover:bg-gray-200 focus:ring-gray-400 text-slate-700 font-semibold",
+    ghost: "bg-transparent text-gray-900 hover:bg-gray-100 focus:ring-gray-300 font-semibold",
+    destructive: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 font-semibold",
+    none: "bg-transparent p-0 hover:bg-transparent focus:outline-none font-semibold",
   };
 
   const sizes: Record<NonNullable<ButtonProps["size"]>, string> = {

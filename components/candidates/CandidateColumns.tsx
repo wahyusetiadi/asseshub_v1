@@ -1,11 +1,13 @@
 // components/candidates/candidateColumns.tsx
 "use client";
-import { Candidate } from "@/types/api";
+
+import { CandidateApi } from "@/types";
+// import { Candidate } from "@/types/candidateTypes";
 import { Column } from "../ui/DataTable";
 import CandidateActions from "./CandidatesActions";
 
 interface CandidateCellProps {
-  candidate: Candidate;
+  candidate: CandidateApi;
 }
 
 function CandidateNameCell({ candidate }: CandidateCellProps) {
@@ -57,7 +59,7 @@ export const CreateCandidateColumns = ({
   onDetail,
   onEdit,
   onDelete,
-}: CandidateColumnsHandlers): Column<Candidate>[] => [
+}: CandidateColumnsHandlers): Column<CandidateApi>[] => [
   {
     key: "name",
     label: "Nama Kandidat",

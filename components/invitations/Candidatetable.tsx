@@ -1,10 +1,11 @@
 "use client";
 import React from "react";
 import DataTable, { Column } from "@/components/ui/DataTable";
-import { Candidate } from "@/types/candidateTypes";
+import { CandidateApi } from "@/types";
+// import { Candidate } from "@/types/candidateTypes";
 
 interface CandidateTableProps {
-  candidates: Candidate[];
+  candidates: CandidateApi[];
   selectedCandidates: string[];
   onSelectCandidate: (id: string) => void;
   onSelectAll: () => void;
@@ -18,31 +19,31 @@ export default function CandidateTable({
   onSelectAll,
   isLoading = false,
 }: CandidateTableProps) {
-  const getStatusBadge = (status?: Candidate["status"]) => {
-    if (!status) return "bg-gray-100 text-gray-700";
+  // const getStatusBadge = (status?: Candidate["status"]) => {
+  //   if (!status) return "bg-gray-100 text-gray-700";
     
-    const styles = {
-      pending: "bg-gray-100 text-gray-700",
-      sent: "bg-blue-100 text-blue-700",
-      opened: "bg-yellow-100 text-yellow-700",
-      completed: "bg-green-100 text-green-700",
-    };
-    return styles[status];
-  };
+  //   const styles = {
+  //     pending: "bg-gray-100 text-gray-700",
+  //     sent: "bg-blue-100 text-blue-700",
+  //     opened: "bg-yellow-100 text-yellow-700",
+  //     completed: "bg-green-100 text-green-700",
+  //   };
+  //   return styles[status];
+  // };
 
-  const getStatusLabel = (status?: Candidate["status"]) => {
-    if (!status) return "Belum Dikirim";
+  // const getStatusLabel = (status?: Candidate["status"]) => {
+  //   if (!status) return "Belum Dikirim";
     
-    const labels = {
-      pending: "Belum Dikirim",
-      sent: "Terkirim",
-      opened: "Dibuka",
-      completed: "Selesai",
-    };
-    return labels[status];
-  };
+  //   const labels = {
+  //     pending: "Belum Dikirim",
+  //     sent: "Terkirim",
+  //     opened: "Dibuka",
+  //     completed: "Selesai",
+  //   };
+  //   return labels[status];
+  // };
 
-  const columns: Column<Candidate>[] = [
+  const columns: Column<CandidateApi>[] = [
     {
       key: "checkbox",
       label: "",

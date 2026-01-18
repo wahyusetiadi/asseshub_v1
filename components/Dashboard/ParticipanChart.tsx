@@ -2,6 +2,7 @@
 
 import { ParticipationData } from "@/mockData/DashboardMock/ParticipationData";
 import React from "react";
+import SelectField from "../ui/SelectField";
 
 type ParticipationChartProps = {
   title?: string;
@@ -17,7 +18,7 @@ const ParticipationChart: React.FC<ParticipationChartProps> = ({
       <div className="flex justify-between items-center mb-6">
         <h3 className="font-bold text-gray-800">{title}</h3>
 
-        <select className="text-sm border rounded-lg px-3 py-1 outline-none">
+        <select className="hidden text-sm border-slate-300 border rounded-md px-3 py-1 outline-none">
           <option>7 Hari Terakhir</option>
           <option>30 Hari Terakhir</option>
         </select>

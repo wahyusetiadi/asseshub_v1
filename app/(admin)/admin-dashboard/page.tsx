@@ -34,10 +34,10 @@ interface DynamicStat {
 export default function AdminDashboard() {
   /* ===== Icon Map ===== */
   const iconStatsMap: Record<StatIcon, JSX.Element> = {
-    users: <FaUsers size={24} />,
-    file: <FiFileText size={24} />,
-    email: <RiMvAiLine size={24} />,
-    check: <BiCheckCircle size={24} />,
+    users: <FaUsers className="size-4 md:size-6 " />,
+    file: <FiFileText className="size-4 md:size-6 " />,
+    email: <RiMvAiLine className="size-4 md:size-6 " />,
+    check: <BiCheckCircle className="size-4 md:size-6 " />,
   };
 
   /* ===== State ===== */
@@ -114,19 +114,19 @@ export default function AdminDashboard() {
   /* ================= RENDER ================= */
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-800">
           Selamat Datang, Admin
         </h1>
-        <p className="text-gray-500">
+        <p className="text-sm md:text-base text-gray-500">
           Berikut adalah ringkasan performa rekrutmen AssessHub hari ini.
         </p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-6">
         {dynamicStats.map((stat) => (
           <StatCard
             key={stat.id}
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
             value={String(loading ? "..." : stat.value)}
             bg={stat.bg}
             color={stat.color}
-            showGrowth
+            showGrowth={false}
           />
         ))}
       </div>

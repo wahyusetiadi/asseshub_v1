@@ -6,9 +6,10 @@ import Button from "../ui/Button";
 import { MdDateRange } from "react-icons/md";
 import { fullDateFormat } from "@/helpers/DateFormat";
 import { Test } from "@/types/testTypes";
+import { TestApi } from "@/types/api/test.api";
 
 interface Props {
-  test: Test;
+  test: TestApi;
   onClose: () => void;
 }
 
@@ -37,7 +38,7 @@ export default function TestDetailModal({ test, onClose }: Props) {
   ];
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-lg w-full max-w-md shadow-2xl">
+      <div className="bg-white rounded-lg w-full max-w-md shadow-2xl mx-4 md:mx-0">
         <div className="flex justify-between items-center p-5 border-slate-300 border-b">
           <h3 className="font-bold text-lg">Detail Ujian</h3>
           <button onClick={onClose}>

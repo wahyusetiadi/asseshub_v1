@@ -5,17 +5,24 @@ import { useEffect, useState } from "react";
 import SelectField from "../ui/SelectField";
 import adminService from "@/app/api/services/adminService";
 import { Test } from "@/types/testTypes";
-import { Position } from "@/types/positions.type";
 import InputField from "../ui/InputFieled";
 import Button from "../ui/Button";
+import { TestApi } from "@/types/api/test.api";
+import { Position } from "@/types/api/position.api";
 
 interface Props {
-  test: Test;
+  test: TestApi;
   onClose: () => void;
-  onSuccess?: (updated: Test) => void;
+  onSuccess?: (updated: TestApi) => void;
+  onError?: (message: string) => void;
 }
 
-export default function EditTestModal({ test, onClose, onSuccess }: Props) {
+export default function EditTestModal({
+  test,
+  onClose,
+  onSuccess,
+  onError,
+}: Props) {
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -39,15 +46,12 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
     }
   };
 
-  // Fetch positions saat modal dibuka
   useEffect(() => {
     fetchPositionData();
   }, []);
 
-  // Set form setelah positions ter-load
   useEffect(() => {
     if (positions.length > 0) {
-      // Cari position yang match dengan category name
       const matchedPosition = positions.find(
         (pos) => pos.name.toLowerCase() === test.category?.toLowerCase()
       );
@@ -91,7 +95,8 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
 
     try {
       if (new Date(form.startAt) >= new Date(form.endAt)) {
-        alert("❌ Waktu selesai harus lebih besar dari waktu mulai");
+        onError?.("Waktu selesai harus lebih besar dari waktu mulai");
+        setLoading(false);
         return;
       }
 
@@ -106,7 +111,7 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
 
       await examService.updateExam(test.id, payload);
 
-      const updated: Test = {
+      const updated: TestApi = {
         ...test,
         ...payload,
         category: form.category, // ✅ Update category juga
@@ -116,10 +121,9 @@ export default function EditTestModal({ test, onClose, onSuccess }: Props) {
 
       onSuccess?.(updated);
       onClose();
-      alert("✅ Ujian berhasil diperbarui");
     } catch (error) {
       console.error("Update exam error:", error);
-      alert("❌ Gagal memperbarui ujian");
+      onError?.("Gagal memperbarui ujian");
     } finally {
       setLoading(false);
     }

@@ -10,6 +10,8 @@ import QuestionCard, { Question } from "@/components/Tests/QuestionCard";
 import DeleteConfirmationModal from "@/components/Tests/DeleteConfirmationModal";
 import { TestBase, TestWithQuestions } from "@/types/testTypes";
 import Button from "@/components/ui/Button";
+import { useAlert } from "@/hooks/useAlert";
+import Alert from "@/components/ui/Alert";
 
 export default function EditTestPage() {
   const router = useRouter();
@@ -30,8 +32,10 @@ export default function EditTestPage() {
   const [isSavingExam, setIsSavingExam] = useState(false);
   const [savingQuestionId, setSavingQuestionId] = useState<number | null>(null);
   const [questionToDelete, setQuestionToDelete] = useState<Question | null>(
-    null
+    null,
   );
+
+  const { alert, showAlert, closeAlert } = useAlert();
 
   // ✅ Fetch exam & questions
   useEffect(() => {
@@ -100,7 +104,11 @@ export default function EditTestPage() {
         setQuestions(transformedQuestions);
       } catch (error) {
         console.error("Error fetching exam:", error);
-        alert("❌ Gagal memuat data ujian");
+        showAlert({
+          variant: "error",
+          title: "Error",
+          message: "❌ Gagal memuat data ujian",
+        });
         router.push("/tests");
       } finally {
         setIsLoading(false);
@@ -114,19 +122,31 @@ export default function EditTestPage() {
   const handleSaveQuestion = async (question: Question) => {
     try {
       if (!question.text.trim()) {
-        alert("❌ Pertanyaan tidak boleh kosong");
+        showAlert({
+          variant: "error",
+          title: " Error",
+          message: "❌ Pertanyaan tidak boleh kosong",
+        });
         return;
       }
 
       const validOptions = question.options.filter((opt) => opt.text.trim());
       if (validOptions.length < 2) {
-        alert("❌ Minimal 2 opsi jawaban harus diisi");
+        showAlert({
+          variant: "error",
+          title: "Error",
+          message: "❌ Minimal 2 opsi jawaban harus diisi",
+        });
         return;
       }
 
       const hasCorrect = question.options.some((opt) => opt.isCorrect);
       if (!hasCorrect) {
-        alert("❌ Pilih minimal 1 jawaban yang benar");
+        showAlert({
+          variant: "error",
+          title: "Error",
+          message: "❌ Pilih minimal 1 jawaban yang benar",
+        });
         return;
       }
 
@@ -151,11 +171,15 @@ export default function EditTestPage() {
           }
         }
 
-        alert("✅ Soal berhasil diperbarui!");
+        showAlert({
+          variant: "success",
+          title: "Berhasil",
+          message: "✅ Soal berhasil diperbarui!",
+        });
       } else {
         const qResponse = await examService.createQuestion(
           examId,
-          question.text
+          question.text,
         );
         const questionId = qResponse?.data?.data?.id || qResponse?.data?.id;
 
@@ -174,15 +198,23 @@ export default function EditTestPage() {
 
         setQuestions((prev) =>
           prev.map((q) =>
-            q.id === question.id ? { ...q, dbId: questionId } : q
-          )
+            q.id === question.id ? { ...q, dbId: questionId } : q,
+          ),
         );
 
-        alert("✅ Soal berhasil ditambahkan!");
+        showAlert({
+          variant: "success",
+          title: "Berhasil",
+          message: "✅ Soal berhasil ditambahkan!",
+        });
       }
     } catch (error) {
       console.error("Error saving question:", error);
-      alert("❌ Gagal menyimpan soal");
+      showAlert({
+        variant: "error",
+        title: "Error",
+        message: "❌ Gagal menyimpan soal",
+      });
     } finally {
       setSavingQuestionId(null);
     }
@@ -215,8 +247,8 @@ export default function EditTestPage() {
                 ...q,
                 options: [...q.options, { text: "", isCorrect: false }],
               }
-          : q
-      )
+          : q,
+      ),
     );
   };
 
@@ -235,13 +267,17 @@ export default function EditTestPage() {
         }
 
         return { ...q, options: newOptions };
-      })
+      }),
     );
   };
 
   const handleDeleteQuestion = async (question: Question) => {
     if (!question.dbId) {
-      alert("Soal belum tersimpan di server");
+      showAlert({
+        variant: "warning",
+        title: "Peringantan",
+        message: "Soal belum tersimpan di server",
+      });
       return;
     }
 
@@ -250,10 +286,18 @@ export default function EditTestPage() {
 
       setQuestions((prev) => prev.filter((q) => q.id !== question.id));
       setQuestionToDelete(null);
-      alert("Soal Berhasil dihapus.");
+      showAlert({
+        variant: "success",
+        title: "Berhasil",
+        message: "Soal Berhasil dihapus.",
+      });
     } catch (error) {
       console.error("Error deleting question:", error);
-      alert("Gagal menghapus pertanyaan");
+      showAlert({
+        variant: "error",
+        title: "Error",
+        message: "Gagal menghapus pertanyaan",
+      });
     }
   };
 
@@ -268,11 +312,11 @@ export default function EditTestPage() {
           ? {
               ...q,
               options: q.options.map((opt, i) =>
-                i === optIndex ? { ...opt, text } : opt
+                i === optIndex ? { ...opt, text } : opt,
               ),
             }
-          : q
-      )
+          : q,
+      ),
     );
   };
 
@@ -287,8 +331,8 @@ export default function EditTestPage() {
                 isCorrect: i === optIndex,
               })),
             }
-          : q
-      )
+          : q,
+      ),
     );
   };
 
@@ -307,6 +351,17 @@ export default function EditTestPage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50 pb-20">
+      {alert.show && (
+        <div className="fixed top-5 md:right-5 z-9999">
+          <Alert
+            variant={alert.variant}
+            title={alert.title}
+            message={alert.message}
+            onClose={closeAlert}
+            className="w-80 md:w-90"
+          />
+        </div>
+      )}
       <div className="max-w-7xl mx-auto px-4 pt-8">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">

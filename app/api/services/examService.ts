@@ -33,7 +33,7 @@ class ExamService {
         endAt: new Date(data.endAt).toISOString(),
         durationMinutes: data.durationMinutes,
         categoryId: data.categoryId,
-      }
+      },
     );
     return response;
   });
@@ -52,7 +52,7 @@ class ExamService {
   createQuestion = createApiMethod(async (examId: string, text: string) => {
     const response = await apiConfig.post(
       API_ENDPOINTS.ADMIN.GENERATE_QUESTIONS(examId),
-      { text }
+      { text },
     );
     return response;
   });
@@ -65,14 +65,21 @@ class ExamService {
   updateQuestion = createApiMethod(async (id: string, text: string) => {
     const response = await apiConfig.patch(
       API_ENDPOINTS.ADMIN.UPDATE_QUESTION(id),
-      { text }
+      { text },
+    );
+    return response;
+  });
+
+  deleteExam = createApiMethod(async (id: string) => {
+    const response = await apiConfig.delete(
+      API_ENDPOINTS.ADMIN.DELETE_EXAMS(id),
     );
     return response;
   });
 
   deleteQuestion = createApiMethod(async (id: string) => {
     const response = await apiConfig.delete(
-      API_ENDPOINTS.ADMIN.DELETE_QUESTION(id)
+      API_ENDPOINTS.ADMIN.DELETE_QUESTION(id),
     );
     return response;
   });
@@ -85,21 +92,21 @@ class ExamService {
         {
           text: data.text,
           isCorrect: data.isCorrect,
-        }
+        },
       );
 
       return response;
-    }
+    },
   );
 
   updateOption = createApiMethod(
     async (id: string, data: { text: string; isCorrect?: boolean }) => {
       const response = await apiConfig.patch(
         API_ENDPOINTS.ADMIN.UPDATE_OPTION(id),
-        data
+        data,
       );
       return response;
-    }
+    },
   );
 
   //===RESULT (ADMIN_ONLY)

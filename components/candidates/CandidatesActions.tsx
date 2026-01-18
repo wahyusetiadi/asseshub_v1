@@ -3,10 +3,12 @@
 import { BsEye } from "react-icons/bs";
 import ActionButton from "../ui/ActionButton";
 import { BiEdit, BiTrash } from "react-icons/bi";
-import { Candidate } from "@/types/api";
+// import { Candidate } from "@/types/candidateTypes";
+import { CandidateApi } from "@/types";
+
 
 interface CandidateActionsProps {
-  candidate: Candidate;
+  candidate: CandidateApi;
   onDetail: (id: string) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;

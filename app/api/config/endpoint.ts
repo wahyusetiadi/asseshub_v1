@@ -20,6 +20,7 @@ export const API_ENDPOINTS = {
     UPDATE_EXAM: (id: string) => `/admin/exams/${id} `,
     GET_EXAM: (id: string) => `/admin/exams/${id}`,
     GET_ALL_EXAMS: "/admin/exams",
+    DELETE_EXAMS: (id: string) => `/admin/exams/${id}`,
 
     //Questions
     GENERATE_QUESTIONS: (id: string) => `/admin/exams/${id}/questions`,

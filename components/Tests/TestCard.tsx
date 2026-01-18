@@ -1,3 +1,4 @@
+import { TestApi } from "@/types/api/test.api";
 import { Test } from "@/types/testTypes";
 import Link from "next/link";
 import { BsEye, BsTrash2 } from "react-icons/bs";
@@ -5,8 +6,8 @@ import { CgFileAdd } from "react-icons/cg";
 import { FiEdit3 } from "react-icons/fi";
 
 interface TestCardProps {
-  test: Test;
-  onView: (test: Test) => void;
+  test: TestApi;
+  onView: (test: TestApi) => void;
   onDelete: (id: string) => void;
   onEditExam: (id: string) => void;
 }

@@ -3,12 +3,16 @@ import InvitationConfig from "@/components/invitations/InvitationConfig";
 import InvitationStats from "@/components/invitations/InvitationStats";
 import SuccessNotification from "@/components/invitations/SuccessNotification";
 import adminService from "@/app/api/services/adminService";
-import { Candidate } from "@/types/candidateTypes";
+// import { Candidate } from "@/types/candidateTypes";
 import { useEffect, useState } from "react";
 import examService from "@/app/api/services/examService";
 import SearchBar from "@/components/ui/Searchbar";
 import CandidateTable from "@/components/invitations/Candidatetable";
 import { Test } from "@/types/testTypes";
+import { AlertState } from "@/types/alert.types";
+import Alert from "@/components/ui/Alert";
+import { useAlert } from "@/hooks/useAlert";
+import { CandidateApi } from "@/types";
 
 export default function InvitationsPage() {
   const [selectedCandidates, setSelectedCandidates] = useState<string[]>([]);
@@ -18,9 +22,11 @@ export default function InvitationsPage() {
   const [sendSuccess, setSendSuccess] = useState(false);
   const [scheduleDate, setScheduleDate] = useState("");
   const [scheduleTime, setScheduleTime] = useState("");
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [candidates, setCandidates] = useState<CandidateApi[]>([]);
   const [tests, setTests] = useState<Test[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const { alert, showAlert, closeAlert } = useAlert();
 
   // Fetch candidates data
   const fetchCandidatesData = async () => {
@@ -33,7 +39,11 @@ export default function InvitationsPage() {
       }
     } catch (error) {
       console.error("Error fetch candidates:", error);
-      alert("Gagal mengambil data kandidat");
+      showAlert({
+        variant: "error",
+        title: "Gagal",
+        message: "Gagal Mengambil data kandidat",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -49,7 +59,11 @@ export default function InvitationsPage() {
       }
     } catch (error) {
       console.error("Error fetch tests:", error);
-      alert("Gagal mengambil data test");
+      showAlert({
+        variant: "error",
+        title: "Gagal",
+        message: "Gagal Mengambil data test",
+      });
     }
   };
 
@@ -79,12 +93,20 @@ export default function InvitationsPage() {
     console.log("Candidates Count:", selectedCandidates.length);
 
     if (!selectedTest) {
-      alert("Pilih test terlebih dahulu!");
+      showAlert({
+        variant: "warning",
+        title: "Peringatan",
+        message: "Pilih Test",
+      });
       return;
     }
 
     if (selectedCandidates.length === 0) {
-      alert("Pilih minimal 1 kandidat!");
+      showAlert({
+        variant: "warning",
+        title: "Peringatan",
+        message: "Pilh minimal 1 kandidat",
+      });
       return;
     }
 
@@ -96,12 +118,16 @@ export default function InvitationsPage() {
         userIds: selectedCandidates,
       };
 
-      console.log("Sending request:", requestData); 
+      console.log("Sending request:", requestData);
 
       const response = await adminService.sendInvitation(requestData);
 
       if (response.data?.success) {
-        setSendSuccess(true);
+        showAlert({
+          variant: "success",
+          title: "Berhasil",
+          message: `Undangan berhasil dikirim`,
+        });
         await fetchCandidatesData();
 
         setTimeout(() => {
@@ -116,7 +142,11 @@ export default function InvitationsPage() {
       }
     } catch (error) {
       console.error("Send invitation error:", error);
-      alert("Gagal mengirim undangan. Silakan coba lagi.");
+      showAlert({
+        variant: "error",
+        title: "Gagal",
+        message: "Gagal Mengirim Undangan",
+      });
     } finally {
       setIsSending(false);
     }
@@ -131,10 +161,21 @@ export default function InvitationsPage() {
   return (
     <div className="space-y-6">
       {/* Success Notification */}
-      <SuccessNotification
+      {/* <SuccessNotification
         show={sendSuccess}
         candidatesCount={selectedCandidates.length}
-      />
+      /> */}
+      {alert.show && (
+        <div className="fixed top-5 right-5 z-9999">
+          <Alert
+            variant={alert.variant}
+            title={alert.title}
+            message={alert.message}
+            onClose={closeAlert}
+            className="w-90"
+          />
+        </div>
+      )}
 
       {/* Header */}
       <div>

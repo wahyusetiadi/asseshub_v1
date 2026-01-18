@@ -7,22 +7,26 @@ import PositionAddModal from "@/components/Tests/PositionAddModal";
 import TestCard from "@/components/Tests/TestCard";
 import TestDetailModal from "@/components/Tests/TestModalDetail";
 import ActionButton from "@/components/ui/ActionButton";
+import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import DataTable, { Column } from "@/components/ui/DataTable";
-import { Position } from "@/types/positions.type";
-import { Test } from "@/types/testTypes";
+import { useAlert } from "@/hooks/useAlert";
+import { AlertState } from "@/types/alert.types";
+import { Position } from "@/types/api/position.api";
+import { TestApi } from "@/types/api/test.api";
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { BiPlus, BiPencil, BiTrash } from "react-icons/bi";
+import { BiPencil, BiTrash } from "react-icons/bi";
 import { FaPlus } from "react-icons/fa";
 
 export default function TestPage() {
   const [activeTab, setActiveTab] = useState<"exams" | "positions">("exams");
-  const [tests, setTests] = useState<Test[]>([]);
+  const [tests, setTests] = useState<TestApi[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedTest, setSelectedTest] = useState<Test | null>(null);
-  const [editTest, setEditTest] = useState<Test | null>(null);
+  const [selectedTest, setSelectedTest] = useState<TestApi | null>(null);
+  const [editTest, setEditTest] = useState<TestApi | null>(null);
   const [deleteId, setDeleteId] = useState<{
     id: string;
     type: "exam" | "position";
@@ -35,6 +39,8 @@ export default function TestPage() {
     isOpen: false,
     data: null,
   });
+
+  const { alert, showAlert, closeAlert } = useAlert();
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -63,19 +69,36 @@ export default function TestPage() {
     if (!deleteId) return;
     try {
       if (deleteId.type === "exam") {
-        // await examService.deleteExam(deleteId.id);
+        const response = await examService.deleteExam(deleteId.id);
         setTests(tests.filter((t) => t.id !== deleteId.id));
+        console.log(response);
+        
       } else {
         // await positionService.deletePosition(deleteId.id);
         setPositions(positions.filter((p) => p.id !== deleteId.id));
       }
       setDeleteId(null);
-      alert("✅ Berhasil dihapus");
+      showAlert({
+        variant: "success",
+        title: "Berhasil",
+        message: "Berhasil menghapus ujian",
+      });
     } catch (error) {
       console.error("error deleted:", error);
 
-      alert("❌ Gagal menghapus");
+      showAlert({
+        variant: "error",
+        title: "Gagal",
+        message: "Gagal menghapus Ujian",
+      });
     }
+
+    // showAlert({
+    //   variant: "warning",
+    //   title: "Informasi",
+    //   message: "Delete Belum ada",
+    // });
+    // setDeleteId(null);
   };
 
   // Definisi kolom untuk tabel posisi
@@ -94,12 +117,26 @@ export default function TestPage() {
           <ActionButton
             icon={BiPencil}
             tooltip="Edit"
-            onClick={() => setPositionModal({ isOpen: true, data: pos })}
+            // onClick={() => setPositionModal({ isOpen: true, data: pos })}
+            onClick={() =>
+              showAlert({
+                variant: "info",
+                title: "Info",
+                message: "Edit belum tersedia",
+              })
+            }
           />
           <ActionButton
             icon={BiTrash}
             tooltip="Hapus"
-            onClick={() => setDeleteId({ id: pos.id, type: "position" })}
+            // onClick={() => setDeleteId({ id: pos.id, type: "position" })}
+            onClick={() =>
+              showAlert({
+                variant: "info",
+                title: "Info",
+                message: "Hapus belum tersedia",
+              })
+            }
             variant="danger"
           />
         </div>
@@ -109,10 +146,23 @@ export default function TestPage() {
 
   return (
     <div className="space-y-6">
+      {alert.show && (
+        <div className="fixed top-5 md:right-5 z-9999">
+          <Alert
+            variant={alert.variant}
+            title={alert.title}
+            message={alert.message}
+            onClose={closeAlert}
+            className="w-80 md:w-90"
+          />
+        </div>
+      )}
       {/* Header & Tab Navigation */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 border-b border-gray-200 pb-2">
         <div>
-          <h1 className="text-2xl font-bold text-black">Manajemen Rekrutmen</h1>
+          <h1 className="text-2xl font-bold text-slate-800">
+            Manajemen Rekrutmen
+          </h1>
           <div className="flex gap-6 mt-4">
             <Button
               title="Daftar Ujian"
@@ -202,10 +252,22 @@ export default function TestPage() {
         <EditTestModal
           test={editTest}
           onClose={() => setEditTest(null)}
-          onSuccess={(updated) =>
+          onSuccess={(updated) => {
             setTests((prev) =>
-              prev.map((t) => (t.id === updated.id ? updated : t))
-            )
+              prev.map((t) => (t.id === updated.id ? updated : t)),
+            );
+            showAlert({
+              variant: "success",
+              title: "Berhasil",
+              message: "Ujian berhasil diperbarui",
+            });
+          }}
+          onError={(message) =>
+            showAlert({
+              variant: "error",
+              title: "Gagal",
+              message,
+            })
           }
         />
       )}

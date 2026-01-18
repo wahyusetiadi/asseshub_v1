@@ -8,7 +8,7 @@ import {
 } from "react-icons/bi";
 import { BsFiletypeCsv } from "react-icons/bs";
 import Link from "next/link";
-import { api } from "@/helpers/lib/api";
+// import { api } from "@/helpers/lib/api";
 import { useRouter } from "next/navigation";
 
 // ✅ Tambahkan interface ini
@@ -58,29 +58,29 @@ export default function ImportCandidatesPage() {
     reader.readAsText(file);
   };
 
-  const handleUpload = async () => {
-    if (!file) return;
+  // const handleUpload = async () => {
+  //   if (!file) return;
 
-    setIsUploading(true);
+  //   setIsUploading(true);
 
-    try {
-      const response = await api.importCandidates(file);
+  //   try {
+  //     const response = await api.importCandidates(file);
 
-      if (response.success && response.data) {
-        setUploadSuccess(true);
-        console.log("Imported candidates:", response.data);
+  //     if (response.success && response.data) {
+  //       setUploadSuccess(true);
+  //       console.log("Imported candidates:", response.data);
 
-        setTimeout(() => {
-          router.push("/candidates");
-        }, 3000);
-      }
-    } catch (error) {
-      console.error("Import error:", error);
-      alert("Gagal import kandidat");
-    } finally {
-      setIsUploading(false);
-    }
-  };
+  //       setTimeout(() => {
+  //         router.push("/candidates");
+  //       }, 3000);
+  //     }
+  //   } catch (error) {
+  //     console.error("Import error:", error);
+  //     alert("Gagal import kandidat");
+  //   } finally {
+  //     setIsUploading(false);
+  //   }
+  // };
 
   const downloadTemplate = () => {
     const csvContent = `fullName,email,phone,position
@@ -269,7 +269,7 @@ Sarah Williams,sarah@example.com,081387654321,Data Analyst`;
 
             {/* Upload Button */}
             <button
-              onClick={handleUpload}
+              // onClick={handleUpload}
               disabled={isUploading || preview.length === 0}
               className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition shadow-sm"
             >

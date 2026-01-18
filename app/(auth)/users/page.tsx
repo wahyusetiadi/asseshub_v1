@@ -73,7 +73,7 @@ export default function AuthPage() {
 
   return (
     <div className="w-full h-screen flex items-center justify-center bg-white text-black">
-      <div className="bg-white p-8 border border-slate-300 rounded-lg shadow-md w-96">
+      <div className="bg-white p-8 border border-slate-300 rounded-lg shadow-md w-80 md:w-96">
         <h1 className="text-2xl font-bold mb-4 text-center">
           Portal Peserta Ujian
         </h1>
