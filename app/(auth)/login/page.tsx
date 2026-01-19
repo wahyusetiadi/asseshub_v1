@@ -4,7 +4,9 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import InputField from "@/components/ui/InputFieled";
 import authService from "@/app/api/services/authService";
+import logo from "../../../public/logo.png";
 import { FaEye, FaUser } from "react-icons/fa";
+import Image from "next/image";
 
 const FormInput = [
   {
@@ -73,6 +75,9 @@ export default function AuthPage() {
   return (
     <div className="w-full h-screen flex items-center justify-center bg-white text-black">
       <div className="bg-white p-8 rounded-lg border border-slate-300 shadow-md w-80 md:w-96">
+        <div className="flex items-center justify-center mb-4">
+          <Image src={logo} alt="logo" className="size-20" />
+        </div>
         <h1 className="font-bold text-2xl text-center">LOGIN</h1>
         <p className="text-base md:text-lg text-center">Administrator Panel</p>
         <p className="text-xs text-slate-500 text-center mb-4">

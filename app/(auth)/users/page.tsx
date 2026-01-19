@@ -6,6 +6,8 @@ import InputField from "@/components/ui/InputFieled";
 import authService from "@/app/api/services/authService";
 import { FaEye, FaUser } from "react-icons/fa";
 import { RiInformationLine } from "react-icons/ri";
+import Image from "next/image";
+import logo from "../../../public/logo.png";
 
 const FormInput = [
   {
@@ -74,6 +76,9 @@ export default function AuthPage() {
   return (
     <div className="w-full h-screen flex items-center justify-center bg-white text-black">
       <div className="bg-white p-8 border border-slate-300 rounded-lg shadow-md w-80 md:w-96">
+        <div className="flex items-center justify-center mb-4">
+          <Image src={logo} alt="logo" className="size-20" />
+        </div>{" "}
         <h1 className="text-2xl font-bold mb-4 text-center">
           Portal Peserta Ujian
         </h1>
@@ -81,13 +86,11 @@ export default function AuthPage() {
           Selamat datang! Masukkan username dan password yang Anda terima untuk
           memulai tes.
         </p>
-
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
             {error}
           </div>
         )}
-
         <form onSubmit={handleSubmit} className="w-full grid gap-4">
           {FormInput.map((input) => (
             <InputField

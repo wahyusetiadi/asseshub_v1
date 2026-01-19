@@ -9,7 +9,6 @@ import examService from "@/app/api/services/examService";
 import SearchBar from "@/components/ui/Searchbar";
 import CandidateTable from "@/components/invitations/Candidatetable";
 import { Test } from "@/types/testTypes";
-import { AlertState } from "@/types/alert.types";
 import Alert from "@/components/ui/Alert";
 import { useAlert } from "@/hooks/useAlert";
 import { CandidateApi } from "@/types";
@@ -74,7 +73,7 @@ export default function InvitationsPage() {
 
   const handleSelectCandidate = (id: string) => {
     setSelectedCandidates((prev) =>
-      prev.includes(id) ? prev.filter((cId) => cId !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((cId) => cId !== id) : [...prev, id],
     );
   };
 
@@ -155,16 +154,11 @@ export default function InvitationsPage() {
   const filteredCandidates = candidates.filter(
     (c) =>
       c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.email.toLowerCase().includes(searchQuery.toLowerCase())
+      c.email.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
     <div className="space-y-6">
-      {/* Success Notification */}
-      {/* <SuccessNotification
-        show={sendSuccess}
-        candidatesCount={selectedCandidates.length}
-      /> */}
       {alert.show && (
         <div className="fixed top-5 right-5 z-9999">
           <Alert

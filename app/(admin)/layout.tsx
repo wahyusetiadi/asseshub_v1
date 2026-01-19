@@ -2,7 +2,7 @@
 
 import { SidebarGroup } from "@/helpers/sidebar.helper";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiHome, FiBell, FiMenu, FiLogOut } from "react-icons/fi";
 import { BiBookAdd, BiBarChartAlt2, BiEnvelope } from "react-icons/bi";
 import { HiOutlineUserGroup } from "react-icons/hi";
@@ -10,7 +10,7 @@ import avatar from "@/public/avatar.jpg";
 import Sidebar from "@/components/Layout/Sidebar";
 import Topbar from "@/components/Layout/Topbar";
 import { useRouter, usePathname } from "next/navigation";
-
+import logo from "../../public/logo.png";
 export default function LayoutAdmin({
   children,
 }: {
@@ -68,6 +68,13 @@ export default function LayoutAdmin({
     router.push("/login");
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+    }
+  });
+
   return (
     <div className="flex min-h-screen max-w-full overflow-x-hidden">
       {/* ================= MOBILE OVERLAY ================= */}
@@ -94,7 +101,13 @@ export default function LayoutAdmin({
           onToggleCollapse={() => setCollapsed((v) => !v)}
           logo={
             <div className="flex items-center gap-2 px-2">
-              <div className="h-8 w-8 rounded bg-blue-600 shrink-0" />
+              <Image
+                src={logo}
+                alt="Logo"
+                width={32}
+                height={32}
+                className="shrink-0"
+              />
               {!collapsed && (
                 <span className="font-bold text-lg tracking-tight">
                   AssesHub
@@ -165,7 +178,7 @@ export default function LayoutAdmin({
               <div className="flex items-center gap-2 md:gap-3 pl-0 sm:pl-2 min-w-0">
                 <div className="text-right hidden lg:block min-w-0 max-w-30">
                   <p className="text-xs font-bold leading-none truncate">
-                    Admin Dante
+                    Admin
                   </p>
                   <p className="text-[10px] text-gray-500 mt-1 truncate">
                     Super Admin
@@ -173,11 +186,11 @@ export default function LayoutAdmin({
                 </div>
 
                 <Image
-                  src={avatar}
-                  alt="User avatar"
-                  width={36}
-                  height={36}
-                  className="h-8 w-8 md:h-9 md:w-9 rounded-full object-cover border border-gray-200 shrink-0"
+                  src={logo}
+                  alt="Logo"
+                  width={32}
+                  height={32}
+                  className="shrink-0"
                 />
               </div>
             </div>

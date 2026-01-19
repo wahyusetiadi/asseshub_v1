@@ -19,9 +19,6 @@ import DeleteCandidateModal from "@/components/candidates/DeleteModal";
 import { useAlert } from "@/hooks/useAlert";
 import { CandidateApi } from "@/types";
 
-
-
-
 export default function CandidatesPage() {
   const [candidates, setCandidates] = useState<CandidateApi[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -213,7 +210,21 @@ export default function CandidatesPage() {
       <CandidateEditModal
         isOpen={isEditModal}
         onClose={() => setIsEditModal(false)}
-        onSuccess={fetchCandidates}
+        onSuccess={(msg) => {
+          showAlert({
+            variant: "success",
+            title: "Berhasil",
+            message: msg,
+          });
+          fetchCandidates();
+        }}
+        onError={(msg) => {
+          showAlert({
+            variant: "error",
+            title: "Gagal",
+            message: msg,
+          });
+        }}
         candidate={selectedCandidate}
       />
     </div>

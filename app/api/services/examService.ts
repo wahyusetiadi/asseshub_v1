@@ -99,9 +99,14 @@ class ExamService {
     },
   );
 
+  getOptions = createApiMethod(async (id: string) => {
+    const response = await apiConfig.get(API_ENDPOINTS.ADMIN.GET_QUESTION(id));
+    return response;
+  });
+
   updateOption = createApiMethod(
     async (id: string, data: { text: string; isCorrect?: boolean }) => {
-      const response = await apiConfig.patch(
+      const response = await apiConfig.put(
         API_ENDPOINTS.ADMIN.UPDATE_OPTION(id),
         data,
       );

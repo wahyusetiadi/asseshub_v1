@@ -10,7 +10,8 @@ import { CandidateApi } from "@/types";
 interface CandidateEditModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (message: string) => void;
+  onError?: (message: string) => void;
   candidate: CandidateApi | null;
 }
 
@@ -58,7 +59,7 @@ export default function CandidateEditModal({
   useEffect(() => {
     if (isOpen && candidate && positions.length > 0) {
       const matchedPosition = positions.find(
-        (pos) => pos.name === candidate.position
+        (pos) => pos.name === candidate.position,
       );
 
       setFormData({
@@ -101,12 +102,12 @@ export default function CandidateEditModal({
         candidate.id,
         formData.name,
         formData.email,
-        formData.positionId
+        formData.positionId,
       );
 
-      alert("✅ Data kandidat berhasil diperbarui");
+      // alert("✅ Data kandidat berhasil diperbarui");
       handleClose();
-      onSuccess();
+      onSuccess("Data kandidat berhasil diperbaharui");
     } catch (err: unknown) {
       let errorMessage = "Gagal memperbarui data kandidat";
       if (err instanceof Error) {
