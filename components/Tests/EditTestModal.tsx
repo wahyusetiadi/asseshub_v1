@@ -46,6 +46,13 @@ export default function EditTestModal({
     }
   };
 
+  const toLocalInput = (iso: string) => {
+    const d = new Date(iso);
+    const pad = (n: number) => n.toString().padStart(2, "0");
+
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
   useEffect(() => {
     fetchPositionData();
   }, []);
@@ -53,15 +60,17 @@ export default function EditTestModal({
   useEffect(() => {
     if (positions.length > 0) {
       const matchedPosition = positions.find(
-        (pos) => pos.name.toLowerCase() === test.category?.toLowerCase()
+        (pos) => pos.name.toLowerCase() === test.category?.toLowerCase(),
       );
 
       setForm({
         title: test.title,
         description: test.description,
         durationMinutes: test.durationMinutes,
-        startAt: test.startAt.slice(0, 16),
-        endAt: test.endAt.slice(0, 16),
+        startAt: toLocalInput(test.startAt),
+        endAt: toLocalInput(test.endAt),
+        // startAt: test.startAt.slice(0, 16),
+        // endAt: test.endAt.slice(0, 16),
         categoryId: matchedPosition?.id || "",
         category: test.category || "",
       });
@@ -69,7 +78,7 @@ export default function EditTestModal({
   }, [test, positions]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({
@@ -94,7 +103,7 @@ export default function EditTestModal({
     setLoading(true);
 
     try {
-      if (new Date(form.startAt) >= new Date(form.endAt)) {
+      if (form.startAt >= form.endAt) {
         onError?.("Waktu selesai harus lebih besar dari waktu mulai");
         setLoading(false);
         return;
@@ -103,8 +112,8 @@ export default function EditTestModal({
       const payload = {
         title: form.title,
         description: form.description,
-        startAt: form.startAt,
-        endAt: form.endAt,
+        startAt: new Date(form.startAt).toISOString(),
+        endAt: new Date(form.endAt).toISOString(),
         durationMinutes: form.durationMinutes,
         categoryId: form.categoryId,
       };
@@ -115,8 +124,10 @@ export default function EditTestModal({
         ...test,
         ...payload,
         category: form.category, // ✅ Update category juga
-        startAt: new Date(payload.startAt).toISOString(),
-        endAt: new Date(payload.endAt).toISOString(),
+        // startAt: new Date(payload.startAt).toISOString(),
+        // endAt: new Date(payload.endAt).toISOString(),
+        startAt: payload.startAt,
+        endAt: payload.endAt,
       };
 
       onSuccess?.(updated);

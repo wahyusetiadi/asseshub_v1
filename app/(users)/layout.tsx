@@ -1,15 +1,10 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import { FiHome, FiBell, FiMenu, FiLogOut, FiUser } from "react-icons/fi";
-import avatar from "@/public/avatar.jpg";
-import { SidebarGroup } from "@/helpers/sidebar.helper";
-import Sidebar from "@/components/Layout/Sidebar";
-import Topbar from "@/components/Layout/Topbar";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { FiLogOut, FiUser } from 'react-icons/fi';
+import Topbar from '@/components/Layout/Topbar';
 
-// 1. Definisikan tipe data agar tidak error 'username does not exist'
 interface UserData {
   id: string;
   username: string;
@@ -17,63 +12,69 @@ interface UserData {
   position: string;
 }
 
-export default function LayoutExample({
+export default function UserLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [collapsed, setCollapsed] = useState(false);
   const router = useRouter();
-  const groups: SidebarGroup[] = [
-    {
-      key: "main",
-      title: "Main",
-      items: [
-        {
-          key: "dashboard",
-          label: "Dashboard",
-          href: "/dashboard",
-          icon: <FiHome />,
-        },
-      ],
-    },
-  ];
+  const [user, setUser] = useState<UserData | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+
+    if (!token || !userData) {
+      router.replace('/users');
+      return;
+    }
+
+    setUser(JSON.parse(userData));
+  }, []);
+
   const handleLogout = () => {
-    localStorage.removeItem("user"); 
-    router.push("/users");
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    router.replace('/users');
   };
+
+  if (!user) {
+    return (
+      <div className="h-screen flex items-center justify-center text-gray-500">
+        Memuat data pengguna...
+      </div>
+    );
+  }
+
   return (
-    <div className="flex">
-      <div className="flex min-h-screen flex-1 flex-col text-black">
+    <div className="flex min-h-screen">
+      <div className="flex flex-1 flex-col text-black">
         <Topbar
           left={
             <div className="flex items-center gap-2 px-4">
               <div className="h-8 w-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold">
-                A
+                {user.username.charAt(0).toUpperCase()}
               </div>
-              <span className="font-bold text-lg tracking-tight">AssesHub</span>
+              <span className="font-bold text-lg">AssesHub</span>
             </div>
           }
           center={
-            <div className="w-full text-center hidden md:block text-gray-500 font-semibold">
+            <div className="hidden md:block text-gray-500 font-semibold">
               Halaman Persiapan Ujian
             </div>
           }
           right={
             <div className="flex items-center gap-3 px-4">
-              <div className="flex items-center gap-2">
-                <div className="hidden h-9 w-9 rounded-full bg-blue-100 items-center justify-center border border-blue-200">
-                  <FiUser className="text-blue-600" size={18} />
-                </div>
-
-                <button
-                  onClick={handleLogout}
-                  className="ml-2 p-2 text-gray-400 hover:text-red-600 transition-colors"
-                  title="Keluar"
-                >
-                  <FiLogOut size={20} />
-                </button>
-              </div>
+              <span className="text-sm font-medium text-gray-600">
+                {user.username}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="p-2 text-gray-400 hover:text-red-600"
+                title="Keluar"
+              >
+                <FiLogOut size={20} />
+              </button>
             </div>
           }
         />

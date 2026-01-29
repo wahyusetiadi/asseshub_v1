@@ -72,7 +72,7 @@ export default function CreateTestPage() {
         // alert("❌ Mohon tentukan waktu mulai dan selesai");
         return;
       }
-      if (new Date(testData.startAt) >= new Date(testData.endAt)) {
+      if (testData.startAt >= testData.endAt) {
         showAlert({
           variant: "error",
           title: "Gagal",

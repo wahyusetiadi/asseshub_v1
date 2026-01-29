@@ -1,4 +1,5 @@
-import { useReducer, useEffect, useRef } from "react";
+// hooks/useExamTimer.ts
+import { useEffect, useReducer } from "react";
 
 type TimerState = {
   timeRemaining: number;
@@ -6,26 +7,19 @@ type TimerState = {
 };
 
 type TimerAction =
-  | { type: "SYNC"; payload: number }
-  | { type: "TICK" }
+  | { type: "SET"; payload: number }
   | { type: "TIME_UP" };
 
-const timerReducer = (state: TimerState, action: TimerAction): TimerState => {
+const reducer = (state: TimerState, action: TimerAction): TimerState => {
   switch (action.type) {
-    case "SYNC":
+    case "SET":
       return {
         timeRemaining: action.payload,
         isTimeUp: action.payload <= 0,
       };
-    case "TICK":
-      const newTime = state.timeRemaining - 1;
-      return {
-        timeRemaining: Math.max(0, newTime),
-        isTimeUp: newTime <= 0,
-      };
     case "TIME_UP":
       return {
-        ...state,
+        timeRemaining: 0,
         isTimeUp: true,
       };
     default:
@@ -33,59 +27,50 @@ const timerReducer = (state: TimerState, action: TimerAction): TimerState => {
   }
 };
 
-export const useExamTimer = (initialTime: number) => {
-  const [state, dispatch] = useReducer(timerReducer, {
-    timeRemaining: initialTime,
-    isTimeUp: initialTime <= 0,
+export const useExamTimer = (endTime: number | null) => {
+  const [state, dispatch] = useReducer(reducer, {
+    timeRemaining: 0,
+    isTimeUp: false,
   });
 
-  const prevInitialTimeRef = useRef(initialTime);
-
-  // ✅ Sync dengan backend
   useEffect(() => {
-    if (prevInitialTimeRef.current !== initialTime) {
-      console.log("⏱️ Timer synced:", prevInitialTimeRef.current, "→", initialTime);
-      prevInitialTimeRef.current = initialTime;
-      dispatch({ type: "SYNC", payload: initialTime });
-    }
-  }, [initialTime]);
+    if (!endTime) return;
 
-  // ✅ Countdown timer
-  useEffect(() => {
-    if (state.timeRemaining <= 0) {
-      if (!state.isTimeUp) {
+    const tick = () => {
+      const remainingSeconds = Math.max(
+        0,
+        Math.floor((endTime - Date.now()) / 1000)
+      );
+
+      dispatch({ type: "SET", payload: remainingSeconds });
+
+      if (remainingSeconds <= 0) {
         dispatch({ type: "TIME_UP" });
       }
-      return;
-    }
+    };
 
-    const timer = setInterval(() => {
-      dispatch({ type: "TICK" });
-    }, 1000);
+    tick(); // initial
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [endTime]);
 
-    return () => clearInterval(timer);
-  }, [state.timeRemaining, state.isTimeUp]);
-
-  // ✅ Format waktu
   const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
 
-    if (hours > 0) {
-      return `${hours.toString().padStart(2, "0")}:${mins
-        .toString()
-        .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-    }
-    return `${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
+    return h > 0
+      ? `${h.toString().padStart(2, "0")}:${m
+          .toString()
+          .padStart(2, "0")}:${s.toString().padStart(2, "0")}`
+      : `${m.toString().padStart(2, "0")}:${s
+          .toString()
+          .padStart(2, "0")}`;
   };
 
   return {
     timeRemaining: state.timeRemaining,
-    setTimeRemaining: (value: number) => dispatch({ type: "SYNC", payload: value }),
-    formatTime,
     isTimeUp: state.isTimeUp,
+    formatTime,
   };
 };

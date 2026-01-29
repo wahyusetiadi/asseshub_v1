@@ -34,6 +34,7 @@ export default function DashboardPage() {
   const [user, setUser] = useState<UserData | null>(null);
   const [assignments, setAssignments] = useState<TestAssignment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     // Get user from localStorage
@@ -90,7 +91,7 @@ export default function DashboardPage() {
       // Filter berdasarkan position === category
       if (userPosition) {
         exams = exams.filter(
-          (exam) => exam.category?.toLowerCase() === userPosition
+          (exam) => exam.category?.toLowerCase() === userPosition,
         );
       }
 
@@ -121,9 +122,17 @@ export default function DashboardPage() {
 
       console.log("✅ Exam session created, redirecting...");
       router.push(`/exam/${testId}`);
-    } catch (error) {
-      console.error("❌ Failed to start exam:", error);
-      alert("Gagal memulai ujian. Silakan coba lagi.");
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Gagal memulai test";
+
+      setErrorMessage(message);
+
+      setTimeout(() => {
+        setErrorMessage("");
+      }, 3000);
     }
   };
 
@@ -159,6 +168,18 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {errorMessage && (
+  <div className="fixed top-6 left-1/2 z-50 w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 flex items-start justify-between gap-3 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-red-700 shadow-lg">
+    <span className="text-sm font-medium">{errorMessage}</span>
+    <button
+      onClick={() => setErrorMessage(null)}
+      className="text-red-500 hover:text-red-700"
+    >
+      ✕
+    </button>
+  </div>
+)}
+
       {/* Main Content */}
       <main className="w-full px-6 py-8">
         {/* Welcome Section */}

@@ -14,8 +14,8 @@ class ExamService {
     const response = await apiConfig.post(API_ENDPOINTS.ADMIN.GENERATE_EXAMS, {
       title: data.title,
       description: data.description,
-      startAt: new Date(data.startAt).toISOString(),
-      endAt: new Date(data.endAt).toISOString(),
+      startAt: data.startAt,
+      endAt: data.endAt,
       durationMinutes: data.durationMinutes,
       categoryId: data.categoryId,
     });
@@ -29,8 +29,10 @@ class ExamService {
       {
         title: data.title,
         description: data.description,
-        startAt: new Date(data.startAt).toISOString(),
-        endAt: new Date(data.endAt).toISOString(),
+        // startAt: new Date(data.startAt).toISOString(),
+        // endAt: new Date(data.endAt).toISOString(),
+        startAt: data.startAt,
+        endAt: data.endAt,
         durationMinutes: data.durationMinutes,
         categoryId: data.categoryId,
       },

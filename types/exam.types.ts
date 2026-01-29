@@ -27,7 +27,7 @@ export interface ExamData {
 
 export interface UserProgress {
   user_id: string;
-  remaining_duration: number; // dalam detik
+  remaining_duration_ms: number; // dalam detik
   is_exam_ongoing: boolean;
 }
 
