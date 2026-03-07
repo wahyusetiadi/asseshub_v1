@@ -1,14 +1,12 @@
 // hooks/useExamTimer.ts
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useCallback } from "react";
 
 type TimerState = {
   timeRemaining: number;
   isTimeUp: boolean;
 };
 
-type TimerAction =
-  | { type: "SET"; payload: number }
-  | { type: "TIME_UP" };
+type TimerAction = { type: "SET"; payload: number } | { type: "TIME_UP" };
 
 const reducer = (state: TimerState, action: TimerAction): TimerState => {
   switch (action.type) {
@@ -34,39 +32,48 @@ export const useExamTimer = (endTime: number | null) => {
   });
 
   useEffect(() => {
-    if (!endTime) return;
+    if (!endTime) {
+      console.warn("⚠️ No endTime provided to timer");
+      return;
+    }
 
     const tick = () => {
-      const remainingSeconds = Math.max(
-        0,
-        Math.floor((endTime - Date.now()) / 1000)
-      );
+      const now = Date.now();
+      const remainingSeconds = Math.max(0, Math.floor((endTime - now) / 1000));
+
+      // Logging untuk debugging (hapus di production)
+      if (remainingSeconds <= 60 && remainingSeconds % 10 === 0) {
+        console.log(`⏰ ${remainingSeconds} seconds remaining`);
+      }
 
       dispatch({ type: "SET", payload: remainingSeconds });
 
       if (remainingSeconds <= 0) {
+        console.log("⏰ TIME IS UP!");
         dispatch({ type: "TIME_UP" });
       }
     };
 
-    tick(); // initial
+    // Initial tick
+    tick();
+
+    // Update every second
     const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
+
+    return () => {
+      clearInterval(interval);
+    };
   }, [endTime]);
 
-  const formatTime = (seconds: number) => {
+  const formatTime = useCallback((seconds: number) => {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
 
     return h > 0
-      ? `${h.toString().padStart(2, "0")}:${m
-          .toString()
-          .padStart(2, "0")}:${s.toString().padStart(2, "0")}`
-      : `${m.toString().padStart(2, "0")}:${s
-          .toString()
-          .padStart(2, "0")}`;
-  };
+      ? `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`
+      : `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  }, []);
 
   return {
     timeRemaining: state.timeRemaining,

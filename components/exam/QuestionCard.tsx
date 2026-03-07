@@ -6,6 +6,7 @@ interface QuestionCardProps {
   question: Question;
   questionIndex: number;
   selectedAnswer: string | undefined;
+  isSaving?: boolean;
   onAnswerSelect: (questionId: string, optionId: string) => void;
   onPrevious: () => void;
   onNext: () => void;
@@ -19,6 +20,7 @@ export default function QuestionCard({
   question,
   questionIndex,
   selectedAnswer,
+  isSaving = false,
   onAnswerSelect,
   onPrevious,
   onNext,
@@ -30,9 +32,17 @@ export default function QuestionCard({
   return (
     <div className="bg-white rounded-xl border shadow-sm p-8">
       <div className="mb-6">
-        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full mb-4">
-          Pertanyaan #{questionIndex + 1}
-        </span>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+            Pertanyaan #{questionIndex + 1}
+          </span>
+          {isSaving && (
+            <span className="flex items-center gap-1 text-xs text-gray-400">
+              <span className="w-3 h-3 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+              Menyimpan...
+            </span>
+          )}
+        </div>
         <h2 className="text-lg font-bold text-gray-800 mb-2">{question.text}</h2>
       </div>
 
@@ -41,11 +51,12 @@ export default function QuestionCard({
           <button
             key={option.id}
             onClick={() => onAnswerSelect(question.id, option.id)}
+            disabled={isSaving}
             className={`w-full text-left p-4 rounded-lg border-2 transition ${
               selectedAnswer === option.id
                 ? "border-blue-600 bg-blue-50"
                 : "border-gray-200 hover:border-blue-300 hover:bg-gray-50"
-            }`}
+            } disabled:opacity-60 disabled:cursor-not-allowed`}
           >
             <div className="flex items-center gap-3">
               <div

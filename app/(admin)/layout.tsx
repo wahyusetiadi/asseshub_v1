@@ -19,6 +19,7 @@ import {
   type SessionUser,
 } from "@/helpers/auth";
 import logo from "../../public/logo.png";
+
 export default function LayoutAdmin({
   children,
 }: {
@@ -118,16 +119,9 @@ export default function LayoutAdmin({
     return () => {
       isMounted = false;
     };
-  }, [router]);
+  }, []); // ✅ Ubah dari [router] ke []
 
-  if (isCheckingSession || !currentUser) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 text-sm text-slate-500">
-        Memverifikasi sesi admin...
-      </div>
-    );
-  }
-
+  // ✅ PERUBAHAN UTAMA: Layout tetap render, loading hanya di children
   return (
     <div className="flex min-h-screen max-w-full overflow-x-hidden">
       {/* ================= MOBILE OVERLAY ================= */}
@@ -218,23 +212,15 @@ export default function LayoutAdmin({
           }
           right={
             <div className="flex items-center gap-2 md:gap-3 min-w-0">
-              {/* <button
-                className="relative inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-gray-100 shrink-0"
-                aria-label="Notifications"
-              >
-                <FiBell size={18} />
-                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 border-2 border-white" />
-              </button> */}
-
               <div className="h-8 w-px bg-gray-200 mx-1 hidden sm:block shrink-0" />
 
               <div className="flex items-center gap-2 md:gap-3 pl-0 sm:pl-2 min-w-0">
                 <div className="text-right hidden lg:block min-w-0 max-w-30">
                   <p className="text-xs font-bold leading-none truncate">
-                    {currentUser.username}
+                    {currentUser?.username || "Loading..."}
                   </p>
                   <p className="text-[10px] text-gray-500 mt-1 truncate">
-                    {currentUser.role}
+                    {currentUser?.role || "..."}
                   </p>
                 </div>
 
@@ -250,8 +236,20 @@ export default function LayoutAdmin({
           }
         />
 
+        {/* ✅ LOADING STATE HANYA DI CHILDREN */}
         <main className="flex-1 w-full min-w-0 bg-slate-50 p-3 md:p-4 lg:p-6 overflow-x-hidden">
-          {children}
+          {isCheckingSession || !currentUser ? (
+            <div className="flex items-center justify-center h-full min-h-[400px]">
+              <div className="text-center">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
+                <p className="text-sm text-slate-500">
+                  Memverifikasi sesi admin...
+                </p>
+              </div>
+            </div>
+          ) : (
+            children
+          )}
         </main>
       </div>
     </div>

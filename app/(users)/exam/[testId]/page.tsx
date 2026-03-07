@@ -23,7 +23,6 @@ export default function ExamExecutionPage({
   /* =======================
      CONSTANTS
   ======================= */
-  const ANSWERS_STORAGE_KEY = `exam_answers_${testId}`;
   const END_TIME_KEY = `exam_end_time_${testId}`;
 
   /* =======================
@@ -33,6 +32,11 @@ export default function ExamExecutionPage({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
+  // Track which questions are currently being saved (for loading indicator)
+  const [savingQuestions, setSavingQuestions] = useState<Set<string>>(
+    new Set(),
+  );
+
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error" | "warning";
@@ -40,15 +44,8 @@ export default function ExamExecutionPage({
 
   const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
 
-  const [answers, setAnswers] = useState<Record<string, string>>(() => {
-    if (typeof window === "undefined") return {};
-    try {
-      const saved = localStorage.getItem(ANSWERS_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : {};
-    } catch {
-      return {};
-    }
-  });
+  // answers hanya di-state (tidak pakai localStorage)
+  const [answers, setAnswers] = useState<Record<string, string>>({});
 
   /* =======================
      REFS
@@ -87,51 +84,45 @@ export default function ExamExecutionPage({
      HANDLERS
   ======================= */
 
-  const saveAnswerToStorage = useCallback(
-    (updated: Record<string, string>) => {
-      localStorage.setItem(ANSWERS_STORAGE_KEY, JSON.stringify(updated));
-    },
-    [ANSWERS_STORAGE_KEY],
-  );
-
   const handleAnswerSelect = useCallback(
-    (questionId: string, optionId: string) => {
-      setAnswers((prev) => {
-        const updated = { ...prev, [questionId]: optionId };
-        saveAnswerToStorage(updated);
-        return updated;
-      });
+    async (questionId: string, optionId: string) => {
+      // Optimistic update — langsung tampilkan pilihan user
+      setAnswers((prev) => ({ ...prev, [questionId]: optionId }));
+
+      // Mark as saving
+      setSavingQuestions((prev) => new Set(prev).add(questionId));
+
+      try {
+        await userService.answerQuestion(testId, { questionId, optionId });
+      } catch (error: any) {
+        const msg =
+          error?.response?.data?.message ||
+          error?.message ||
+          "Gagal menyimpan jawaban";
+
+        setToast({ message: `⚠️ ${msg}`, type: "warning" });
+
+        // Rollback jika gagal
+        setAnswers((prev) => {
+          const rollback = { ...prev };
+          delete rollback[questionId];
+          return rollback;
+        });
+      } finally {
+        setSavingQuestions((prev) => {
+          const next = new Set(prev);
+          next.delete(questionId);
+          return next;
+        });
+      }
     },
-    [saveAnswerToStorage],
+    [testId],
   );
 
   const redirectToDashboard = useCallback(() => {
-    localStorage.removeItem(ANSWERS_STORAGE_KEY);
     localStorage.removeItem(END_TIME_KEY);
     router.push("/dashboard");
-  }, [router, ANSWERS_STORAGE_KEY, END_TIME_KEY]);
-
-  const submitAllAnswers = useCallback(async () => {
-    const entries = Object.entries(answers);
-    if (entries.length === 0) return true;
-
-    const results = await Promise.allSettled(
-      entries.map(([questionId, optionId]) =>
-        userService.answerQuestion(testId, { questionId, optionId }),
-      ),
-    );
-
-    const failed = results.filter((r) => r.status === "rejected");
-
-    if (failed.length > 0) {
-      setToast({
-        message: `⚠️ ${failed.length} jawaban gagal dikirim`,
-        type: "warning",
-      });
-    }
-
-    return true;
-  }, [answers, testId]);
+  }, [router, END_TIME_KEY]);
 
   const handleSubmit = useCallback(
     async (isManual: boolean) => {
@@ -141,13 +132,6 @@ export default function ExamExecutionPage({
       isExamFinished.current = true;
 
       try {
-        const canProceed = await submitAllAnswers();
-        if (!canProceed) {
-          setIsSubmitting(false);
-          isExamFinished.current = false;
-          return;
-        }
-
         await userService.finishExam(testId);
 
         setToast({
@@ -173,13 +157,7 @@ export default function ExamExecutionPage({
         isExamFinished.current = false;
       }
     },
-    [
-      isSubmitting,
-      isInitialized,
-      submitAllAnswers,
-      redirectToDashboard,
-      testId,
-    ],
+    [isSubmitting, isInitialized, redirectToDashboard, testId],
   );
 
   /* =======================
@@ -256,6 +234,7 @@ export default function ExamExecutionPage({
               question={currentQuestion}
               questionIndex={currentQuestionIndex}
               selectedAnswer={answers[currentQuestion.id]}
+              isSaving={savingQuestions.has(currentQuestion.id)}
               onAnswerSelect={handleAnswerSelect}
               onPrevious={() => setCurrentQuestionIndex((p) => p - 1)}
               onNext={() => setCurrentQuestionIndex((p) => p + 1)}
