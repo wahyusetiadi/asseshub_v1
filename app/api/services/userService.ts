@@ -1,3 +1,4 @@
+// app/api/services/userService.ts
 import apiConfig from "../config/api";
 import { API_ENDPOINTS } from "../config/endpoint";
 import { createApiMethod } from "../utils/apiUtils";
@@ -13,7 +14,8 @@ class UserService {
     return response;
   });
 
-  questionAnswer = createApiMethod(async () => {
+  // ✅ Method untuk fetch jawaban yang sudah tersimpan
+  getQuestionAnswers = createApiMethod(async (examId: string) => {
     return await apiConfig.get(API_ENDPOINTS.USER.QUESTION_ANSWER);
   });
 

@@ -31,8 +31,8 @@ export default function ExamExecutionPage({
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isFetchingAnswers, setIsFetchingAnswers] = useState(false); // ✅ New
 
-  // Track which questions are currently being saved (for loading indicator)
   const [savingQuestions, setSavingQuestions] = useState<Set<string>>(
     new Set(),
   );
@@ -44,7 +44,7 @@ export default function ExamExecutionPage({
 
   const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
 
-  // answers hanya di-state (tidak pakai localStorage)
+  // ✅ Answers state
   const [answers, setAnswers] = useState<Record<string, string>>({});
 
   /* =======================
@@ -52,6 +52,7 @@ export default function ExamExecutionPage({
   ======================= */
   const hasAutoSubmitted = useRef(false);
   const isExamFinished = useRef(false);
+  const hasFetchedAnswers = useRef(false); // ✅ Prevent double fetch
 
   /* =======================
      DATA & TIMER
@@ -63,15 +64,72 @@ export default function ExamExecutionPage({
      EFFECTS
   ======================= */
 
+  // ✅ Fetch saved answers from server
+  // ✅ Fetch saved answers from server
+  useEffect(() => {
+    const fetchSavedAnswers = async () => {
+      if (
+        hasFetchedAnswers.current ||
+        isFetchingAnswers ||
+        isLoading ||
+        questions.length === 0
+      ) {
+        return;
+      }
+
+      hasFetchedAnswers.current = true;
+      setIsFetchingAnswers(true);
+
+      try {
+        console.log("📥 Fetching saved answers from server...");
+        const response = await userService.getQuestionAnswers(testId);
+
+        // Parse response based on your API structure
+        const savedAnswers = response?.data?.data || response?.data || [];
+
+        // ✅ Transform to { questionId: optionId } format
+        const answersMap: Record<string, string> = {};
+
+        if (Array.isArray(savedAnswers)) {
+          savedAnswers.forEach((answer: any) => {
+            // ✅ FIX: Use camelCase (questionId, optionId) instead of snake_case
+            if (answer.questionId && answer.optionId) {
+              answersMap[answer.questionId] = answer.optionId;
+            }
+          });
+        }
+
+        setAnswers(answersMap);
+        console.log(
+          `✅ Loaded ${Object.keys(answersMap).length} saved answers`,
+        );
+        console.log("📋 Answers map:", answersMap);
+      } catch (error: any) {
+        console.error("❌ Failed to fetch saved answers:", error);
+        // Don't show error to user, just start fresh
+      } finally {
+        setIsFetchingAnswers(false);
+      }
+    };
+
+    fetchSavedAnswers();
+  }, [testId, isLoading, questions.length, isFetchingAnswers]);
+
   // Init exam
   useEffect(() => {
-    if (!isLoading && exam && questions.length > 0 && endTime) {
+    if (
+      !isLoading &&
+      exam &&
+      questions.length > 0 &&
+      endTime &&
+      !isFetchingAnswers
+    ) {
       setIsInitialized(true);
       console.log("✅ Exam initialized");
     }
-  }, [isLoading, exam, questions.length, endTime]);
+  }, [isLoading, exam, questions.length, endTime, isFetchingAnswers]);
 
-  // Auto submit when time is up (NO MODAL)
+  // Auto submit when time is up
   useEffect(() => {
     if (isTimeUp && isInitialized && !hasAutoSubmitted.current) {
       console.log("⏰ Time is up → auto submit");
@@ -86,7 +144,7 @@ export default function ExamExecutionPage({
 
   const handleAnswerSelect = useCallback(
     async (questionId: string, optionId: string) => {
-      // Optimistic update — langsung tampilkan pilihan user
+      // Optimistic update
       setAnswers((prev) => ({ ...prev, [questionId]: optionId }));
 
       // Mark as saving
@@ -94,6 +152,7 @@ export default function ExamExecutionPage({
 
       try {
         await userService.answerQuestion(testId, { questionId, optionId });
+        console.log(`✅ Answer saved: Q${questionId} = ${optionId}`);
       } catch (error: any) {
         const msg =
           error?.response?.data?.message ||
@@ -102,7 +161,7 @@ export default function ExamExecutionPage({
 
         setToast({ message: `⚠️ ${msg}`, type: "warning" });
 
-        // Rollback jika gagal
+        // Rollback on failure
         setAnswers((prev) => {
           const rollback = { ...prev };
           delete rollback[questionId];
@@ -164,10 +223,17 @@ export default function ExamExecutionPage({
      UI STATES
   ======================= */
 
-  if (isLoading) {
+  if (isLoading || isFetchingAnswers) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">
+            {isFetchingAnswers
+              ? "Memuat jawaban tersimpan..."
+              : "Memuat ujian..."}
+          </p>
+        </div>
       </div>
     );
   }
