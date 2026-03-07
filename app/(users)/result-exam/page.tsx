@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BiSearch, BiTrendingUp, BiTrendingDown } from "react-icons/bi";
 import { BsCheckCircle, BsXCircle, BsEye, BsCalendar, BsAward } from "react-icons/bs";
+import { clearSession } from "@/helpers/auth";
 
 interface TestResult {
   id: number;
@@ -30,7 +31,7 @@ export default function ResultsListPage() {
     // Check authentication
     const userData = localStorage.getItem("user");
     if (!userData) {
-      router.push("/login");
+      router.replace("/users");
       return;
     }
     setUser(JSON.parse(userData));
@@ -140,9 +141,8 @@ export default function ResultsListPage() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    router.push("/login");
+    clearSession();
+    router.replace("/users");
   };
 
   const handleViewDetail = (resultId: number) => {

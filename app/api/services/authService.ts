@@ -1,6 +1,7 @@
 import apiConfig from "../config/api";
 import { API_ENDPOINTS } from "../config/endpoint";
 import { createApiMethod } from "../utils/apiUtils";
+import { setStoredToken } from "@/helpers/auth";
 
 class AuthService {
   loginAdmin = createApiMethod(async (username: string, password: string) => {
@@ -10,7 +11,7 @@ class AuthService {
     });
 
     if (response.data?.token) {
-      localStorage.setItem("token", response.data.token);
+      setStoredToken(response.data.token);
     }
 
     return response;
@@ -23,18 +24,13 @@ class AuthService {
     });
 
     if (response.data?.token) {
-      localStorage.setItem("token", response.data.token);
+      setStoredToken(response.data.token);
     }
     return response;
   });
 
   getMe = createApiMethod(async () => {
-    const token = localStorage.getItem("token");
-    return apiConfig.get(API_ENDPOINTS.AUTH.GET_ME, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    return apiConfig.get(API_ENDPOINTS.AUTH.GET_ME);
   });
 }
 

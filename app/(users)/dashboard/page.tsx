@@ -8,6 +8,7 @@ import examService from "@/app/api/services/examService";
 import { ExamData } from "@/types/exam.types";
 import userService from "@/app/api/services/userService";
 import { Test } from "@/types/testTypes";
+import { ApiError } from "@/app/api/utils/errorHandler";
 
 interface TestAssignment {
   id: number;
@@ -40,7 +41,7 @@ export default function DashboardPage() {
     // Get user from localStorage
     const userData = localStorage.getItem("user");
     if (!userData) {
-      router.push("/login");
+      router.replace("/users");
       return;
     }
 
@@ -122,11 +123,13 @@ export default function DashboardPage() {
 
       console.log("✅ Exam session created, redirecting...");
       router.push(`/exam/${testId}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Gagal memulai test";
+        error instanceof ApiError
+          ? error.message
+          : error instanceof Error
+            ? error.message
+            : "Gagal memulai test";
 
       setErrorMessage(message);
 

@@ -3,13 +3,21 @@
 import { SidebarGroup } from "@/helpers/sidebar.helper";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { FiHome, FiBell, FiMenu, FiLogOut } from "react-icons/fi";
+import { FiHome, FiMenu, FiLogOut } from "react-icons/fi";
 import { BiBookAdd, BiBarChartAlt2, BiEnvelope } from "react-icons/bi";
 import { HiOutlineUserGroup } from "react-icons/hi";
-import avatar from "@/public/avatar.jpg";
 import Sidebar from "@/components/Layout/Sidebar";
 import Topbar from "@/components/Layout/Topbar";
 import { useRouter, usePathname } from "next/navigation";
+import authService from "@/app/api/services/authService";
+import {
+  clearSession,
+  getHomeRouteByRole,
+  getStoredToken,
+  isTokenExpired,
+  setStoredUser,
+  type SessionUser,
+} from "@/helpers/auth";
 import logo from "../../public/logo.png";
 export default function LayoutAdmin({
   children,
@@ -18,6 +26,8 @@ export default function LayoutAdmin({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const [currentUser, setCurrentUser] = useState<SessionUser | null>(null);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
 
   // md+ only
   const [collapsed, setCollapsed] = useState(false);
@@ -65,15 +75,58 @@ export default function LayoutAdmin({
   ];
 
   const handleLogout = () => {
-    router.push("/login");
+    clearSession();
+    router.replace("/login");
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-    }
-  });
+    let isMounted = true;
+
+    const validateSession = async () => {
+      const token = getStoredToken();
+
+      if (!token || isTokenExpired(token)) {
+        clearSession();
+        router.replace("/login");
+        return;
+      }
+
+      try {
+        const meResponse = await authService.getMe();
+        const user = meResponse.data as SessionUser;
+
+        if (user.role !== "ADMIN") {
+          setStoredUser(user);
+          router.replace(getHomeRouteByRole(user.role));
+          return;
+        }
+
+        setStoredUser(user);
+
+        if (!isMounted) return;
+
+        setCurrentUser(user);
+        setIsCheckingSession(false);
+      } catch {
+        clearSession();
+        router.replace("/login");
+      }
+    };
+
+    void validateSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [router]);
+
+  if (isCheckingSession || !currentUser) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 text-sm text-slate-500">
+        Memverifikasi sesi admin...
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen max-w-full overflow-x-hidden">
@@ -178,10 +231,10 @@ export default function LayoutAdmin({
               <div className="flex items-center gap-2 md:gap-3 pl-0 sm:pl-2 min-w-0">
                 <div className="text-right hidden lg:block min-w-0 max-w-30">
                   <p className="text-xs font-bold leading-none truncate">
-                    Admin
+                    {currentUser.username}
                   </p>
                   <p className="text-[10px] text-gray-500 mt-1 truncate">
-                    Super Admin
+                    {currentUser.role}
                   </p>
                 </div>
 

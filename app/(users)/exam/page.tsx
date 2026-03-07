@@ -5,6 +5,7 @@ import { BiTime, BiTask, BiPlay, BiLogOut } from "react-icons/bi";
 import { BsCheckCircle, BsClockHistory } from "react-icons/bs";
 import examService from "@/app/api/services/examService";
 import userService from "@/app/api/services/userService";
+import { clearSession } from "@/helpers/auth";
 
 interface UserProgress {
   user_id?: string;
@@ -55,7 +56,7 @@ export default function ExamListPage() {
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (!userData) {
-      router.push("/login");
+      router.replace("/users");
       return;
     }
     setUser(JSON.parse(userData));
@@ -223,9 +224,8 @@ export default function ExamListPage() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    router.push("/login");
+    clearSession();
+    router.replace("/users");
   };
 
   const getStatusBadge = (status: Test["status"]) => {

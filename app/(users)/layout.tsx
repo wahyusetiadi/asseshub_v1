@@ -2,15 +2,17 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { FiLogOut, FiUser } from 'react-icons/fi';
+import { FiLogOut } from 'react-icons/fi';
 import Topbar from '@/components/Layout/Topbar';
-
-interface UserData {
-  id: string;
-  username: string;
-  role: string;
-  position: string;
-}
+import authService from '@/app/api/services/authService';
+import {
+  clearSession,
+  getHomeRouteByRole,
+  getStoredToken,
+  isTokenExpired,
+  setStoredUser,
+  type SessionUser,
+} from '@/helpers/auth';
 
 export default function UserLayout({
   children,
@@ -18,30 +20,59 @@ export default function UserLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const [user, setUser] = useState<UserData | null>(null);
+  const [user, setUser] = useState<SessionUser | null>(null);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
+    let isMounted = true;
 
-    if (!token || !userData) {
-      router.replace('/users');
-      return;
-    }
+    const validateSession = async () => {
+      const token = getStoredToken();
 
-    setUser(JSON.parse(userData));
-  }, []);
+      if (!token || isTokenExpired(token)) {
+        clearSession();
+        router.replace('/users');
+        return;
+      }
+
+      try {
+        const meResponse = await authService.getMe();
+        const currentUser = meResponse.data as SessionUser;
+
+        if (currentUser.role !== 'USER') {
+          setStoredUser(currentUser);
+          router.replace(getHomeRouteByRole(currentUser.role));
+          return;
+        }
+
+        setStoredUser(currentUser);
+
+        if (!isMounted) return;
+
+        setUser(currentUser);
+        setIsCheckingSession(false);
+      } catch {
+        clearSession();
+        router.replace('/users');
+      }
+    };
+
+    void validateSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [router]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    clearSession();
     router.replace('/users');
   };
 
-  if (!user) {
+  if (isCheckingSession || !user) {
     return (
       <div className="h-screen flex items-center justify-center text-gray-500">
-        Memuat data pengguna...
+        Memverifikasi sesi pengguna...
       </div>
     );
   }

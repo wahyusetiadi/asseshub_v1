@@ -1,9 +1,17 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import InputField from "@/components/ui/InputFieled";
 import authService from "@/app/api/services/authService";
+import {
+  clearSession,
+  getHomeRouteByRole,
+  getStoredToken,
+  isTokenExpired,
+  setStoredUser,
+  type SessionUser,
+} from "@/helpers/auth";
 import { FaEye, FaUser } from "react-icons/fa";
 import { RiInformationLine } from "react-icons/ri";
 import Image from "next/image";
@@ -33,7 +41,43 @@ export default function AuthPage() {
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const syncActiveSession = async () => {
+      const token = getStoredToken();
+
+      if (!token || isTokenExpired(token)) {
+        clearSession();
+        if (isMounted) {
+          setIsCheckingSession(false);
+        }
+        return;
+      }
+
+      try {
+        const meResponse = await authService.getMe();
+        const user = meResponse.data as SessionUser;
+
+        setStoredUser(user);
+        router.replace(getHomeRouteByRole(user.role));
+      } catch {
+        clearSession();
+        if (isMounted) {
+          setIsCheckingSession(false);
+        }
+      }
+    };
+
+    void syncActiveSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -54,17 +98,13 @@ export default function AuthPage() {
 
       // 2️⃣ Hit getMe pakai token
       const meResponse = await authService.getMe();
-      const user = meResponse.data;
+      const user = meResponse.data as SessionUser;
 
       // 3️⃣ Simpan user (opsional)
-      localStorage.setItem("user", JSON.stringify(user));
+      setStoredUser(user);
 
       // 4️⃣ Redirect berdasarkan role
-      if (user.role === "ADMIN") {
-        router.push("/admin-dashboard");
-      } else if (user.role === "USER") {
-        router.push("/dashboard");
-      }
+      router.replace(getHomeRouteByRole(user.role));
     } catch (err) {
       console.error(err);
       setError("Username atau password salah");
@@ -72,6 +112,14 @@ export default function AuthPage() {
       setIsLoading(false);
     }
   };
+
+  if (isCheckingSession) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center bg-white text-sm text-slate-500">
+        Memeriksa sesi login...
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-screen flex items-center justify-center bg-white text-black">

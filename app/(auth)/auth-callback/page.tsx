@@ -3,6 +3,13 @@
 import { useEffect, Suspense } from 'react'; // Tambah Suspense
 import { useRouter, useSearchParams } from 'next/navigation';
 import authService from '@/app/api/services/authService';
+import {
+  clearSession,
+  getHomeRouteByRole,
+  setStoredToken,
+  setStoredUser,
+  type SessionUser,
+} from '@/helpers/auth';
 
 // 1. Pindahkan logika utama ke komponen internal ini
 function AuthCallbackHandler() {
@@ -19,22 +26,15 @@ function AuthCallbackHandler() {
 
     const handleLogin = async (token: string) => {
       try {
-        localStorage.setItem('token', token);
+        setStoredToken(token);
         const meResponse = await authService.getMe();
-        const user = meResponse.data;
+        const user = meResponse.data as SessionUser;
 
-        localStorage.setItem('user', JSON.stringify(user));
-
-        if (user.role === 'USER') {
-          router.replace('/dashboard');
-        } else {
-          // Tambahkan fallback redirect jika role bukan USER
-          router.replace('/users');
-        }
+        setStoredUser(user);
+        router.replace(getHomeRouteByRole(user.role));
       } catch (error) {
         console.error(error);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        clearSession();
         router.replace('/users');
       }
     };
