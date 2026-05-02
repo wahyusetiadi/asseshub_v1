@@ -2,9 +2,12 @@ import apiConfig from "../config/api";
 import { API_ENDPOINTS } from "../config/endpoint";
 import { createApiMethod } from "../utils/apiUtils";
 import { setStoredToken } from "@/helpers/auth";
+import { isDemoMode } from "@/helpers/demo";
+import { demoGetMe, demoLoginAdmin, demoLoginUser } from "../mock/demoAuth";
 
 class AuthService {
-  loginAdmin = createApiMethod(async (username: string, password: string) => {
+  private loginAdminReal = createApiMethod(
+    async (username: string, password: string) => {
     const response = await apiConfig.post(API_ENDPOINTS.AUTH.LOGIN_ADMIN, {
       username,
       password,
@@ -15,9 +18,11 @@ class AuthService {
     }
 
     return response;
-  });
+    },
+  );
 
-  loginUser = createApiMethod(async (username: string, password: string) => {
+  private loginUserReal = createApiMethod(
+    async (username: string, password: string) => {
     const response = await apiConfig.post(API_ENDPOINTS.AUTH.LOGIN_USER, {
       username,
       password,
@@ -27,11 +32,27 @@ class AuthService {
       setStoredToken(response.data.token);
     }
     return response;
-  });
+    },
+  );
 
-  getMe = createApiMethod(async () => {
+  private getMeReal = createApiMethod(async () => {
     return apiConfig.get(API_ENDPOINTS.AUTH.GET_ME);
   });
+
+  loginAdmin = async (username: string, password: string) => {
+    if (isDemoMode()) return demoLoginAdmin(username, password);
+    return this.loginAdminReal(username, password);
+  };
+
+  loginUser = async (username: string, password: string) => {
+    if (isDemoMode()) return demoLoginUser(username, password);
+    return this.loginUserReal(username, password);
+  };
+
+  getMe = async () => {
+    if (isDemoMode()) return demoGetMe();
+    return this.getMeReal();
+  };
 }
 
 const authService = new AuthService();

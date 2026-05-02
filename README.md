@@ -20,6 +20,20 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Demo Mode (tanpa backend)
+
+Untuk keperluan demo saat backend mati, aktifkan mock CRUD (disimpan di `localStorage`):
+
+- Set `.env` → `NEXT_PUBLIC_DEMO_MODE=true`
+- Jalankan `npm run dev`
+
+Akun demo:
+
+- Admin: `arisbara / arisbara`
+- User: `demo.user / demo123`
+
+Catatan: data demo tersimpan di browser, key `asseshub_demo_db_v1`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

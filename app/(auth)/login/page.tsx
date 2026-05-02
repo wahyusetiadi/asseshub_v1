@@ -15,6 +15,7 @@ import {
 import logo from "../../../public/logo.png";
 import { FaEye, FaUser } from "react-icons/fa";
 import Image from "next/image";
+import { DEMO_ADMIN_ACCOUNT, isDemoMode } from "@/helpers/demo";
 
 const FormInput = [
   {
@@ -162,10 +163,16 @@ export default function AuthPage() {
           />
         </form>
 
-        <p className="text-xs text-gray-500 text-center mt-4">Demo:</p>
-        <ul className="text-xs text-gray-500 text-center mt-4">
-          <li>arisbara / arisbara</li>
-        </ul>
+        {isDemoMode() && (
+          <>
+            <p className="text-xs text-gray-500 text-center mt-4">Demo:</p>
+            <ul className="text-xs text-gray-500 text-center mt-2">
+              <li>
+                {DEMO_ADMIN_ACCOUNT.username} / {DEMO_ADMIN_ACCOUNT.password}
+              </li>
+            </ul>
+          </>
+        )}
       </div>
     </div>
   );

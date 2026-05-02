@@ -16,6 +16,7 @@ import { FaEye, FaUser } from "react-icons/fa";
 import { RiInformationLine } from "react-icons/ri";
 import Image from "next/image";
 import logo from "../../../public/logo.png";
+import { DEMO_USER_ACCOUNT, isDemoMode } from "@/helpers/demo";
 
 const FormInput = [
   {
@@ -168,6 +169,15 @@ export default function AuthPage() {
             Pastikan koneksi internet stabil sebelum Anda masuk ke ruang ujian.
           </p>
         </div>
+
+        {isDemoMode() && (
+          <div className="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700">
+            <p className="font-semibold mb-1">Akun Demo:</p>
+            <p className="font-mono">
+              {DEMO_USER_ACCOUNT.username} / {DEMO_USER_ACCOUNT.password}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

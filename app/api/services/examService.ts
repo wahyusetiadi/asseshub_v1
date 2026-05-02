@@ -2,6 +2,8 @@ import { TestBase } from "@/types/testTypes";
 import apiConfig from "../config/api";
 import { API_ENDPOINTS } from "../config/endpoint";
 import { createApiMethod } from "../utils/apiUtils";
+import { isDemoMode } from "@/helpers/demo";
+import { demoExamService } from "../mock/demoServices";
 
 interface OptionsPayload {
   text: string;
@@ -10,7 +12,7 @@ interface OptionsPayload {
 
 class ExamService {
   //===EXAM
-  createExam = createApiMethod(async (data: TestBase) => {
+  private createExamReal = createApiMethod(async (data: TestBase) => {
     const response = await apiConfig.post(API_ENDPOINTS.ADMIN.GENERATE_EXAMS, {
       title: data.title,
       description: data.description,
@@ -23,7 +25,7 @@ class ExamService {
     return response;
   });
 
-  updateExam = createApiMethod(async (id: string, data: TestBase) => {
+  private updateExamReal = createApiMethod(async (id: string, data: TestBase) => {
     const response = await apiConfig.patch(
       API_ENDPOINTS.ADMIN.UPDATE_EXAM(id),
       {
@@ -40,18 +42,18 @@ class ExamService {
     return response;
   });
 
-  getExamDetail = createApiMethod(async (id: string) => {
+  private getExamDetailReal = createApiMethod(async (id: string) => {
     const response = await apiConfig.get(API_ENDPOINTS.ADMIN.GET_EXAM(id));
     return response;
   });
 
-  getAllExams = createApiMethod(async () => {
+  private getAllExamsReal = createApiMethod(async () => {
     const response = await apiConfig.get(API_ENDPOINTS.ADMIN.GET_ALL_EXAMS);
     return response;
   });
 
   //===QUESTION
-  createQuestion = createApiMethod(async (examId: string, text: string) => {
+  private createQuestionReal = createApiMethod(async (examId: string, text: string) => {
     const response = await apiConfig.post(
       API_ENDPOINTS.ADMIN.GENERATE_QUESTIONS(examId),
       { text },
@@ -59,12 +61,12 @@ class ExamService {
     return response;
   });
 
-  getQuestion = createApiMethod(async (id: string) => {
+  private getQuestionReal = createApiMethod(async (id: string) => {
     const response = await apiConfig.get(API_ENDPOINTS.ADMIN.GET_QUESTION(id));
     return response;
   });
 
-  updateQuestion = createApiMethod(async (id: string, text: string) => {
+  private updateQuestionReal = createApiMethod(async (id: string, text: string) => {
     const response = await apiConfig.patch(
       API_ENDPOINTS.ADMIN.UPDATE_QUESTION(id),
       { text },
@@ -72,14 +74,14 @@ class ExamService {
     return response;
   });
 
-  deleteExam = createApiMethod(async (id: string) => {
+  private deleteExamReal = createApiMethod(async (id: string) => {
     const response = await apiConfig.delete(
       API_ENDPOINTS.ADMIN.DELETE_EXAMS(id),
     );
     return response;
   });
 
-  deleteQuestion = createApiMethod(async (id: string) => {
+  private deleteQuestionReal = createApiMethod(async (id: string) => {
     const response = await apiConfig.delete(
       API_ENDPOINTS.ADMIN.DELETE_QUESTION(id),
     );
@@ -87,7 +89,7 @@ class ExamService {
   });
 
   //===OPTIONS
-  createOptions = createApiMethod(
+  private createOptionsReal = createApiMethod(
     async (questionId: string, data: OptionsPayload) => {
       const response = await apiConfig.post(
         API_ENDPOINTS.ADMIN.GENERATE_OPTIONS(questionId),
@@ -101,12 +103,12 @@ class ExamService {
     },
   );
 
-  getOptions = createApiMethod(async (id: string) => {
+  private getOptionsReal = createApiMethod(async (id: string) => {
     const response = await apiConfig.get(API_ENDPOINTS.ADMIN.GET_QUESTION(id));
     return response;
   });
 
-  updateOption = createApiMethod(
+  private updateOptionReal = createApiMethod(
     async (id: string, data: { text: string; isCorrect?: boolean }) => {
       const response = await apiConfig.put(
         API_ENDPOINTS.ADMIN.UPDATE_OPTION(id),
@@ -117,10 +119,78 @@ class ExamService {
   );
 
   //===RESULT (ADMIN_ONLY)
-  resultsExam = createApiMethod(async () => {
+  private resultsExamReal = createApiMethod(async () => {
     const response = await apiConfig.get(API_ENDPOINTS.ADMIN.GET_ALL_RESULTS);
     return response;
   });
+
+  createExam = async (data: TestBase) => {
+    if (isDemoMode()) return demoExamService.createExam(data);
+    return this.createExamReal(data);
+  };
+
+  updateExam = async (id: string, data: TestBase) => {
+    if (isDemoMode()) return demoExamService.updateExam(id, data);
+    return this.updateExamReal(id, data);
+  };
+
+  getExamDetail = async (id: string) => {
+    if (isDemoMode()) return demoExamService.getExamDetail(id);
+    return this.getExamDetailReal(id);
+  };
+
+  getAllExams = async () => {
+    if (isDemoMode()) return demoExamService.getAllExams();
+    return this.getAllExamsReal();
+  };
+
+  createQuestion = async (examId: string, text: string) => {
+    if (isDemoMode()) return demoExamService.createQuestion(examId, text);
+    return this.createQuestionReal(examId, text);
+  };
+
+  getQuestion = async (id: string) => {
+    if (isDemoMode()) return demoExamService.getQuestion(id);
+    return this.getQuestionReal(id);
+  };
+
+  updateQuestion = async (id: string, text: string) => {
+    if (isDemoMode()) return demoExamService.updateQuestion(id, text);
+    return this.updateQuestionReal(id, text);
+  };
+
+  deleteExam = async (id: string) => {
+    if (isDemoMode()) return demoExamService.deleteExam(id);
+    return this.deleteExamReal(id);
+  };
+
+  deleteQuestion = async (id: string) => {
+    if (isDemoMode()) return demoExamService.deleteQuestion(id);
+    return this.deleteQuestionReal(id);
+  };
+
+  createOptions = async (questionId: string, data: OptionsPayload) => {
+    if (isDemoMode()) return demoExamService.createOptions(questionId, data);
+    return this.createOptionsReal(questionId, data);
+  };
+
+  getOptions = async (id: string) => {
+    if (isDemoMode()) return demoExamService.getQuestion(id);
+    return this.getOptionsReal(id);
+  };
+
+  updateOption = async (
+    id: string,
+    data: { text: string; isCorrect?: boolean },
+  ) => {
+    if (isDemoMode()) return demoExamService.updateOption(id, data);
+    return this.updateOptionReal(id, data);
+  };
+
+  resultsExam = async () => {
+    if (isDemoMode()) return demoExamService.resultsExam();
+    return this.resultsExamReal();
+  };
 }
 
 const examService = new ExamService();
