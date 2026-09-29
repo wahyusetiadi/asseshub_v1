@@ -19,9 +19,12 @@ export default function TestCard({
   onEditExam,
 }: TestCardProps) {
   return (
-    <div className="bg-white p-5 rounded-lg border border-slate-300 shadow-sm hover:border-blue-300 transition-all group">
-      <div className=" flex items-center justify-between">
-        <h3 className="font-bold text-lg mb-1 text-black group-hover:text-blue-600">
+    <div className="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-950/[0.05]">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+          <CgFileAdd size={20} />
+        </div>
+        <h3 className="flex-1 pt-1 text-lg font-bold leading-6 text-slate-900 transition group-hover:text-indigo-700">
           {test.title}
         </h3>
         <button
@@ -33,29 +36,29 @@ export default function TestCard({
         </button>
       </div>
 
-      <p className="text-sm text-gray-500 mb-4">
+      <p className="mb-4 text-sm text-slate-500">
         {test.totalQuestions|| 0} Pertanyaan • {test.durationMinutes} Menit
       </p>
 
-      <div className="flex justify-between items-center pt-4 border-t border-slate-400">
-        <div className="flex gap-3">
+      <div className="flex items-center justify-between border-t border-slate-100 pt-4">
+        <div className="flex gap-2">
           <Link
             href={`/tests/${test.id}`}
-            className="text-gray-400 hover:text-green-600"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition hover:bg-emerald-50 hover:text-emerald-600"
             title="Tambah Pertanyaan"
           >
             <CgFileAdd size={18} />
           </Link>
           <button
             onClick={() => onView(test)}
-            className="text-gray-400 hover:text-blue-600"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition hover:bg-indigo-50 hover:text-indigo-600"
             title="Lihat Detail"
           >
             <BsEye size={18} />
           </button>
           <button
             onClick={() => onDelete(test.id)}
-            className="text-gray-400 hover:text-red-600"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-600"
             title="Hapus"
           >
             <BsTrash2 size={18} />

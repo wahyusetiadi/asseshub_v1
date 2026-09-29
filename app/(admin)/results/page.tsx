@@ -136,21 +136,22 @@ export default function ResultsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:p-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Hasil Ujian</h1>
-          <p className="text-sm text-gray-500">
+          <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-indigo-600">Analitik</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Hasil Ujian</h1>
+          <p className="mt-1 text-sm text-slate-500">
             Pantau nilai dan performa kandidat secara real-time.
           </p>
         </div>
-        <button className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition font-semibold text-sm shadow-sm">
+        <button className="flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-indigo-600/20 transition hover:bg-indigo-700">
           <BiDownload size={18} /> Ekspor Excel
         </button>
       </div>
 
       {/* Filter */}
-      <div className="grid grid-cols-6 gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-        <div className="col-span-4">
+      <div className="grid grid-cols-1 gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm md:grid-cols-6 md:gap-4">
+        <div className="md:col-span-4">
           <InputField
             leftIcon={<BiSearch />}
             type="text"
@@ -165,13 +166,13 @@ export default function ResultsPage() {
           }))}
           value={selectedExamId}
           onChange={(e) => setSelectedExamId(e.target.value)}
-          className="w-fit"
+          className="w-full md:col-span-1"
         />
         <Button title="Filter Skor" leftIcon={<BiFilter />} variant="outline" />
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg overflow-hidden shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
         <DataTable
           columns={columns}
           data={results}

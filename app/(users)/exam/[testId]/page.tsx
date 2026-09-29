@@ -225,10 +225,10 @@ export default function ExamExecutionPage({
 
   if (isLoading || isFetchingAnswers) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+        <div className="rounded-2xl border border-slate-200 bg-white px-8 py-7 text-center shadow-sm">
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-[3px] border-indigo-600 border-t-transparent" />
+          <p className="text-sm font-medium text-slate-600">
             {isFetchingAnswers
               ? "Memuat jawaban tersimpan..."
               : "Memuat ujian..."}
@@ -240,10 +240,10 @@ export default function ExamExecutionPage({
 
   if (!exam || questions.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
         <button
           onClick={() => router.push("/dashboard")}
-          className="px-6 py-2 bg-blue-600 text-white rounded"
+          className="rounded-xl bg-indigo-600 px-6 py-3 font-semibold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700"
         >
           Kembali
         </button>
@@ -260,7 +260,7 @@ export default function ExamExecutionPage({
   ======================= */
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40">
       {/* Toast */}
       {toast && (
         <Toast
@@ -293,9 +293,9 @@ export default function ExamExecutionPage({
         progress={progress}
       />
 
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-3">
+      <main className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-6">
+          <div className="min-w-0">
             <QuestionCard
               question={currentQuestion}
               questionIndex={currentQuestionIndex}
@@ -311,7 +311,7 @@ export default function ExamExecutionPage({
             />
           </div>
 
-          <div className="lg:col-span-1">
+          <div className="min-w-0">
             <ExamSidebar
               questions={questions}
               currentQuestionIndex={currentQuestionIndex}

@@ -21,9 +21,9 @@ const StatCard: React.FC<StatCardProps> = ({
   showGrowth = false, // Default tidak tampil
 }) => {
   return (
-    <div className="md:w-full bg-white p-4 md:p-6 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+    <div className="md:w-full rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-900/[0.02] transition duration-200 hover:-translate-y-0.5 hover:shadow-md md:p-6">
       <div className="flex justify-center md:justify-between items-center md:items-start">
-        <div className={`p-3 rounded-xl ${bg} ${color}`}>{icon}</div>
+        <div className={`rounded-xl p-3 ${bg} ${color}`}>{icon}</div>
         {showGrowth && growth !== undefined && (
           <span className="flex items-center text-green-500 text-xs font-medium bg-green-50 px-2 py-1 rounded-lg">
             <BsArrowUpRight size={14} /> {growth}%

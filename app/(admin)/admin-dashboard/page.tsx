@@ -116,17 +116,22 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6 md:space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">
+      <div className="relative overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-indigo-600 via-indigo-700 to-slate-900 px-6 py-7 text-white shadow-xl shadow-indigo-950/10 sm:px-8 sm:py-9">
+        <div className="absolute -right-10 -top-24 h-64 w-64 rounded-full border border-white/10" />
+        <div className="absolute -right-2 -top-14 h-44 w-44 rounded-full border border-white/10" />
+        <div className="relative">
+        <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-200">Admin workspace</p>
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
           Selamat Datang, Admin
         </h1>
-        <p className="text-sm md:text-base text-gray-500">
+        <p className="mt-2 text-sm text-indigo-100 md:text-base">
           Berikut adalah ringkasan performa rekrutmen AssessHub hari ini.
         </p>
+        </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-6">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
         {dynamicStats.map((stat) => (
           <StatCard
             key={stat.id}
@@ -141,11 +146,11 @@ export default function AdminDashboard() {
       </div>
 
       {/* Chart & Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-6">
         <ParticipationChart data={participationMockData} />
 
-        <div className="hidden bg-white p-6 rounded-lg border border-gray-100 shadow-sm">
-          <h3 className="font-bold text-gray-800 mb-6">Aktivitas Terbaru</h3>
+        <div className="hidden rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm">
+          <h3 className="mb-6 font-bold tracking-tight text-slate-900">Aktivitas Terbaru</h3>
 
           <div className="space-y-6">
             {recentActivities.map((activity) => (

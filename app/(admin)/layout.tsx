@@ -123,11 +123,11 @@ export default function LayoutAdmin({
 
   // ✅ PERUBAHAN UTAMA: Layout tetap render, loading hanya di children
   return (
-    <div className="flex min-h-screen max-w-full overflow-x-hidden">
+    <div className="flex min-h-screen max-w-full overflow-x-hidden bg-slate-50 text-slate-900">
       {/* ================= MOBILE OVERLAY ================= */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/40 md:hidden"
+          className="fixed inset-0 z-40 bg-slate-950/50 backdrop-blur-sm md:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -136,7 +136,7 @@ export default function LayoutAdmin({
       <div
         className={`
           fixed inset-y-0 left-0 z-50
-          transform bg-white transition-transform duration-300
+          transform border-r border-slate-200 bg-white transition-transform duration-300
           md:static md:translate-x-0
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
         `}
@@ -144,7 +144,7 @@ export default function LayoutAdmin({
         <Sidebar
           groups={groups}
           collapsed={collapsed}
-          activeKey={pathname}
+          currentPath={pathname}
           onToggleCollapse={() => setCollapsed((v) => !v)}
           logo={
             <div className="flex items-center gap-2 px-2">
@@ -153,7 +153,7 @@ export default function LayoutAdmin({
                 alt="Logo"
                 width={32}
                 height={32}
-                className="shrink-0"
+                className="shrink-0 rounded-lg"
               />
               {!collapsed && (
                 <span className="font-bold text-lg tracking-tight">
@@ -194,7 +194,7 @@ export default function LayoutAdmin({
                     setCollapsed((v) => !v);
                   }
                 }}
-                className="inline-flex h-9 w-9 items-center justify-center rounded hover:bg-gray-100 shrink-0"
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
                 aria-label="Toggle sidebar"
               >
                 <FiMenu size={20} />
@@ -202,7 +202,7 @@ export default function LayoutAdmin({
 
               <h1
                 className="
-                  text-xs md:text-sm font-semibold text-gray-500 capitalize
+                  text-xs font-semibold capitalize text-slate-500 md:text-sm
                   truncate min-w-0
                 "
               >
@@ -229,7 +229,7 @@ export default function LayoutAdmin({
                   alt="Logo"
                   width={32}
                   height={32}
-                  className="shrink-0"
+                className="shrink-0 rounded-full ring-2 ring-indigo-100"
                 />
               </div>
             </div>
@@ -237,12 +237,12 @@ export default function LayoutAdmin({
         />
 
         {/* ✅ LOADING STATE HANYA DI CHILDREN */}
-        <main className="flex-1 w-full min-w-0 bg-slate-50 p-3 md:p-4 lg:p-6 overflow-x-hidden">
+        <main className="w-full min-w-0 flex-1 overflow-x-hidden bg-slate-50 p-4 md:p-6 lg:p-8">
           {isCheckingSession || !currentUser ? (
             <div className="flex items-center justify-center h-full min-h-[400px]">
               <div className="text-center">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
-                <p className="text-sm text-slate-500">
+                <div className="mb-4 inline-block h-9 w-9 animate-spin rounded-full border-[3px] border-indigo-600 border-t-transparent"></div>
+                <p className="text-sm font-medium text-slate-500">
                   Memverifikasi sesi admin...
                 </p>
               </div>

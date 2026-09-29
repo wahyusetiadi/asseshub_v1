@@ -33,9 +33,9 @@ export interface SidebarProps extends React.HTMLAttributes<HTMLElement> {
 
 
 const itemBase =
-  "w-full flex items-center gap-3 px-3 py-2 rpunded-md transition-colors";
-const itemEnabled = "text-gray-700 hover:bg-gray-100 hover:tedtext-gray-900";
-const itemActive = "bg-blue-50 text-blue-700 hover:bg-blue-100";
+  "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors";
+const itemEnabled = "text-slate-600 hover:bg-slate-100 hover:text-slate-950";
+const itemActive = "bg-indigo-50 font-semibold text-indigo-700 hover:bg-indigo-100";
 const itemDisabled = "text-gray-400 cursor-not-allowed";
 
 function itemJustify(collapsed: boolean) {
@@ -252,7 +252,7 @@ function GroupTitle({
 }) {
   if (!title || collapsed) return null;
   return (
-    <div className="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-gray-500">
+    <div className="px-3 pb-2 pt-3 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
       {title}
     </div>
   );

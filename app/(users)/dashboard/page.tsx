@@ -163,14 +163,17 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm text-slate-600 shadow-sm">
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+          Memuat ujian Anda...
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {errorMessage && (
   <div className="fixed top-6 left-1/2 z-50 w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 flex items-start justify-between gap-3 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-red-700 shadow-lg">
     <span className="text-sm font-medium">{errorMessage}</span>
@@ -184,9 +187,9 @@ export default function DashboardPage() {
 )}
 
       {/* Main Content */}
-      <main className="w-full px-6 py-8">
+      <main className="mx-auto w-full max-w-7xl px-4 py-7 sm:px-6 lg:px-8 lg:py-10">
         {/* Welcome Section */}
-        <div className="bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-2xl p-8 mb-8 shadow-lg">
+        <div className="relative mb-8 overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-indigo-600 via-indigo-700 to-slate-900 p-8 text-white shadow-xl shadow-indigo-950/10 sm:p-10">
           <h2 className="text-3xl font-bold mb-2">
             Selamat Datang, {user?.username}! 👋
           </h2>
@@ -198,43 +201,43 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="hidden grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-sm border">
+        <div className="mb-9 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <BiTask className="text-blue-600" size={24} />
+              <div className="rounded-xl bg-indigo-50 p-3">
+                <BiTask className="text-indigo-600" size={22} />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Total Test</p>
-                <p className="text-2xl font-bold text-gray-800">
+                <p className="text-xs font-medium text-slate-500">Total ujian</p>
+                <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
                   {assignments.length}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border">
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-yellow-100 rounded-lg">
-                <BsClockHistory className="text-yellow-600" size={24} />
+              <div className="rounded-xl bg-amber-50 p-3">
+                <BsClockHistory className="text-amber-600" size={22} />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Sedang Dikerjakan</p>
-                <p className="text-2xl font-bold text-gray-800">
+                <p className="text-xs font-medium text-slate-500">Sedang dikerjakan</p>
+                <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
                   {assignments.filter((a) => a.status === "in_progress").length}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border">
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-100 rounded-lg">
-                <BsCheckCircle className="text-green-600" size={24} />
+              <div className="rounded-xl bg-emerald-50 p-3">
+                <BsCheckCircle className="text-emerald-600" size={22} />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Selesai</p>
-                <p className="text-2xl font-bold text-gray-800">
+                <p className="text-xs font-medium text-slate-500">Selesai</p>
+                <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
                   {assignments.filter((a) => a.status === "completed").length}
                 </p>
               </div>
@@ -244,52 +247,56 @@ export default function DashboardPage() {
 
         {/* Test List */}
         <div>
-          <h3 className="hidden text-xl font-bold text-gray-800 mb-4">
+          <h3 className="mb-4 text-xl font-bold text-slate-900">
             Test yang Tersedia
           </h3>
 
           {assignments.length === 0 ? (
-            <div className="bg-white rounded-xl p-12 text-center border shadow-sm">
-              <div className="flex justify-center mb-4 text-gray-300">
-                <BiTask size={48} />
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center shadow-sm">
+              <div className="mb-4 flex justify-center text-indigo-200">
+                <BiTask size={44} />
               </div>
-              <p className="text-gray-500 font-medium">
+              <p className="font-semibold text-slate-700">
                 Belum ada test yang tersedia untuk posisi Anda.
               </p>
+              <p className="mt-1 text-sm text-slate-400">Ujian yang ditugaskan akan muncul di sini.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {assignments.map((assignment) => (
                 <div
                   key={assignment.id}
-                  className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all flex flex-col"
+                  className="flex flex-col rounded-2xl border border-slate-200/80 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-950/[0.06]"
                 >
                   <div className="p-6 flex-1">
-                    <h4 className="text-lg font-bold text-gray-800 mb-2 leading-tight">
+                    <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                      <BiTask size={22} />
+                    </div>
+                    <h4 className="mb-2 text-lg font-bold leading-tight text-slate-900">
                       {assignment.title}
                     </h4>
-                    <p className="text-sm text-gray-500 line-clamp-2 mb-4">
+                    <p className="mb-5 line-clamp-2 text-sm leading-6 text-slate-500">
                       {assignment.description}
                     </p>
 
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded">
-                        <BiTime className="text-blue-500" size={16} />
+                    <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-600">
+                      <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-3 py-2">
+                        <BiTime className="text-indigo-500" size={16} />
                         <span>{assignment.durationMinutes} menit</span>
                       </div>
-                      <div className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded">
-                        <BiTask className="text-blue-500" size={16} />
+                      <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-3 py-2">
+                        <BiTask className="text-indigo-500" size={16} />
                         <span>{assignment.totalQuestions} soal</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="p-4 bg-gray-50 border-t border-slate-300 rounded-b-xl">
+                  <div className="border-t border-slate-100 p-4">
                     <button
                       onClick={() =>
                         handleStartTest(String(assignment.test.id))
                       }
-                      className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all"
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 py-3 font-semibold text-white shadow-sm shadow-indigo-600/20 transition-all hover:bg-indigo-700 active:scale-[0.98]"
                     >
                       <BiPlay size={22} />
                       Mulai Test

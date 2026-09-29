@@ -97,10 +97,10 @@ const seedDb = (): DemoDb => {
   const candidates: CandidateApi[] = [
     {
       id: "cand_demo_1",
-      username: "demo.user",
-      password: "demo123",
-      name: "Demo User",
-      email: "demo.user@asseshub.local",
+      username: "candidate",
+      password: "candidate",
+      name: "Candidate User",
+      email: "candidate.user@asseshub.local",
       position: "Frontend",
     },
     {
@@ -116,8 +116,8 @@ const seedDb = (): DemoDb => {
   const admins: DemoAdminUser[] = [
     {
       id: "admin_demo_1",
-      username: "arisbara",
-      password: "arisbara",
+      username: "admin",
+      password: "admin",
       role: "ADMIN",
       name: "Demo Admin",
       email: "admin@asseshub.local",
@@ -219,6 +219,33 @@ const seedDb = (): DemoDb => {
   };
 };
 
+const syncSeededCredentials = <T extends { id: string; username: string; password: string }>(
+  storedAccounts: T[],
+  seededAccounts: T[],
+): { accounts: T[]; changed: boolean } => {
+  let changed = false;
+  const accounts = storedAccounts.map((account) => {
+    const seededAccount = seededAccounts.find(({ id }) => id === account.id);
+    if (!seededAccount) return account;
+
+    if (
+      account.username === seededAccount.username &&
+      account.password === seededAccount.password
+    ) {
+      return account;
+    }
+
+    changed = true;
+    return {
+      ...account,
+      username: seededAccount.username,
+      password: seededAccount.password,
+    };
+  });
+
+  return { accounts, changed };
+};
+
 export const getDemoDb = (): DemoDb => {
   if (!isClient()) return seedDb();
 
@@ -231,12 +258,31 @@ export const getDemoDb = (): DemoDb => {
 
   try {
     const parsed = JSON.parse(raw) as DemoDb;
-    if (!parsed || parsed.version !== 1) {
+    if (
+      !parsed ||
+      parsed.version !== 1 ||
+      !Array.isArray(parsed.admins) ||
+      !Array.isArray(parsed.candidates)
+    ) {
       const seeded = seedDb();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
       return seeded;
     }
-    return parsed;
+
+    const seeded = seedDb();
+    const admins = syncSeededCredentials(parsed.admins, seeded.admins);
+    const candidates = syncSeededCredentials(parsed.candidates, seeded.candidates);
+    const syncedDb = {
+      ...parsed,
+      admins: admins.accounts,
+      candidates: candidates.accounts,
+    };
+
+    if (admins.changed || candidates.changed) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(syncedDb));
+    }
+
+    return syncedDb;
   } catch {
     const seeded = seedDb();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));

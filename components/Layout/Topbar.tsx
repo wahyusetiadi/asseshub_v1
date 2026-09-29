@@ -23,7 +23,7 @@ export default function Topbar({
   return (
     <header
       className={clsx(
-        "w-full bg-white border-b border-slate-300 overflow-x-hidden",
+        "w-full overflow-x-hidden border-b border-slate-200/80 bg-white/90 backdrop-blur-xl",
         sticky && "sticky top-0 z-40",
         shadow && "shadow-sm",
         className

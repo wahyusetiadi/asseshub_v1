@@ -263,35 +263,42 @@ export default function ExamListPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm text-slate-600 shadow-sm">
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+          Memuat daftar ujian...
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <header className="bg-white border-b shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <header className="sticky top-0 z-10 border-b border-slate-200/80 bg-white/90 shadow-sm backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">
-              Test yang Tersedia
+            <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-600">Ruang peserta</p>
+            <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+              Daftar ujian
             </h1>
-            <p className="text-sm text-gray-500">
-              Pilih test untuk mulai mengerjakan
+            <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+              Pilih ujian untuk melihat detail dan mulai mengerjakan
             </p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-sm font-semibold text-gray-800">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="hidden h-10 w-10 items-center justify-center rounded-full bg-indigo-50 text-sm font-bold text-indigo-700 sm:flex">
+              {user?.name?.charAt(0)?.toUpperCase() || "P"}
+            </div>
+            <div className="max-w-40 text-right sm:max-w-none">
+              <p className="truncate text-sm font-semibold text-slate-900">
                 {user?.name}
               </p>
-              <p className="text-xs text-gray-500">{user?.email}</p>
+              <p className="hidden text-xs text-slate-500 sm:block">{user?.email}</p>
             </div>
             <button
               onClick={handleLogout}
-              className="hidden items-center gap-2 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg transition"
+              className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 sm:px-4"
             >
               <BiLogOut size={18} />
               Logout
@@ -301,59 +308,59 @@ export default function ExamListPage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8 lg:py-10">
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-sm border">
+        <div className="mb-8 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-5">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <BiTask className="text-blue-600" size={24} />
+              <div className="rounded-xl bg-indigo-50 p-3">
+                <BiTask className="text-indigo-600" size={21} />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Total Test</p>
-                <p className="text-2xl font-bold text-gray-800">
+                <p className="text-xs font-medium text-slate-500">Total ujian</p>
+                <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
                   {tests.length}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border">
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-5">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-yellow-100 rounded-lg">
-                <BsClockHistory className="text-yellow-600" size={24} />
+              <div className="rounded-xl bg-amber-50 p-3">
+                <BsClockHistory className="text-amber-600" size={21} />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Sedang Dikerjakan</p>
-                <p className="text-2xl font-bold text-gray-800">
+                <p className="text-xs font-medium text-slate-500">Dikerjakan</p>
+                <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
                   {tests.filter((t) => t.status === "in_progress").length}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border">
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-5">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-100 rounded-lg">
-                <BsCheckCircle className="text-green-600" size={24} />
+              <div className="rounded-xl bg-emerald-50 p-3">
+                <BsCheckCircle className="text-emerald-600" size={21} />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Selesai</p>
-                <p className="text-2xl font-bold text-gray-800">
+                <p className="text-xs font-medium text-slate-500">Selesai</p>
+                <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
                   {tests.filter((t) => t.status === "completed").length}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border">
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-5">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-red-100 rounded-lg">
-                <BiTime className="text-red-600" size={24} />
+              <div className="rounded-xl bg-rose-50 p-3">
+                <BiTime className="text-rose-600" size={21} />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Kadaluarsa</p>
-                <p className="text-2xl font-bold text-gray-800">
+                <p className="text-xs font-medium text-slate-500">Kadaluarsa</p>
+                <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
                   {tests.filter((t) => t.status === "expired").length}
                 </p>
               </div>
@@ -361,8 +368,18 @@ export default function ExamListPage() {
           </div>
         </div>
 
+        <div className="mb-4 flex items-end justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-600">Daftar Anda</p>
+            <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900">Ujian yang tersedia</h2>
+          </div>
+          <span className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-500 ring-1 ring-slate-200">
+            {tests.length} ujian
+          </span>
+        </div>
+
         {/* Test Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {tests.map((test) => {
             const statusBadge = getStatusBadge(test.status);
             const available = isExamAvailable(test);
@@ -371,51 +388,51 @@ export default function ExamListPage() {
             return (
               <div
                 key={test.id}
-                className="bg-white rounded-xl border shadow-sm hover:shadow-md transition p-6"
+                className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-950/[0.06] sm:p-6"
               >
                 <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-lg font-bold text-gray-800">
+                  <h3 className="text-base font-bold leading-6 text-slate-900 sm:text-lg">
                     {test.title}
                   </h3>
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-semibold ${statusBadge.style}`}
+                    className={`shrink-0 rounded-full px-3 py-1.5 text-[11px] font-bold ${statusBadge.style}`}
                   >
                     {statusBadge.label}
                   </span>
                 </div>
 
-                <p className="text-sm text-gray-600 mb-4">{test.description}</p>
+                <p className="mb-5 text-sm leading-6 text-slate-500">{test.description}</p>
 
                 {/* Exam Schedule */}
-                <div className="mb-4 p-3 bg-gray-50 rounded-lg text-xs text-gray-600">
-                  <div className="flex justify-between mb-1">
-                    <span>Mulai:</span>
-                    <span className="font-semibold">
+                <div className="mb-5 space-y-2 rounded-xl bg-slate-50 p-3.5 text-xs text-slate-500">
+                  <div className="flex items-center justify-between gap-3">
+                    <span>Mulai</span>
+                    <span className="text-right font-semibold text-slate-700">
                       {formatDate(test.startAt)}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Berakhir:</span>
-                    <span className="font-semibold">
+                  <div className="flex items-center justify-between gap-3">
+                    <span>Berakhir</span>
+                    <span className="text-right font-semibold text-slate-700">
                       {formatDate(test.endAt)}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 text-sm text-gray-500 mb-4 pb-4 border-b">
-                  <div className="flex items-center gap-1">
-                    <BiTime size={16} />
+                <div className="mb-4 flex items-center gap-5 border-b border-slate-100 pb-4 text-xs font-medium text-slate-600">
+                  <div className="flex items-center gap-1.5">
+                    <BiTime className="text-indigo-500" size={16} />
                     <span>{test.durationMinutes} menit</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <BiTask size={16} />
+                  <div className="flex items-center gap-1.5">
+                    <BiTask className="text-indigo-500" size={16} />
                     <span>{test.totalQuestions || 0} soal</span>
                   </div>
                 </div>
 
                 {test.status === "completed" && test.score !== undefined && (
-                  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <p className="text-sm text-green-800 font-semibold">
+                  <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
+                    <p className="text-sm font-semibold text-emerald-800">
                       Skor: {test.score}/100
                     </p>
                   </div>
@@ -428,16 +445,16 @@ export default function ExamListPage() {
                   }
                   className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold transition ${
                     isStarting
-                      ? "bg-gray-400 text-white cursor-wait"
+                      ? "cursor-wait bg-slate-400 text-white"
                       : test.status === "expired"
-                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      ? "cursor-not-allowed bg-slate-100 text-slate-400"
                       : test.status === "completed"
-                      ? "bg-green-600 text-white hover:bg-green-700"
+                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
                       : test.status === "in_progress"
-                      ? "bg-yellow-600 text-white hover:bg-yellow-700"
+                      ? "bg-amber-500 text-white hover:bg-amber-600"
                       : available
-                      ? "bg-blue-600 text-white hover:bg-blue-700"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                      : "cursor-not-allowed bg-slate-100 text-slate-400"
                   }`}
                 >
                   {isStarting ? (
@@ -466,10 +483,12 @@ export default function ExamListPage() {
         </div>
 
         {tests.length === 0 && (
-          <div className="bg-white rounded-xl p-12 text-center border">
-            <p className="text-gray-500">
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center shadow-sm">
+            <div className="mb-4 flex justify-center text-indigo-200"><BiTask size={44} /></div>
+            <p className="font-semibold text-slate-700">
               Belum ada test yang ditugaskan kepada Anda
             </p>
+            <p className="mt-1 text-sm text-slate-400">Ujian yang ditugaskan akan muncul di halaman ini.</p>
           </div>
         )}
       </main>

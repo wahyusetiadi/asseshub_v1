@@ -29,8 +29,8 @@ Untuk keperluan demo saat backend mati, aktifkan mock CRUD (disimpan di `localSt
 
 Akun demo:
 
-- Admin: `arisbara / arisbara`
-- User: `demo.user / demo123`
+- Admin: `admin / admin`
+- User: `demo.candidate / candidate123`
 
 Catatan: data demo tersimpan di browser, key `asseshub_demo_db_v1`.
 

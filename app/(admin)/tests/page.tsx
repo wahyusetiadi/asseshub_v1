@@ -158,19 +158,20 @@ export default function TestPage() {
         </div>
       )}
       {/* Header & Tab Navigation */}
-      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 border-b border-gray-200 pb-2">
+      <div className="flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-6 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">
-            Manajemen Rekrutmen
+          <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-indigo-600">Assessment</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            Manajemen Ujian
           </h1>
-          <div className="flex gap-6 mt-4">
+          <div className="mt-4 flex gap-2">
             <Button
               title="Daftar Ujian"
               onClick={() => setActiveTab("exams")}
               className={`pb-2 text-sm font-medium transition-colors ${
                 activeTab === "exams"
-                  ? "border-b-2 border-blue-600 text-blue-600 rounded-none"
-                  : "text-gray-500 hover:text-blue-600"
+                  ? "rounded-xl bg-indigo-50 text-indigo-700"
+                  : "rounded-xl text-slate-500 hover:bg-slate-50 hover:text-indigo-700"
               }`}
             />
             <Button
@@ -178,18 +179,18 @@ export default function TestPage() {
               onClick={() => setActiveTab("positions")}
               className={`pb-2 text-sm font-medium transition-colors ${
                 activeTab === "positions"
-                  ? "border-b-2 border-blue-600 text-blue-600 rounded-none"
-                  : "text-gray-500 hover:text-blue-600"
+                  ? "rounded-xl bg-indigo-50 text-indigo-700"
+                  : "rounded-xl text-slate-500 hover:bg-slate-50 hover:text-indigo-700"
               }`}
             />
           </div>
         </div>
 
-        <div className="flex gap-3 pb-2">
+        <div className="flex gap-3">
           {activeTab === "exams" ? (
             <Link
               href="/tests/create"
-              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-md hover:bg-blue-700 transition shadow-sm text-sm"
+              className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-indigo-600/20 transition hover:bg-indigo-700"
             >
               <FaPlus /> Buat Tes Baru
             </Link>
@@ -206,16 +207,16 @@ export default function TestPage() {
 
       {/* Main Content */}
       {isLoading ? (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
-          <p className="text-gray-500 mt-4">Memuat data...</p>
+        <div className="rounded-2xl border border-slate-200 bg-white py-12 text-center shadow-sm">
+          <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-[3px] border-indigo-600 border-t-transparent"></div>
+          <p className="text-sm font-medium text-slate-500">Memuat data...</p>
         </div>
       ) : activeTab === "exams" ? (
         /* GRID EXAMS */
         tests.length === 0 ? (
           <EmptyState message="Belum ada ujian. Buat ujian baru untuk memulai." />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
             {tests.map((test) => (
               <TestCard
                 key={test.id}
@@ -229,7 +230,7 @@ export default function TestPage() {
         )
       ) : (
         /* TABLE POSITIONS - Menggunakan DataTable Component */
-        <div className="bg-white rounded-lg overflow-hidden shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
           <DataTable
             columns={positionColumns}
             data={positions}
@@ -296,8 +297,8 @@ export default function TestPage() {
 // Helper Component
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
-      <p className="text-gray-500">{message}</p>
+    <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
+      <p className="font-medium text-slate-500">{message}</p>
     </div>
   );
 }

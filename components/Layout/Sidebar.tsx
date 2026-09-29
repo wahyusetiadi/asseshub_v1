@@ -24,7 +24,7 @@ export default function Sidebar({
 
   return (
     <aside
-      className={clsx("flex h-screen flex-col sticky top-0 bg-white text-black", className)}
+      className={clsx("sticky top-0 flex h-screen flex-col border-r border-slate-200 bg-white text-slate-900", className)}
       style={{ width: w }}
       {...rest}
     >
@@ -35,7 +35,7 @@ export default function Sidebar({
         appName={appName}
       />
 
-      <nav className="flex-1 overflow-y-auto p-3">
+      <nav className="flex-1 overflow-y-auto p-3 pt-5">
         {groups.map((group) => (
           <SidebarGroupBlock
             key={group.key}
@@ -47,7 +47,7 @@ export default function Sidebar({
         ))}
       </nav>
 
-      {footer && <div className="border-t p-3">{footer}</div>}
+      {footer && <div className="border-t border-slate-200 p-3">{footer}</div>}
     </aside>
   );
 }

@@ -111,7 +111,7 @@ export default function CandidatesPage() {
   });
 
   return (
-    <div className="w-full space-y-6 max-w-full overflow-x-auto">
+    <div className="w-full max-w-full space-y-6 overflow-x-hidden">
       {/* SUCCESS TOAST */}
       {sentSuccess && (
         <div className="fixed top-5 right-5 z-50 flex items-center gap-2 rounded-xl bg-green-600 px-6 py-3 text-white shadow-2xl">
@@ -134,8 +134,9 @@ export default function CandidatesPage() {
       {/* HEADER */}
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between w-full max-w-full min-w-0">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Data Kandidat</h1>
-          <p className="text-sm text-gray-500">
+          <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-indigo-600">Manajemen pengguna</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Data Kandidat</h1>
+          <p className="mt-1 text-sm text-slate-500">
             Kelola akun dan akses ujian kandidat
           </p>
         </div>
@@ -151,7 +152,7 @@ export default function CandidatesPage() {
 
           <Link
             href="/candidates/import"
-            className="hidden md:flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-50"
+            className="hidden items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 md:flex"
           >
             <BiUpload size={18} />
             Import CSV
@@ -162,7 +163,7 @@ export default function CandidatesPage() {
       <CandidateStats candidates={candidates} />
 
       {/* TABLE WRAPPER (INI KUNCI) */}
-      <div className="rounded-lg bg-white shadow-sm overflow-x-auto max-w-full">
+      <div className="max-w-full overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
         <DataTable
           columns={columns}
           data={candidates}

@@ -23,26 +23,26 @@ export default function DataTable<T>({
 }: DataTableProps<T>) {
   if (isLoading) {
     return (
-      <div className="p-8 text-center text-gray-500">
-        <div className="mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+      <div className="p-10 text-center text-sm font-medium text-slate-500">
+        <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
         Loading...
       </div>
     );
   }
 
   if (!data.length) {
-    return <div className="p-8 text-center text-gray-500">{emptyMessage}</div>;
+    return <div className="p-10 text-center text-sm font-medium text-slate-500">{emptyMessage}</div>;
   }
 
   return (
     <div className="max-w-full overflow-x-auto">
       <table className="w-full text-left">
-        <thead className="bg-gray-50 border-b border-slate-300 text-gray-600 uppercase text-[11px] font-bold tracking-widest">
+        <thead className="border-b border-slate-200 bg-slate-50 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
           <tr>
             {columns.map((col) => (
               <th
                 key={String(col.key)}
-                className={`px-6 py-4 truncate whitespace-nowrap ${
+                className={`truncate whitespace-nowrap px-5 py-4 sm:px-6 ${
                   col.align === "center"
                     ? "text-center"
                     : col.align === "right"
@@ -56,16 +56,16 @@ export default function DataTable<T>({
           </tr>
         </thead>
 
-        <tbody className="divide-y divide-slate-200 text-sm text-gray-700">
+        <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
           {data.map((row, rowIndex) => (
             <tr
               key={rowIndex}
-              className="hover:bg-blue-50/50 transition"
+              className="transition hover:bg-indigo-50/40"
             >
               {columns.map((col) => (
                 <td
                   key={String(col.key)}
-                  className={`px-6 py-4 truncate whitespace-nowrap overflow-hidden ${
+                  className={`overflow-hidden truncate whitespace-nowrap px-5 py-4 sm:px-6 ${
                     col.align === "center"
                       ? "text-center"
                       : col.align === "right"

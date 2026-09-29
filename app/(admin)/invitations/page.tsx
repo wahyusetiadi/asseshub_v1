@@ -172,17 +172,18 @@ export default function InvitationsPage() {
       )}
 
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">
+      <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-6">
+        <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-indigo-600">Distribusi ujian</p>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
           Kirim Undangan Test
         </h1>
-        <p className="text-sm text-gray-500">
+        <p className="mt-1 text-sm text-slate-500">
           Kirim email undangan test ke kandidat yang dipilih
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-6">
+        <div className="space-y-5 lg:col-span-2">
           {/* Search Bar */}
           <SearchBar
             value={searchQuery}
@@ -201,7 +202,7 @@ export default function InvitationsPage() {
         </div>
 
         {/* Sidebar - Configuration */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="space-y-5 lg:col-span-1">
           {/* Invitation Configuration */}
           <InvitationConfig
             tests={tests}
